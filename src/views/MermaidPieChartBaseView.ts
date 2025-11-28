@@ -1,0 +1,94 @@
+import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
+import {MermaidPieViewId} from "../core/constants";
+import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+
+export class MermaidPieChartBaseView extends MermaidBaseViewBase {
+	readonly type = MermaidPieViewId;
+
+	static readonly RegistrationData: MermaidViewRegistrationData = {
+		id: MermaidPieViewId,
+		name: "Pie Chart",
+		icon: "pie-chart",
+		options: [
+			{
+				type: "text",
+				displayName: "Title",
+				key: "title",
+				default: "Title",
+			},
+			{
+				type: "property",
+				displayName: "Category property",
+				key: "categoryProperty",
+				placeholder: "e.g. tag or folder",
+			},
+			{
+				type: "property",
+				displayName: "Value property (optional, numeric)",
+				key: "valueProperty",
+				placeholder: "e.g. file size",
+			},
+			{
+				type: "toggle",
+				displayName: "Show values on labels",
+				key: "showDataLabel",
+				default: false,
+			},
+			{
+				type: "text",
+				displayName: "Mermaid config (optional)",
+				key: "mermaidConfig",
+				placeholder: `%%{init: { "theme": "dark" }}%%`,
+			},
+		],
+	};
+
+	protected async render(): Promise<void> {
+		const categoryPropertyId = this.config.getAsPropertyId("categoryProperty");
+		const valuePropertyId = this.config.getAsPropertyId("valueProperty");
+		const title = this.config.get("title") as string;
+		const showDataLabel = this.config.get("showDataLabel") as Boolean;
+
+		if (!categoryPropertyId) {
+			this.containerEl.createDiv({text: "Configure a category property in the view settings."});
+			return;
+		}
+
+		const categoryTotals = new Map<string, number>();
+
+		for (const group of this.data.groupedData) {
+			for (const entry of group.entries) {
+				const categoryValue = entry.getValue(categoryPropertyId);
+				if (categoryValue == null)
+					continue;
+
+				const label = categoryValue.toString();
+				if (!label)
+					continue;
+
+				let amount = 1;
+				if (valuePropertyId) {
+					const value = entry.getValue(valuePropertyId);
+					if (value != null) {
+						const number = Number(value.toString());
+						if (!Number.isNaN(number))
+							amount = number;
+					}
+				}
+
+				categoryTotals.set(label, (categoryTotals.get(label) ?? 0) + amount);
+			}
+		}
+
+		if (categoryTotals.size === 0) {
+			this.containerEl.createDiv({text: "No data to display for the current filter and configuration."});
+			return;
+		}
+
+		let mermaidCode = `pie ${showDataLabel ? "showData" : ""} title ${title}\n`;
+		for (const [label, amount] of categoryTotals)
+			mermaidCode += `    "${label}" : ${amount}\n`;
+
+		await this.renderMermaid(mermaidCode);
+	}
+}
