@@ -1,13 +1,13 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {MermaidXYViewId} from "../core/constants";
-import {BasesPropertyId, parsePropertyId} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {parsePropertyId} from "obsidian";
 
 export class MermaidXYChartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidXYViewId;
+	readonly type = MermaidXYChartBaseView.RegistrationData.id;
+	readonly registrationData = MermaidXYChartBaseView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
-		id: MermaidXYViewId,
+		id: "mermaid-xy-chart",
 		name: "XY Chart",
 		icon: "line-chart",
 		options: [
@@ -72,7 +72,7 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const yValuePropertyId = this.config.getAsPropertyId("yValueProperty");
 
-		const showPropertyNames = this.getConfigValue("showPropertyNames", true);//TODO: should be connected to default setting
+		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 
 		if (!yValuePropertyId) {
 			this.containerEl.createDiv({text: "Configure a numeric Y-axis value property in the view settings."});
@@ -80,8 +80,8 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 		}
 
 		const title = this.config.get("title") as string;
-		const yAxisLabel = this.getConfigValue("yAxisLabel", parsePropertyId(yValuePropertyId).name);
-		const chartType = this.getConfigValue<"bar" | "line" | "bar-and-line">("chartType", "bar");
+		const yAxisLabel = this.getConfigValue<string>("yAxisLabel", parsePropertyId(yValuePropertyId).name);
+		const chartType = this.getConfigValue<"bar" | "line" | "bar-and-line">("chartType");
 
 		const xLabels: string[] = [];
 		const yValues: number[] = [];

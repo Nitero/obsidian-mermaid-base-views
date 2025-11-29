@@ -1,12 +1,12 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {MermaidPieViewId} from "../core/constants";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 
 export class MermaidPieChartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidPieViewId;
+	readonly type = MermaidPieChartBaseView.RegistrationData.id;
+	readonly registrationData = MermaidPieChartBaseView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
-		id: MermaidPieViewId,
+		id: "mermaid-pie-chart",
 		name: "Pie Chart",
 		icon: "pie-chart",
 		options: [
@@ -46,8 +46,8 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const categoryPropertyId = this.config.getAsPropertyId("categoryProperty");
 		const valuePropertyId = this.config.getAsPropertyId("valueProperty");
-		const title = this.config.get("title") as string;
-		const showDataLabel = this.config.get("showDataLabel") as Boolean;
+		const title = this.getConfigValue<string>("title");
+		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
 
 		if (!categoryPropertyId) {
 			this.containerEl.createDiv({text: "Configure a category property in the view settings."});

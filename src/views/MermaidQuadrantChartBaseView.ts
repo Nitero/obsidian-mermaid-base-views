@@ -1,7 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {defaultGroupingPalette, MermaidQuadrantViewId} from "../core/constants";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
+import {defaultGroupingPalette} from "../core/constants";
 
 type Point = {
 	label: string;
@@ -11,10 +11,11 @@ type Point = {
 };
 
 export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidQuadrantViewId;
+	readonly type = MermaidQuadrantChartBaseView.RegistrationData.id;
+	readonly registrationData = MermaidQuadrantChartBaseView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
-		id: MermaidQuadrantViewId,
+		id: "mermaid-quadrant-chart",
 		name: "Quadrant Chart",
 		icon: "scatter-chart",
 		options: [
@@ -153,7 +154,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 		const xPropertyId = this.config.getAsPropertyId("xProperty");
 		const yPropertyId = this.config.getAsPropertyId("yProperty");
 
-		const showPropertyNames = this.getConfigValue("showPropertyNames", true);//TODO: should be connected to default setting
+		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 
 		if (!xPropertyId || !yPropertyId) {
 			this.containerEl.createDiv({text: "Configure numeric X and Y properties in the view settings."});

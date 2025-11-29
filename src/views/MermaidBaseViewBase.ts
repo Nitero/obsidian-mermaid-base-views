@@ -3,16 +3,18 @@ import {
 	BasesView,
 	QueryController,
 	MarkdownRenderer,
-	parsePropertyId,
-	Keymap, Menu, Notice,
+	Keymap, Menu, Notice, BaseOption,
 } from "obsidian";
+import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 
 export abstract class MermaidBaseViewBase extends BasesView {
 	protected containerEl: HTMLElement;
 
+	abstract registrationData: MermaidViewRegistrationData;
+
 	constructor(controller: QueryController, parentEl: HTMLElement) {
 		super(controller);
-		this.containerEl = parentEl.createDiv("base-mermaid-view");
+		this.containerEl = parentEl.createDiv("bases-mermaid-view-container");
 	}
 
 	public onDataUpdated(): void {
@@ -27,7 +29,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 	protected abstract render(): Promise<void>;
 
 	protected async renderMermaid(mermaidCode: string): Promise<void> {
-		const configBlock = this.getConfigValue("mermaidConfig", "");
+		const configBlock = this.getConfigValue<string>("mermaidConfig", "");
 
 		mermaidCode = mermaidCode.trim();
 		if (configBlock.length > 0)
@@ -176,7 +178,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 						label += newLine;
 
 					if (showPropertyNames && property != "file.name" && property != "file.basename")
-						label += `${parsePropertyId(property).name}${colon} `;
+						label += `${this.config.getDisplayName(property)}${colon} `;
 					label += value;
 				}
 
@@ -189,28 +191,42 @@ export abstract class MermaidBaseViewBase extends BasesView {
 		return file.basename;
 	};
 
-	protected getConfigValue<T>(key: string, defaultValue: T): T {
+	protected getConfigValue<T>(key: string, defaultValue?: T): T {
+		if(defaultValue === null || defaultValue === undefined)
+			defaultValue = this.getConfigDefaultValue<T>(key);
 		const rawValue = this.config.get(key);
 
 		if (rawValue === null || rawValue === undefined)
 			return defaultValue;
 
 		if (typeof defaultValue === "string") {
-			if (typeof rawValue !== "string")
-				return defaultValue;
-
-			const value = rawValue;
-			if (value.length === 0)
-				return defaultValue;
-			return (value as unknown) as T;
+			if (typeof rawValue === "string" && rawValue.length > 0)
+				return rawValue as unknown as T;
+			return defaultValue;
 		}
 
-		if (typeof defaultValue === "boolean")
-			return (typeof rawValue === "boolean" ? (rawValue as unknown) : defaultValue) as T;
+		if (typeof defaultValue === "boolean") {
+			if (typeof rawValue === "boolean")
+				return rawValue as unknown as T;
+			return defaultValue;
+		}
 
-		if (Array.isArray(defaultValue))
-			return (Array.isArray(rawValue) ? ((rawValue as unknown) as T) : defaultValue) as T;
+		if (Array.isArray(defaultValue)) {
+			if (Array.isArray(rawValue))
+				return rawValue as unknown as T;
+			return defaultValue;
+		}
 
-		return (rawValue as T) ?? defaultValue;
+		return rawValue as T;
+	}
+
+	private getConfigDefaultValue<T>(key: string): T {
+		const options = this.registrationData.options
+			.find(option => (option as { key: string }).key === key) as { default?: T } | undefined;
+
+		if (!options || options.default === undefined)
+			throw new Error(`No default configured for key "${key}".`);
+
+		return options.default;
 	}
 }

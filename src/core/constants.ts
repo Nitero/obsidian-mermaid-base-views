@@ -1,12 +1,5 @@
-export const MermaidPieViewId = "mermaid-pie-chart";
-export const MermaidXYViewId = "mermaid-xy-chart";
-export const MermaidQuadrantViewId = "mermaid-quadrant-chart";
-export const MermaidRadarViewId = "mermaid-radar";
-export const MermaidTimelineViewId = "mermaid-timeline";
-export const MermaidFlowchartViewId = "mermaid-flowchart";
-export const MermaidMindmapViewId = "mermaid-mindmap";
-export const MermaidSankeyViewId = "mermaid-sankey";
 
+//TODO: move to global settings
 export const defaultGroupingPalette = [
 	"#4c78a8",
 	"#f58518",

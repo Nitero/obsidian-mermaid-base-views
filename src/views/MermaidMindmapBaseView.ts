@@ -1,5 +1,4 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {MermaidMindmapViewId} from "../core/constants";
 import {MetadataCache, TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {indent} from "../core/utils";
@@ -14,10 +13,11 @@ interface MindmapRenderContext {
 }
 
 export class MermaidMindmapBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidMindmapViewId;
+	readonly type = MermaidMindmapBaseView.RegistrationData.id;
+	readonly registrationData = MermaidMindmapBaseView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
-		id: MermaidMindmapViewId,
+		id: "mermaid-mindmap",
 		name: "Mindmap",
 		icon: "brain",
 		options: [
@@ -43,9 +43,9 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 	};
 
 	protected async render(): Promise<void> {
-		const rootLabel = this.getConfigValue("rootLabel", "Mindmap");
+		const rootLabel = this.getConfigValue<string>("rootLabel");
 
-		const showPropertyNames = this.getConfigValue("showPropertyNames", true);//TODO: should be connected to default setting
+		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 
 		const metadataCache = this.app.metadataCache;
 

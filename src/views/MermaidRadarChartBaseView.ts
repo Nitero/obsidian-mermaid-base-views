@@ -1,5 +1,4 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {MermaidRadarViewId} from "../core/constants";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId, parsePropertyId} from "obsidian";
 
@@ -16,10 +15,11 @@ type Axis = {
 };
 
 export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidRadarViewId;
+	readonly type = MermaidRadarChartBaseView.RegistrationData.id;
+	readonly registrationData = MermaidRadarChartBaseView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
-		id: MermaidRadarViewId,
+		id: "mermaid-radar",
 		name: "Radar Chart",
 		icon: "radar",//radius
 		options: [
@@ -64,13 +64,13 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 		let minValue = 0;
 		let maxValue = 100;
 
-		const minConfig = this.getConfigValue("min", "");
+		const minConfig = this.getConfigValue<string>("min");
 		if(minConfig){
 			const minConfigNumber = Number(minConfig);
 			if (Number.isFinite(minConfigNumber))
 				minValue = minConfigNumber;
 		}
-		const maxConfig = this.getConfigValue("max", "");
+		const maxConfig = this.getConfigValue<string>("max");
 		if(maxConfig){
 			const maxConfigNumber = Number(maxConfig);
 			if (Number.isFinite(maxConfigNumber))

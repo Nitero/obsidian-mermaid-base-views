@@ -1,5 +1,4 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {MermaidTimelineViewId} from "../core/constants";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId} from "obsidian";
 
@@ -13,10 +12,11 @@ type Group = {
 };
 
 export class MermaidTimelineBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidTimelineViewId;
+	readonly type = MermaidTimelineBaseView.RegistrationData.id;
+	readonly registrationData = MermaidTimelineBaseView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
-		id: MermaidTimelineViewId,
+		id: "mermaid-timeline",
 		name: "Timeline",
 		icon: "chart-no-axes-gantt",
 		options: [
@@ -64,7 +64,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const timePropertyId = this.config.getAsPropertyId("timeProperty");
 
-		const showPropertyNames = this.getConfigValue("showPropertyNames", true);//TODO: should be connected to default setting
+		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 
 		if (!timePropertyId) {
 			this.containerEl.createDiv({text: "Configure a time property in the view settings."});
@@ -73,7 +73,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 
 		const title = this.config.get("title") as string;
 
-		const granularity = this.getConfigValue<TimeGranularity>("cutoff", "day");//TODO: should be connected to default setting
+		const granularity = this.getConfigValue<TimeGranularity>("cutoff");
 
 		const sortedGroups = this.generateGroups(timePropertyId, showPropertyNames, granularity);
 

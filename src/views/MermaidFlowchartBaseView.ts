@@ -1,5 +1,4 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {MermaidFlowchartViewId} from "../core/constants";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {MetadataCache, TFile} from "obsidian";
 
@@ -21,10 +20,11 @@ interface FlowchartRenderContext {
 }
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidFlowchartViewId;
+	readonly type = MermaidFlowchartBaseView.RegistrationData.id;
+	readonly registrationData = MermaidFlowchartBaseView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
-		id: MermaidFlowchartViewId,
+		id: "mermaid-flowchart",
 		name: "Flowchart",
 		icon: "git-fork",//waypoints//workflow//share-2
 		options: [
@@ -64,10 +64,10 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 	};
 
 	protected async render(): Promise<void> {
-		const title = this.config.get("title") as string;
-		const direction = this.getConfigValue("direction", "TB");//TODO: should be connected to default setting
+		const title = this.getConfigValue<string>("title");
+		const direction = this.getConfigValue<string>("direction");
 		const nodeLabelContent = (this.config.get("nodeLabelContent") as string) ?? "named-links";
-		const showPropertyNames = this.getConfigValue("showPropertyNames", true);//TODO: should be connected to default setting
+		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 
 		const ctx: FlowchartRenderContext = {
 			fileToNodeId: new Map<string, string>(),
@@ -198,8 +198,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const lines: string[] = [];
 
 		lines.push(`flowchart ${direction}`);
-		if (title.trim().length > 0)
-			lines.push(`    %% ${title.trim()}`);
+		if (title?.length > 0)
+			lines.push(`    %% ${title}`);
 
 		if (hasGroupingConfigured) {
 			for (let groupIndex = 0; groupIndex < this.data.groupedData.length; groupIndex++) {
