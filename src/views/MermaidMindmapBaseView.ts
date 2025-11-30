@@ -35,9 +35,9 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid config (optional)",
-				key: "mermaidConfig",
-				placeholder: `%%{init: { "theme": "dark" }}%%`,
+				displayName: "Mermaid Config Override Directive (optional)",
+				key: "mermaidConfigOverrideDirective",
+				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 			},
 		],
 	};
@@ -78,7 +78,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 		}
 
 		const mermaidCode = this.buildMermaidCode(rootLabel, filesByPaths, fileToNodeIdsToLabels, pathToOutgoingLinks, showPropertyNames, roots);
-		await this.renderMermaid(mermaidCode);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.mindmapMermaidConfig);
 	}
 
 	private buildMermaidCode(rootLabel: string, filesByPaths: Map<string, TFile>, fileToNodeIdsToLabels: Map<string, string>, pathToOutgoingLinks: Map<string, Set<string>>, showPropertyNames: boolean, roots: string[]): string {

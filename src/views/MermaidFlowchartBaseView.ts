@@ -56,9 +56,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid config (optional)",
-				key: "mermaidConfig",
-				placeholder: `%%{init: { "theme": "dark" }}%%`,
+				displayName: "Mermaid Config Override Directive (optional)",
+				key: "mermaidConfigOverrideDirective",
+				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 			},
 		],
 	};
@@ -90,7 +90,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const hasGroupingConfigured = this.data.groupedData.length !== 1;
 		const mermaidCode = this.buildMermaidCode(direction, title, ctx, hasGroupingConfigured);
 
-		await this.renderMermaid(mermaidCode);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.flowchartMermaidConfig);
 	}
 
 	private collectNodesAndEdges(

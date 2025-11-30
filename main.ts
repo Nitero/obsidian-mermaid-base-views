@@ -1,23 +1,19 @@
-import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
-import { registerAllMermaidViews } from "src/core/view-registration";
-
-interface MermaidBaseViewsSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MermaidBaseViewsSettings = {
-	mySetting: "default"
-}
+import {Plugin} from "obsidian";
+import {registerAllMermaidViews} from "src/core/view-registration";
+import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "src/settings/mermaidBaseViewsSettings";
+import {GeneralSettingTab} from "./src/settings/generalSettingTab";
+import {MermaidBaseViewBase} from "./src/views/MermaidBaseViewBase";
 
 export default class MermaidBaseViews extends Plugin {
 	settings: MermaidBaseViewsSettings;
 
+	private mermaidViews = new Set<MermaidBaseViewBase>();
+
 	async onload() {
 		await this.loadSettings();
+		this.addSettingTab(new GeneralSettingTab(this.app, this));
 
 		registerAllMermaidViews(this);
-
-		this.addSettingTab(new GeneralSettingTab(this.app, this));
 	}
 
 	onunload() {
@@ -30,31 +26,16 @@ export default class MermaidBaseViews extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
 
-class GeneralSettingTab extends PluginSettingTab {
-	plugin: MermaidBaseViews;
-
-	constructor(app: App, plugin: MermaidBaseViews) {
-		super(app, plugin);
-		this.plugin = plugin;
+		for (const view of this.mermaidViews)
+			view.onDataUpdated();
 	}
 
-	display(): void {
-		const {containerEl} = this;
+	registerMermaidView(view: MermaidBaseViewBase) {
+		this.mermaidViews.add(view);
 
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It\"s a secret")
-			.addText(text => text
-				.setPlaceholder("Enter your secret")
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+		view.register(() => {
+			this.mermaidViews.delete(view);
+		});
 	}
 }

@@ -1,7 +1,6 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
-import {defaultGroupingPalette} from "../core/constants";
 
 type Point = {
 	label: string;
@@ -136,15 +135,14 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "multitext",
-				displayName: "Grouping palette",
+				displayName: `Grouping palette (hex colors e.g. "#ff0000")`,
 				key: "groupingPalette",
-				default: defaultGroupingPalette,
 			},
 			{
 				type: "text",
-				displayName: "Mermaid config (optional)",
-				key: "mermaidConfig",
-				placeholder: `%%{init: { "theme": "dark" }}%%`,
+				displayName: "Mermaid Config Override Directive (optional)",
+				key: "mermaidConfigOverrideDirective",
+				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 			},
 		],
 	};
@@ -161,17 +159,17 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
-		const rawPalette = this.config.get("groupingPalette") as string;
+		const rawPalette = this.getConfigValue<string[]>("groupingPalette", this.plugin.settings.defaultGroupingPalette);
 
 		const palette =
 			Array.isArray(rawPalette)
 				? rawPalette
 					.map((v) => v?.toString().trim())
 					.filter((v) => v && v.length > 0)
-				: defaultGroupingPalette;
+				: this.plugin.settings.defaultGroupingPalette;
 
 		if (!Array.isArray(rawPalette) || palette.length === 0)
-			palette.splice(0, palette.length, ...defaultGroupingPalette);
+			palette.splice(0, palette.length, ...this.plugin.settings.defaultGroupingPalette);
 
 		const groups = this.data.groupedData;
 		const groupingEnabled = groups.length > 1 || (groups.length === 1 && groups[0].key !== undefined);
@@ -205,8 +203,9 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 
 		const mermaidCode = this.buildMermaidCode(normalizedPoints);
 
-		await this.renderMermaid(mermaidCode);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.quadrantChartMermaidConfig);
 	}
+
 	private collectPointsFromGroups(
 		groups: BasesEntryGroup[],
 		xPropertyId: BasesPropertyId,
@@ -267,7 +266,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 		maxX: number,
 		minY: number,
 		maxY: number,
-	): {minX: number; maxX: number; minY: number; maxY: number} {
+	): { minX: number; maxX: number; minY: number; maxY: number } {
 
 		const minXConfigOverride = this.config.get("xMin");
 		const maxXConfigOverride = this.config.get("xMax");

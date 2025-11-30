@@ -18,9 +18,9 @@ export class MermaidSankeyBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid config (optional)",
-				key: "mermaidConfig",
-				placeholder: `%%{init: { "theme": "dark" }}%%`,
+				displayName: "Mermaid Config Override Directive (optional)",
+				key: "mermaidConfigOverrideDirective",
+				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 			},
 		],
 	};
@@ -99,7 +99,7 @@ export class MermaidSankeyBaseView extends MermaidBaseViewBase {
 			lines.push(`${resolvedFlow.source},${resolvedFlow.target},${resolvedFlow.value}`);
 
 		const mermaidCode = lines.join("\n");
-		await this.renderMermaid(mermaidCode);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.sankeyMermaidConfig);
 	}
 
 	private resolvePropertyIdFromUserInput(input: string): BasesPropertyId | null {

@@ -9,8 +9,9 @@ import {MermaidSankeyBaseView} from "../views/MermaidSankeyBaseView";
 import { MermaidPieChartBaseView } from "../views/MermaidPieChartBaseView";
 import { MermaidXYChartBaseView } from "../views/MermaidXYChartBaseView";
 import {MermaidQuadrantChartBaseView} from "../views/MermaidQuadrantChartBaseView";
+import MermaidBaseViews from "../../main";
 
-export function registerAllMermaidViews(plugin: Plugin): void {
+export function registerAllMermaidViews(plugin: MermaidBaseViews): void {
 	registerMermaidView(plugin, MermaidFlowchartBaseView, MermaidFlowchartBaseView.RegistrationData);
 	registerMermaidView(plugin, MermaidMindmapBaseView, MermaidMindmapBaseView.RegistrationData);
 	registerMermaidView(plugin, MermaidTimelineBaseView, MermaidTimelineBaseView.RegistrationData);
@@ -22,15 +23,15 @@ export function registerAllMermaidViews(plugin: Plugin): void {
 }
 
 export function registerMermaidView(
-	plugin: Plugin,
-	View: new (controller: QueryController, containerEl: HTMLElement) => MermaidBaseViewBase,
+	plugin: MermaidBaseViews,
+	View: new (controller: QueryController, containerEl: HTMLElement, plugin: MermaidBaseViews) => MermaidBaseViewBase,
 	registrationData: MermaidViewRegistrationData,
 ): void {
 	plugin.registerBasesView(registrationData.id, {
 		name: registrationData.name,
 		icon: registrationData.icon,
 		factory: (controller, containerEl) =>
-			new View(controller, containerEl),
+			new View(controller, containerEl, plugin),
 		options: () => registrationData.options,
 	});
 }

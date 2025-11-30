@@ -54,9 +54,9 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid config (optional)",
-				key: "mermaidConfig",
-				placeholder: `%%{init: { "theme": "dark" }}%%`,
+				displayName: "Mermaid Config Override Directive (optional)",
+				key: "mermaidConfigOverrideDirective",
+				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 			},
 		],
 	};
@@ -83,7 +83,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 		}
 
 		const mermaidCode = this.buildMermaidCode(title, sortedGroups);
-		await this.renderMermaid(mermaidCode);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.timelineMermaidConfig);
 	}
 
 	private generateGroups(

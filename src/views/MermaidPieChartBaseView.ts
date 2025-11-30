@@ -36,9 +36,9 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid config (optional)",
-				key: "mermaidConfig",
-				placeholder: `%%{init: { "theme": "dark" }}%%`,
+				displayName: "Mermaid Config Override Directive (optional)",
+				key: "mermaidConfigOverrideDirective",
+				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 			},
 		],
 	};
@@ -89,6 +89,6 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 		for (const [label, amount] of categoryTotals)
 			mermaidCode += `    "${label}" : ${amount}\n`;
 
-		await this.renderMermaid(mermaidCode);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.pieChartMermaidConfig);
 	}
 }

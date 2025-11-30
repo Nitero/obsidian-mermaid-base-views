@@ -3,18 +3,22 @@ import {
 	BasesView,
 	QueryController,
 	MarkdownRenderer,
-	Keymap, Menu, Notice, BaseOption,
+	Keymap, Menu, Notice,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import MermaidBaseViews from "../../main";
 
 export abstract class MermaidBaseViewBase extends BasesView {
+	protected plugin: MermaidBaseViews;
 	protected containerEl: HTMLElement;
 
 	abstract registrationData: MermaidViewRegistrationData;
 
-	constructor(controller: QueryController, parentEl: HTMLElement) {
+	constructor(controller: QueryController, parentEl: HTMLElement, plugin: MermaidBaseViews) {
 		super(controller);
+		this.plugin = plugin;
 		this.containerEl = parentEl.createDiv("bases-mermaid-view-container");
+		plugin.registerMermaidView(this);
 	}
 
 	public onDataUpdated(): void {
@@ -28,8 +32,9 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 	protected abstract render(): Promise<void>;
 
-	protected async renderMermaid(mermaidCode: string): Promise<void> {
-		const configBlock = this.getConfigValue<string>("mermaidConfig", "");
+	protected async renderMermaid(mermaidCode: string, viewTypeMermaidConfig: string): Promise<void> {
+		const usesSettingOverride = viewTypeMermaidConfig && viewTypeMermaidConfig.length > 0;
+		const configBlock = this.getConfigValue<string>("mermaidConfigOverrideDirective", `---\n${usesSettingOverride ? viewTypeMermaidConfig : this.plugin.settings.generalMermaidConfig}\n---`);
 
 		mermaidCode = mermaidCode.trim();
 		if (configBlock.length > 0)
@@ -200,8 +205,9 @@ export abstract class MermaidBaseViewBase extends BasesView {
 			return defaultValue;
 
 		if (typeof defaultValue === "string") {
-			if (typeof rawValue === "string" && rawValue.length > 0)
-				return rawValue as unknown as T;
+			const value = rawValue as String;
+			if (value.length > 0)
+				return rawValue as T;
 			return defaultValue;
 		}
 
