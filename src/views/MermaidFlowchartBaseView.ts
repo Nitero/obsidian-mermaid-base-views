@@ -1,6 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import {MetadataCache, TFile} from "obsidian";
+import {TFile} from "obsidian";
+import MermaidBaseViews from "../../main";
 
 type Edge = {
 	from: string;
@@ -27,10 +28,10 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		id: "mermaid-flowchart",
 		name: "Flowchart",
 		icon: "git-fork",//waypoints//workflow//share-2
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Flowchart title (optional)",
+				displayName: "Title",
 				key: "title",
 				default: "Title",
 			},
@@ -39,14 +40,14 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				displayName: "Direction",
 				key: "direction",
 				default: "TB",
-				options: {"TB": "Top to bottom", "BT": "Bottom to top", "LR": "Left to right", "RL": "Right to left"},
+				options: {"TB": "Top to bottom", "BT": "Bottom to top", "LR": "Left to right", "RL": "Right to left"} as Record<string, string>,
 			},
 			{
 				type: "dropdown",
 				displayName: "Node Label Content",
 				key: "nodeLabelContent",
 				default: "named-links",
-				options: {"named-links": "Note Names (Linked)", "properties": "Selected Properties"},
+				options: {"named-links": "Note Names (Clickable Links)", "properties": "Selected Properties"} as Record<string, string>,
 			},
 			{
 				type: "toggle",
@@ -84,6 +85,11 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 
 		if (ctx.fileToNodeId.size === 0) {
 			this.containerEl.createDiv({text: "No notes found for this base to build a flowchart from."});
+			return;
+		}
+
+		if (ctx.fileToNodeId.size > this.plugin.settings.flowchartResultLimit) {
+			this.containerEl.createDiv({text: `Exceeded result limit (${this.plugin.settings.flowchartResultLimit}). This can be increased in the settings, but may impact performance.`});
 			return;
 		}
 

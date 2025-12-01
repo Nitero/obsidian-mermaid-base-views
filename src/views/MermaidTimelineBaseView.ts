@@ -1,11 +1,12 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId} from "obsidian";
+import MermaidBaseViews from "../../main";
+import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 
 type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
 
 type Group = {
-	key: string;
 	label: string;
 	date: Date;
 	events: string[];
@@ -19,7 +20,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 		id: "mermaid-timeline",
 		name: "Timeline",
 		icon: "chart-no-axes-gantt",
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
 				displayName: "Title",
@@ -28,9 +29,10 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "property",
-				displayName: "Time property (date / time)",
+				displayName: "Date / Time property",
 				key: "timeProperty",
 				placeholder: "e.g. created or modified",
+				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Date),
 			},
 			{
 				type: "dropdown",
@@ -82,6 +84,11 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
+		if (sortedGroups.length > this.plugin.settings.timelineResultLimit) {
+			this.containerEl.createDiv({text: `Exceeded result limit (${this.plugin.settings.timelineResultLimit}). This can be increased in the settings, but may impact performance.`});
+			return;
+		}
+
 		const mermaidCode = this.buildMermaidCode(title, sortedGroups);
 		await this.renderMermaid(mermaidCode, this.plugin.settings.timelineMermaidConfig);
 	}
@@ -107,14 +114,14 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 				if (Number.isNaN(date.getTime()))
 					continue;
 
-				const {key, label, truncatedDate} = this.truncateAndFormatDate(date, granularity);
+				const {label, truncatedDate} = this.truncateAndFormatDate(date, granularity);
 
 				const eventLabel = this.getLabelWithProperties(entry.file, showPropertyNames, "<br>", "ː");
 
-				let g = groups.get(key);
+				let g = groups.get(label);
 				if (!g) {
-					g = {key, label, date: truncatedDate, events: []};
-					groups.set(key, g);
+					g = {label, date: truncatedDate, events: []};
+					groups.set(label, g);
 				}
 				g.events.push(eventLabel);
 			}
@@ -147,7 +154,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 	private truncateAndFormatDate(
 		date: Date,
 		granularity: TimeGranularity,
-	): { key: string; label: string; truncatedDate: Date } {
+	): { label: string; truncatedDate: Date } {
 		const year = date.getFullYear();
 		const month = date.getMonth();
 		const day = date.getDate();
@@ -155,41 +162,41 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 		const minute = date.getMinutes();
 		const second = date.getSeconds();
 
-		let truncated: Date;
+		let truncatedDate: Date;
 		let label: string;
 
 		switch (granularity) {
 			case "year":
-				truncated = new Date(year, 0, 1, 0, 0, 0, 0);
+				truncatedDate = new Date(year, 0, 1, 0, 0, 0, 0);
 				label = `${year}`;
 				break;
 
 			case "month":
-				truncated = new Date(year, month, 1, 0, 0, 0, 0);
+				truncatedDate = new Date(year, month, 1, 0, 0, 0, 0);
 				label = `${year}-${month + 1}`;
 				break;
 
 			case "day":
-				truncated = new Date(year, month, day, 0, 0, 0, 0);
+				truncatedDate = new Date(year, month, day, 0, 0, 0, 0);
 				label = `${year}-${month + 1}-${day}`;
 				break;
 
 			case "hour":
-				truncated = new Date(year, month, day, hour, 0, 0, 0);
+				truncatedDate = new Date(year, month, day, hour, 0, 0, 0);
 				label = `${year}-${month + 1}-${day} ${hour}h`;
 				break;
 
 			case "minute":
-				truncated = new Date(year, month, day, hour, minute, 0, 0);
+				truncatedDate = new Date(year, month, day, hour, minute, 0, 0);
 				label = `${year}-${month + 1}-${day} ${hour}h${minute}`;
 				break;
 
 			case "second":
-				truncated = new Date(year, month, day, hour, minute, second, 0);
+				truncatedDate = new Date(year, month, day, hour, minute, second, 0);
 				label = `${year}-${month + 1}-${day} ${hour}h${minute}m${second}s`;
 				break;
 		}
 
-		return {key: label, label, truncatedDate: truncated};
+		return {label, truncatedDate};
 	}
 }

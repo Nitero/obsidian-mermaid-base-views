@@ -1,6 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId, parsePropertyId} from "obsidian";
+import MermaidBaseViews from "../../main";
 
 
 type Curve = {
@@ -22,7 +23,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 		id: "mermaid-radar",
 		name: "Radar Chart",
 		icon: "radar",//radius
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
 				displayName: "Chart title",

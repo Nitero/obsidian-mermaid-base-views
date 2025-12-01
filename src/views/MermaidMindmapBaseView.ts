@@ -2,6 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MetadataCache, TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {indent} from "../core/utils";
+import MermaidBaseViews from "../../main";
 
 interface MindmapRenderContext {
 	visited: Set<string>;
@@ -20,7 +21,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 		id: "mermaid-mindmap",
 		name: "Mindmap",
 		icon: "brain",
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
 				displayName: "Central node label",
@@ -59,6 +60,11 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 
 		if (filesByPaths.size === 0) {
 			this.containerEl.createDiv({text: "No files found in this base."});
+			return;
+		}
+
+		if (filesByPaths.size > this.plugin.settings.mindmapResultLimit) {
+			this.containerEl.createDiv({text: `Exceeded result limit (${this.plugin.settings.mindmapResultLimit}). This can be increased in the settings, but may impact performance.`});
 			return;
 		}
 
@@ -130,39 +136,38 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 		const pathToOutgoingLinks = new Map<string, Set<string>>();
 		const pathIndegrees = new Map<string, number>();
 
-		for (const path of filesByPaths.keys())
+		const basePaths = new Set<string>();
+		for (const path of filesByPaths.keys()) {
+			basePaths.add(path);
 			pathIndegrees.set(path, 0);
+		}
 
-		for (const [path, file] of filesByPaths.entries()) {
-			const fileCache = metadataCache.getFileCache(file);
-			const links = fileCache?.links ?? [];
-			const embeds = fileCache?.embeds ?? [];
-			const allLinks = [...links, ...embeds];
+		const resolvedLinks = metadataCache.resolvedLinks as Record<string, Record<string, number>>;
 
-			for (const link of allLinks) {
-				const target = metadataCache.getFirstLinkpathDest(link.link, file.path);
-				if (!target)
+		for (const fromPath in resolvedLinks) {
+			if (!basePaths.has(fromPath))
+				continue;
+
+			const targets = resolvedLinks[fromPath];
+			let outgoing = pathToOutgoingLinks.get(fromPath);
+			for (const toPath in targets) {
+				if (!basePaths.has(toPath))
 					continue;
-				if (!filesByPaths.has(target.path))
+				if (toPath === fromPath)
 					continue;
 
-				if (target.path === path)
-					continue;
-
-				let set = pathToOutgoingLinks.get(path);
-				if (!set) {
-					set = new Set<string>();
-					pathToOutgoingLinks.set(path, set);
+				if (!outgoing) {
+					outgoing = new Set<string>();
+					pathToOutgoingLinks.set(fromPath, outgoing);
 				}
-				if (!set.has(target.path)) {
-					set.add(target.path);
-					pathIndegrees.set(
-						target.path,
-						(pathIndegrees.get(target.path) ?? 0) + 1,
-					);
+
+				if (!outgoing.has(toPath)) {
+					outgoing.add(toPath);
+					pathIndegrees.set(toPath, (pathIndegrees.get(toPath) ?? 0) + 1);
 				}
 			}
 		}
-		return {pathToOutgoingLinks: pathToOutgoingLinks, pathIndegrees: pathIndegrees};
+
+		return { pathToOutgoingLinks, pathIndegrees };
 	}
 }

@@ -1,5 +1,6 @@
 import {Plugin} from "obsidian";
 import {registerAllMermaidViews} from "src/core/view-registration";
+import { PropertyTypeRegistry } from "src/propertyTypes/PropertyTypeRegistry";
 import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "src/settings/mermaidBaseViewsSettings";
 import {GeneralSettingTab} from "./src/settings/generalSettingTab";
 import {MermaidBaseViewBase} from "./src/views/MermaidBaseViewBase";
@@ -8,11 +9,13 @@ export default class MermaidBaseViews extends Plugin {
 	settings: MermaidBaseViewsSettings;
 
 	private mermaidViews = new Set<MermaidBaseViewBase>();
+	propertyTypes: PropertyTypeRegistry;
 
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new GeneralSettingTab(this.app, this));
 
+		this.propertyTypes = new PropertyTypeRegistry(this.app);
 		registerAllMermaidViews(this);
 	}
 

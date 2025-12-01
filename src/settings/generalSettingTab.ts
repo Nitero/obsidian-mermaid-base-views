@@ -44,6 +44,17 @@ export class GeneralSettingTab extends PluginSettingTab {
 			DEFAULT_SETTINGS.flowchartMermaidConfig
 		);
 
+		this.addEntryLimitConfigSetting(
+			containerEl,
+			"Result Limit",
+			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
+			() => this.plugin.settings.flowchartResultLimit,
+			value => {
+				this.plugin.settings.flowchartResultLimit = value
+			},
+			DEFAULT_SETTINGS.flowchartResultLimit
+		);
+
 
 		new Setting(containerEl).setName("Mindmap").setHeading();
 
@@ -58,6 +69,17 @@ export class GeneralSettingTab extends PluginSettingTab {
 			DEFAULT_SETTINGS.mindmapMermaidConfig
 		);
 
+		this.addEntryLimitConfigSetting(
+			containerEl,
+			"Result Limit",
+			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
+			() => this.plugin.settings.mindmapResultLimit,
+			value => {
+				this.plugin.settings.mindmapResultLimit = value
+			},
+			DEFAULT_SETTINGS.mindmapResultLimit
+		);
+
 
 		new Setting(containerEl).setName("Timeline").setHeading();
 
@@ -70,6 +92,17 @@ export class GeneralSettingTab extends PluginSettingTab {
 				this.plugin.settings.timelineMermaidConfig = value
 			},
 			DEFAULT_SETTINGS.timelineMermaidConfig
+		);
+
+		this.addEntryLimitConfigSetting(
+			containerEl,
+			"Result Limit",
+			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
+			() => this.plugin.settings.timelineResultLimit,
+			value => {
+				this.plugin.settings.timelineResultLimit = value
+			},
+			DEFAULT_SETTINGS.timelineResultLimit
 		);
 
 
@@ -140,24 +173,53 @@ export class GeneralSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName(name)
 			.setDesc(description)
-			.addTextArea((text) =>
-				text
-					.setPlaceholder(`config:\n  theme: 'forest'`)
-					.setValue(getConfigValue())
-					.onChange(async (value) => {
-						await setConfigValue(value);
-						await this.plugin.saveSettings();
-					})
+			.addTextArea(text => text
+				.setPlaceholder(`config:\n  theme: 'forest'`)
+				.setValue(getConfigValue())
+				.onChange(async (value) => {
+					await setConfigValue(value);
+					await this.plugin.saveSettings();
+				})
 			)
-			.addExtraButton((button) =>
-				button
-					.setIcon("reset")
-					.setTooltip("Reset to default")
-					.onClick(async () => {
-						await setConfigValue(configDefaultValue);
-						await this.plugin.saveSettings();
-						this.display();
-					})
+			.addExtraButton(button => button
+				.setIcon("reset")
+				.setTooltip("Reset to default")
+				.onClick(async () => {
+					await setConfigValue(configDefaultValue);
+					await this.plugin.saveSettings();
+					this.display();
+				})
+			);
+	}
+
+	private addEntryLimitConfigSetting(
+		containerEl: HTMLElement,
+		name: string,
+		description: string,
+		getConfigValue: () => number,
+		setConfigValue: (value: number) => void | Promise<void>,
+		configDefaultValue: number
+	) {
+		new Setting(containerEl)
+			.setName(name)
+			.setDesc(description)
+			.addSlider(slider => slider
+				.setDynamicTooltip()
+				.setLimits(50, 1000, 50)
+				.setValue(getConfigValue())
+				.onChange(async (value) => {
+					await setConfigValue(value);
+					await this.plugin.saveSettings();
+				})
+			)
+			.addExtraButton((button) => button
+				.setIcon("reset")
+				.setTooltip("Reset to default")
+				.onClick(async () => {
+					await setConfigValue(configDefaultValue);
+					await this.plugin.saveSettings();
+					this.display();
+				})
 			);
 	}
 
@@ -172,14 +234,14 @@ export class GeneralSettingTab extends PluginSettingTab {
 		const bodyElement = section.createDiv();
 
 		header.addExtraButton(button => button
-				.setIcon("reset")
-				.setTooltip("Reset to default")
-				.onClick(async () => {
-					this.plugin.settings.defaultGroupingPalette = [...DEFAULT_SETTINGS.defaultGroupingPalette];
-					await this.plugin.saveSettings();
-					this.display();
-				})
-			)
+			.setIcon("reset")
+			.setTooltip("Reset to default")
+			.onClick(async () => {
+				this.plugin.settings.defaultGroupingPalette = [...DEFAULT_SETTINGS.defaultGroupingPalette];
+				await this.plugin.saveSettings();
+				this.display();
+			})
+		)
 			.addExtraButton(button => {
 				const setIconForState = () => {
 					button.setIcon(this.paletteCollapsed ? "chevron-right" : "chevron-down");

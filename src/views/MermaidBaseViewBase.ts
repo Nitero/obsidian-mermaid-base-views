@@ -3,7 +3,7 @@ import {
 	BasesView,
 	QueryController,
 	MarkdownRenderer,
-	Keymap, Menu, Notice,
+	Keymap, Menu, Notice, Value,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../../main";
@@ -23,6 +23,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 	public onDataUpdated(): void {
 		this.containerEl.empty();
+		this.plugin.propertyTypes.update(this);
 		this.render().catch((error) => {
 			console.error("Failed to render Mermaid", error);
 			this.containerEl.empty();
@@ -227,7 +228,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 	}
 
 	private getConfigDefaultValue<T>(key: string): T {
-		const options = this.registrationData.options
+		const options = this.registrationData.getOptions(this.plugin)
 			.find(option => (option as { key: string }).key === key) as { default?: T } | undefined;
 
 		if (!options || options.default === undefined)

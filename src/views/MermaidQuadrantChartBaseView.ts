@@ -1,6 +1,8 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
+import MermaidBaseViews from "../../main";
+import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 
 type Point = {
 	label: string;
@@ -17,7 +19,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 		id: "mermaid-quadrant-chart",
 		name: "Quadrant Chart",
 		icon: "scatter-chart",
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
 				displayName: "Title",
@@ -27,15 +29,17 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 
 			{
 				type: "property",
-				displayName: "X coordinate property (numeric)",
+				displayName: "X coordinate property",
 				key: "xProperty",
 				placeholder: "e.g. importance",
+				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
 			},
 			{
 				type: "property",
-				displayName: "Y coordinate property (numeric)",
+				displayName: "Y coordinate property",
 				key: "yProperty",
 				placeholder: "e.g. urgency",
+				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
 			},
 
 			{
@@ -98,31 +102,27 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 				items: [
 					{
 						type: "text",
-						displayName: "X-min (optional)",
+						displayName: "X-minimum (optional)",
 						key: "xMin",
-						placeholder: "defaults to automatic from data",
-						default: "0",
+						placeholder: "number (defaults to automatic from data)",
 					},
 					{
 						type: "text",
-						displayName: "X-max (optional)",
+						displayName: "X-maximum (optional)",
 						key: "xMax",
-						placeholder: "defaults to automatic from data",
-						default: "1",
+						placeholder: "number (defaults to automatic from data)",
 					},
 					{
 						type: "text",
-						displayName: "Y-min (optional)",
+						displayName: "Y-minimum (optional)",
 						key: "yMin",
-						placeholder: "defaults to automatic from data",
-						default: "0",
+						placeholder: "number (defaults to automatic from data)",
 					},
 					{
 						type: "text",
-						displayName: "Y-max (optional)",
+						displayName: "Y-maximum (optional)",
 						key: "yMax",
-						placeholder: "defaults to automatic from data",
-						default: "1",
+						placeholder: "number (defaults to automatic from data)",
 					},
 				],
 			},

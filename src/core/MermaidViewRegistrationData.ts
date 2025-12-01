@@ -1,8 +1,9 @@
 import {ViewOption} from "obsidian";
+import MermaidBaseViews from "../../main";
 
 export interface MermaidViewRegistrationData {
 	id: string;
 	name: string;
 	icon: string;
-	options: ViewOption[];
+	getOptions: (plugin: MermaidBaseViews) => ViewOption[];
 }

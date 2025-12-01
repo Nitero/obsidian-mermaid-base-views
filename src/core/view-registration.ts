@@ -1,4 +1,4 @@
-import {Plugin, QueryController} from "obsidian";
+import {QueryController} from "obsidian";
 import { MermaidBaseViewBase } from "../views/MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "./MermaidViewRegistrationData";
 import {MermaidFlowchartBaseView} from "../views/MermaidFlowchartBaseView";
@@ -32,6 +32,6 @@ export function registerMermaidView(
 		icon: registrationData.icon,
 		factory: (controller, containerEl) =>
 			new View(controller, containerEl, plugin),
-		options: () => registrationData.options,
+		options: () => registrationData.getOptions(plugin),
 	});
 }

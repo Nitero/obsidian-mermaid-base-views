@@ -1,6 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {BasesPropertyId} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import MermaidBaseViews from "../../main";
 
 export class MermaidSankeyBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidSankeyBaseView.RegistrationData.id;
@@ -10,10 +11,10 @@ export class MermaidSankeyBaseView extends MermaidBaseViewBase {
 		id: "mermaid-sankey",
 		name: "Sankey",
 		icon: "shuffle",
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "multitext",//TODO: should use property type to select formulas more easily, but currently there is no way to make a list of them?
-				displayName: "Flows (source text, target text, value property)",
+				displayName: "Flows (source name, target name, value property)",
 				key: "flows",
 			},
 			{

@@ -9,6 +9,10 @@ export interface MermaidBaseViewsSettings {
 	timelineMermaidConfig: string;
 	XYChartMermaidConfig: string;
 
+	flowchartResultLimit: number;
+	mindmapResultLimit: number;
+	timelineResultLimit: number;
+
 	defaultGroupingPalette: string[];
 }
 
@@ -22,6 +26,10 @@ export const DEFAULT_SETTINGS: MermaidBaseViewsSettings = {
 	sankeyMermaidConfig: "",
 	timelineMermaidConfig: "",
 	XYChartMermaidConfig: "",
+
+	flowchartResultLimit: 100,
+	mindmapResultLimit: 100,
+	timelineResultLimit: 100,
 
 	defaultGroupingPalette: [
 		"#4c78a8",

@@ -1,5 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import MermaidBaseViews from "../../main";
+import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 
 export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidPieChartBaseView.RegistrationData.id;
@@ -9,7 +11,7 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 		id: "mermaid-pie-chart",
 		name: "Pie Chart",
 		icon: "pie-chart",
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
 				displayName: "Title",
@@ -24,9 +26,10 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "property",
-				displayName: "Value property (optional, numeric)",
+				displayName: "Value property (optional)",
 				key: "valueProperty",
 				placeholder: "e.g. file size",
+				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
 			},
 			{
 				type: "toggle",

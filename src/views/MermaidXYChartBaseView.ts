@@ -1,6 +1,8 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {parsePropertyId} from "obsidian";
+import MermaidBaseViews from "../../main";
+import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 
 export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidXYChartBaseView.RegistrationData.id;
@@ -10,7 +12,7 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 		id: "mermaid-xy-chart",
 		name: "XY Chart",
 		icon: "line-chart",
-		options: [
+		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
 				displayName: "Title",
@@ -19,9 +21,10 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "property",
-				displayName: "Y-axis value property (numeric, e.g. file size)",
+				displayName: "Y-axis property",
 				key: "yValueProperty",
 				placeholder: "e.g. file size",
+				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
 			},
 			{
 				type: "text",
@@ -31,15 +34,15 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Y-min override (optional)",
+				displayName: "Y-minimum (optional)",
 				key: "yMin",
-				placeholder: "defaults to automatic from data",
+				placeholder: "number (defaults to automatic from data)",
 			},
 			{
 				type: "text",
-				displayName: "Y-max override (optional)",
+				displayName: "Y-maximum (optional)",
 				key: "yMax",
-				placeholder: "defaults to automatic from data",
+				placeholder: "number (defaults to automatic from data)",
 			},
 			{
 				type: "dropdown",
@@ -122,13 +125,13 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 		let yMax = maxValue;
 
 		const yMinConfig = this.getConfigValue("yMin", "");
-		if(yMinConfig){
+		if (yMinConfig) {
 			const yMinConfigNumber = Number(yMinConfig);
 			if (Number.isFinite(yMinConfigNumber))
 				yMin = yMinConfigNumber;
 		}
 		const yMaxConfig = this.getConfigValue("yMax", "");
-		if (yMaxConfig){
+		if (yMaxConfig) {
 			const yMaxConfigNumber = Number(yMaxConfig);
 			if (Number.isFinite(yMaxConfigNumber))
 				yMax = yMaxConfigNumber;
@@ -156,7 +159,7 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 		const mermaidCode = lines.join("\n");
 
 		// const showDataLabel = this.config.get("showDataLabel") as Boolean;
-		// const extraConfig = showDataLabel ? "%%{init: {\"xyChart\": {\"showDataLabel\": \"true\"} }}%%" : "";//TODO: figure out why labels don"t work
+		// const extraConfig = showDataLabel ? "%%{init: {\"xyChart\": {\"showDataLabel\": \"true\"} }}%%" : "";//TODO: wait for mermaid v11.7.0
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);
 	}
