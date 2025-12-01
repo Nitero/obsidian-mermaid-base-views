@@ -1,11 +1,23 @@
-import {BasesPropertyId, BooleanValue, DateValue, ListValue, NullValue, NumberValue, Value,} from "obsidian";
+import {
+	App,
+	BasesPropertyId,
+	BooleanValue,
+	DateValue,
+	ListValue,
+	NullValue,
+	NumberValue,
+	parsePropertyId,
+	Value,
+} from "obsidian";
 import {InferredPropertyType} from "./InferredPropertyType";
 import {MermaidBaseViewBase} from "../views/MermaidBaseViewBase";
 
 export class PropertyTypeRegistry {
 	private propertiesToInferredTypes = new Map<BasesPropertyId, InferredPropertyType>();
+	private app: App;
 
-	constructor() {
+	constructor(app: App) {
+		this.app = app;
 		this.addBuiltinProperties();
 	}
 
@@ -85,27 +97,53 @@ export class PropertyTypeRegistry {
 		return this.propertiesToInferredTypes.size === 0;
 	}
 
-	private addType(id: BasesPropertyId, type: InferredPropertyType) {
+	private addType(propertyId: BasesPropertyId, type: InferredPropertyType) {
 		if (type != InferredPropertyType.Unknown)
-			this.propertiesToInferredTypes.set(id, type);
+			this.propertiesToInferredTypes.set(propertyId, type);
 	}
 
-	private filter(id: BasesPropertyId, ...types: InferredPropertyType[]): boolean {
+	private filter(propertyId: BasesPropertyId, ...propertyTypes: InferredPropertyType[]): boolean {
+		for (const propertyType of propertyTypes) {
+			const property  = parsePropertyId(propertyId);
+			if(property.type === "formula" && !this.propertiesToInferredTypes.has(propertyId))//TODO: currently no way to validate this manually?
+				return true;
+			if(propertyType == InferredPropertyType.Date && property.type === "file" && (property.name === "created" || property.name === "modified"))
+				return true;
+			if(propertyType == InferredPropertyType.Number && property.type === "file" && property.name === "size")
+				return true;
+		}
+
+		this.scanVault();
+
 		if (this.isEmpty())
 			return true;
-		if (types.length === 0)
+		if (propertyTypes.length === 0)
 			return true;
 
-		const inferredPropertyType = this.propertiesToInferredTypes.get(id);
+		const inferredPropertyType = this.propertiesToInferredTypes.get(propertyId);
 		if(inferredPropertyType === undefined)
 			return false;
-		for (const type of types)
+		for (const type of propertyTypes)
 			if (inferredPropertyType === type)
 				return true;
 		return false;
 	}
 
+	private scanVault() {
+		for (const file of this.app.vault.getMarkdownFiles()) {
+			const fileCache = this.app.metadataCache.getFileCache(file);
+			const frontmatterCache = fileCache?.frontmatter;
+			if (!frontmatterCache)
+				continue;
+
+			for (const [key, value] of Object.entries(frontmatterCache)) {
+				const propertyId = `note.${key}` as BasesPropertyId;
+				this.inferTypeFromValue(propertyId, value);
+			}
+		}
+	}
+
 	createFilter(...types: InferredPropertyType[]) {
-		return (id: BasesPropertyId) => this.filter(id, ...types);
+		return (propertyId: BasesPropertyId) => this.filter(propertyId, ...types);
 	}
 }
