@@ -23,7 +23,6 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 	public onDataUpdated(): void {
 		this.containerEl.empty();
-		this.plugin.propertyTypes.update(this);
 		this.render().catch((error) => {
 			console.error("Failed to render Mermaid", error);
 			this.containerEl.empty();
