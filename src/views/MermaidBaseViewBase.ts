@@ -23,7 +23,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 	public onDataUpdated(): void {
 		this.containerEl.empty();
-		this.render().catch((error) => {
+		void this.render().catch((error) => {
 			console.error("Failed to render Mermaid", error);
 			this.containerEl.empty();
 			this.containerEl.createDiv({text: "Error rendering Mermaid. See console for details."});
@@ -89,7 +89,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 					evt.preventDefault();
 
-					this.app.workspace.openLinkText(
+					void this.app.workspace.openLinkText(
 						linkText,
 						sourcePath,
 						Keymap.isModEvent(evt)
@@ -106,11 +106,11 @@ export abstract class MermaidBaseViewBase extends BasesView {
 						return;
 
 					evt.preventDefault();
-					this.app.workspace.openLinkText(linkText, sourcePath, "tab");
+					void this.app.workspace.openLinkText(linkText, sourcePath, "tab");
 				});
 
 				// Right click
-				this.registerDomEvent(el, "contextmenu", async (evt: MouseEvent) => {
+				this.registerDomEvent(el, "contextmenu", (evt: MouseEvent) => {
 					const linkText = getLinkText();
 					if (!linkText)
 						return;
@@ -131,7 +131,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 							.setIcon("file-plus")
 							.setSection("open")
 							.onClick(() => {
-								this.app.workspace.openLinkText(linkText, sourcePath, "tab");
+								void this.app.workspace.openLinkText(linkText, sourcePath, "tab");
 							}),
 					);
 					menu.addItem((item) =>
@@ -140,7 +140,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 							.setIcon("separator-vertical")
 							.setSection("open")
 							.onClick(() => {
-								this.app.workspace.openLinkText(linkText, sourcePath, "split");
+								void this.app.workspace.openLinkText(linkText, sourcePath, "split");
 							}),
 					);
 					menu.addItem((item) =>
