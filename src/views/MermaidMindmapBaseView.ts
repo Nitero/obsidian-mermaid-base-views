@@ -142,7 +142,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			pathIndegrees.set(path, 0);
 		}
 
-		const resolvedLinks = metadataCache.resolvedLinks as Record<string, Record<string, number>>;
+		const resolvedLinks = metadataCache.resolvedLinks;
 
 		for (const fromPath in resolvedLinks) {
 			if (!basePaths.has(fromPath))

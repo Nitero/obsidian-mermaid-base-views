@@ -3,7 +3,7 @@ import {
 	BasesView,
 	QueryController,
 	MarkdownRenderer,
-	Keymap, Menu, Notice, Value,
+	Keymap, Menu, Notice,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../../main";

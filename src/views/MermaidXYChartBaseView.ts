@@ -82,7 +82,7 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
-		const title = this.config.get("title") as string;
+		const title = this.getConfigValue<string>("title");
 		const yAxisLabel = this.getConfigValue<string>("yAxisLabel", parsePropertyId(yValuePropertyId).name);
 		const chartType = this.getConfigValue<"bar" | "line" | "bar-and-line">("chartType");
 
@@ -158,7 +158,7 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 
 		const mermaidCode = lines.join("\n");
 
-		// const showDataLabel = this.config.get("showDataLabel") as boolean;
+		// const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
 		// const extraConfig = showDataLabel ? "%%{init: {\"xyChart\": {\"showDataLabel\": \"true\"} }}%%" : "";//TODO: wait for mermaid v11.7.0
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);
