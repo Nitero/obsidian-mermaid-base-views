@@ -73,7 +73,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
-		const title = this.config.get("title") as string;
+		const title = this.getConfigValue<string>("title");
 
 		const granularity = this.getConfigValue<TimeGranularity>("cutoff");
 

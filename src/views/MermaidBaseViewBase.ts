@@ -3,7 +3,7 @@ import {
 	BasesView,
 	QueryController,
 	MarkdownRenderer,
-	Keymap, Menu, Notice, Value,
+	Keymap, Menu, Notice,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../../main";
@@ -23,7 +23,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 	public onDataUpdated(): void {
 		this.containerEl.empty();
-		this.render().catch((error) => {
+		void this.render().catch((error) => {
 			console.error("Failed to render Mermaid", error);
 			this.containerEl.empty();
 			this.containerEl.createDiv({text: "Error rendering Mermaid. See console for details."});
@@ -89,7 +89,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 					evt.preventDefault();
 
-					this.app.workspace.openLinkText(
+					void this.app.workspace.openLinkText(
 						linkText,
 						sourcePath,
 						Keymap.isModEvent(evt)
@@ -106,11 +106,11 @@ export abstract class MermaidBaseViewBase extends BasesView {
 						return;
 
 					evt.preventDefault();
-					this.app.workspace.openLinkText(linkText, sourcePath, "tab");
+					void this.app.workspace.openLinkText(linkText, sourcePath, "tab");
 				});
 
 				// Right click
-				this.registerDomEvent(el, "contextmenu", async (evt: MouseEvent) => {
+				this.registerDomEvent(el, "contextmenu", (evt: MouseEvent) => {
 					const linkText = getLinkText();
 					if (!linkText)
 						return;
@@ -131,7 +131,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 							.setIcon("file-plus")
 							.setSection("open")
 							.onClick(() => {
-								this.app.workspace.openLinkText(linkText, sourcePath, "tab");
+								void this.app.workspace.openLinkText(linkText, sourcePath, "tab");
 							}),
 					);
 					menu.addItem((item) =>
@@ -140,7 +140,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 							.setIcon("separator-vertical")
 							.setSection("open")
 							.onClick(() => {
-								this.app.workspace.openLinkText(linkText, sourcePath, "split");
+								void this.app.workspace.openLinkText(linkText, sourcePath, "split");
 							}),
 					);
 					menu.addItem((item) =>
@@ -162,7 +162,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 			});
 	}
 
-	protected getLabelWithProperties(file: TFile, showPropertyNames: Boolean, newLine: string, colon: string): string {
+	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string): string {
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
 
@@ -184,7 +184,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 					if (showPropertyNames && property != "file.name" && property != "file.basename")
 						label += `${this.config.getDisplayName(property)}${colon} `;
-					label += value;
+					label += value.toString();
 				}
 
 				if (label == "")
@@ -205,7 +205,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 			return defaultValue;
 
 		if (typeof defaultValue === "string") {
-			const value = rawValue as String;
+			const value = rawValue as string;
 			if (value.length > 0)
 				return rawValue as T;
 			return defaultValue;

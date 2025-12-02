@@ -1,6 +1,6 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import {TFile} from "obsidian";
+import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../../main";
 
 type Edge = {
@@ -40,14 +40,22 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				displayName: "Direction",
 				key: "direction",
 				default: "TB",
-				options: {"TB": "Top to bottom", "BT": "Bottom to top", "LR": "Left to right", "RL": "Right to left"} as Record<string, string>,
+				options: {
+					"TB": "Top to bottom",
+					"BT": "Bottom to top",
+					"LR": "Left to right",
+					"RL": "Right to left"
+				} as Record<string, string>,
 			},
 			{
 				type: "dropdown",
 				displayName: "Node Label Content",
 				key: "nodeLabelContent",
 				default: "named-links",
-				options: {"named-links": "Note Names (Clickable Links)", "properties": "Selected Properties"} as Record<string, string>,
+				options: {
+					"named-links": "Note Names (Clickable Links)",
+					"properties": "Selected Properties"
+				} as Record<string, string>,
 			},
 			{
 				type: "toggle",
@@ -67,7 +75,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const title = this.getConfigValue<string>("title");
 		const direction = this.getConfigValue<string>("direction");
-		const nodeLabelContent = (this.config.get("nodeLabelContent") as string) ?? "named-links";
+		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 
 		const ctx: FlowchartRenderContext = {
@@ -259,15 +267,11 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		return `${edge.from}-->${edge.to}`;
 	}
 
-	private getGroupLabel(group: any, index: number, hasGroupingConfigured: boolean): string {
-		try {
-			if (typeof group.hasKey === "function" && group.hasKey()) {
-				const keyValue = group.key;
-				const string = keyValue?.toString?.() ?? "";
-				if (string && string.trim().length > 0)
-					return string;
-			}
-		} catch (e) {
+	private getGroupLabel(group: BasesEntryGroup, index: number, hasGroupingConfigured: boolean): string {
+		if (group.hasKey()) {
+			const groupKey = group.key?.toString() ?? "";
+			if (groupKey && groupKey.trim().length > 0)
+				return groupKey;
 		}
 		return hasGroupingConfigured
 			? `No value (${index + 1})`

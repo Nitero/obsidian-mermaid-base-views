@@ -58,7 +58,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 	};
 
 	protected async render(): Promise<void> {
-		const title = this.config.get("title") as string;
+		const title = this.getConfigValue<string>("title");
 
 		const labelPropertyId = this.config.getAsPropertyId("labelProperty");
 
