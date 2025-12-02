@@ -158,7 +158,7 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 
 		const mermaidCode = lines.join("\n");
 
-		// const showDataLabel = this.config.get("showDataLabel") as Boolean;
+		// const showDataLabel = this.config.get("showDataLabel") as boolean;
 		// const extraConfig = showDataLabel ? "%%{init: {\"xyChart\": {\"showDataLabel\": \"true\"} }}%%" : "";//TODO: wait for mermaid v11.7.0
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);

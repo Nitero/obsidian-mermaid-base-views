@@ -1,6 +1,6 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import {TFile} from "obsidian";
+import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../../main";
 
 type Edge = {
@@ -259,7 +259,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		return `${edge.from}-->${edge.to}`;
 	}
 
-	private getGroupLabel(group: any, index: number, hasGroupingConfigured: boolean): string {
+	private getGroupLabel(group: BasesEntryGroup, index: number, hasGroupingConfigured: boolean): string {
 		try {
 			if (typeof group.hasKey === "function" && group.hasKey()) {
 				const keyValue = group.key;

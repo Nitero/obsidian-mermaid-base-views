@@ -162,7 +162,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 			});
 	}
 
-	protected getLabelWithProperties(file: TFile, showPropertyNames: Boolean, newLine: string, colon: string): string {
+	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string): string {
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
 
@@ -184,7 +184,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 					if (showPropertyNames && property != "file.name" && property != "file.basename")
 						label += `${this.config.getDisplayName(property)}${colon} `;
-					label += value;
+					label += value.toString();
 				}
 
 				if (label == "")
@@ -205,7 +205,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 			return defaultValue;
 
 		if (typeof defaultValue === "string") {
-			const value = rawValue as String;
+			const value = rawValue as string;
 			if (value.length > 0)
 				return rawValue as T;
 			return defaultValue;
