@@ -268,29 +268,30 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 		maxY: number,
 	): { minX: number; maxX: number; minY: number; maxY: number } {
 
+		// Auto range if overrides not set
 		const infinity = Infinity.toString();
-		const minXConfigOverride = this.getConfigValue<string>("xMin", infinity);
-		const maxXConfigOverride = this.getConfigValue<string>("xMax", infinity);
-		const minYConfigOverride = this.getConfigValue<string>("yMin", infinity);
-		const maxYConfigOverride = this.getConfigValue<string>("yMax", infinity);
+		const minXConfigOverride = this.getConfigValue<string>("xMin", infinity).trim();
+		const maxXConfigOverride = this.getConfigValue<string>("xMax", infinity).trim();
+		const minYConfigOverride = this.getConfigValue<string>("yMin", infinity).trim();
+		const maxYConfigOverride = this.getConfigValue<string>("yMax", infinity).trim();
 
-		if (minXConfigOverride.trim().length > 0) {
-			const value = Number(minXConfigOverride.trim());
+		if (minXConfigOverride.length > 0) {
+			const value = Number(minXConfigOverride);
 			if (Number.isFinite(value))
 				minX = value;
 		}
-		if (maxXConfigOverride.trim().length > 0) {
-			const value = Number(maxXConfigOverride.trim());
+		if (maxXConfigOverride.length > 0) {
+			const value = Number(maxXConfigOverride);
 			if (Number.isFinite(value))
 				maxX = value;
 		}
-		if (minYConfigOverride.trim().length > 0) {
-			const value = Number(minYConfigOverride.trim());
+		if (minYConfigOverride.length > 0) {
+			const value = Number(minYConfigOverride);
 			if (Number.isFinite(value))
 				minY = value;
 		}
-		if (maxYConfigOverride.trim().length > 0) {
-			const value = Number(maxYConfigOverride.trim());
+		if (maxYConfigOverride.length > 0) {
+			const value = Number(maxYConfigOverride);
 			if (Number.isFinite(value))
 				maxY = value;
 		}

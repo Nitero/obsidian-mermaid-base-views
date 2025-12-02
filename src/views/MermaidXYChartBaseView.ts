@@ -124,14 +124,16 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 		let yMin = minValue;
 		let yMax = maxValue;
 
-		const yMinConfig = this.getConfigValue("yMin", "");
-		if (yMinConfig) {
+		const infinity = Infinity.toString();
+
+		const yMinConfig = this.getConfigValue<string>("yMin", infinity).trim();
+		if (yMinConfig.length > 0) {
 			const yMinConfigNumber = Number(yMinConfig);
 			if (Number.isFinite(yMinConfigNumber))
 				yMin = yMinConfigNumber;
 		}
-		const yMaxConfig = this.getConfigValue("yMax", "");
-		if (yMaxConfig) {
+		const yMaxConfig = this.getConfigValue<string>("yMax", infinity).trim();
+		if (yMaxConfig.length > 0) {
 			const yMaxConfigNumber = Number(yMaxConfig);
 			if (Number.isFinite(yMaxConfigNumber))
 				yMax = yMaxConfigNumber;
