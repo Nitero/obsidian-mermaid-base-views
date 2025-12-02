@@ -19,8 +19,8 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"General Mermaid Frontmatter Config",
-			"The default configuration for everything. Can be used to e.g. set a theme.",
+			"General mermaid config",
+			"The default frontmatter configuration for everything. Can be used to e.g. set a theme.",
 			() => this.plugin.settings.generalMermaidConfig,
 			value => {
 				this.plugin.settings.generalMermaidConfig = value
@@ -35,8 +35,8 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"Flowchart Mermaid Frontmatter Config",
-			"The default configuration for every flowchart view.",
+			"Mermaid config",
+			"The default frontmatter configuration for every flowchart view.",
 			() => this.plugin.settings.flowchartMermaidConfig,
 			value => {
 				this.plugin.settings.flowchartMermaidConfig = value
@@ -46,7 +46,7 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addEntryLimitConfigSetting(
 			containerEl,
-			"Result Limit",
+			"Result limit",
 			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
 			() => this.plugin.settings.flowchartResultLimit,
 			value => {
@@ -60,8 +60,8 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"Mermaid Frontmatter Config",
-			"The default configuration for every mindmap view.",
+			"Mermaid config",
+			"The default frontmatter configuration for every mindmap view.",
 			() => this.plugin.settings.mindmapMermaidConfig,
 			value => {
 				this.plugin.settings.mindmapMermaidConfig = value
@@ -71,7 +71,7 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addEntryLimitConfigSetting(
 			containerEl,
-			"Result Limit",
+			"Result limit",
 			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
 			() => this.plugin.settings.mindmapResultLimit,
 			value => {
@@ -85,8 +85,8 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"Mermaid Frontmatter Config",
-			"The default configuration for every timeline view.",
+			"Mermaid config",
+			"The default frontmatter configuration for every timeline view.",
 			() => this.plugin.settings.timelineMermaidConfig,
 			value => {
 				this.plugin.settings.timelineMermaidConfig = value
@@ -96,7 +96,7 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addEntryLimitConfigSetting(
 			containerEl,
-			"Result Limit",
+			"Result limit",
 			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
 			() => this.plugin.settings.timelineResultLimit,
 			value => {
@@ -110,8 +110,8 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"Mermaid Frontmatter Config",
-			"The default configuration for every sankey view.",
+			"Mermaid config",
+			"The default frontmatter configuration for every sankey view.",
 			() => this.plugin.settings.sankeyMermaidConfig,
 			value => {
 				this.plugin.settings.sankeyMermaidConfig = value
@@ -120,12 +120,12 @@ export class GeneralSettingTab extends PluginSettingTab {
 		);
 
 
-		new Setting(containerEl).setName("Pie Chart").setHeading();
+		new Setting(containerEl).setName("Pie chart").setHeading();
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"Mermaid Frontmatter Config",
-			"The default configuration for every pie chart view.",
+			"Mermaid config",
+			"The default frontmatter configuration for every pie chart view.",
 			() => this.plugin.settings.pieChartMermaidConfig,
 			value => {
 				this.plugin.settings.pieChartMermaidConfig = value
@@ -134,12 +134,12 @@ export class GeneralSettingTab extends PluginSettingTab {
 		);
 
 
-		new Setting(containerEl).setName("XY Chart").setHeading();
+		new Setting(containerEl).setName("XY chart").setHeading();
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"Mermaid Frontmatter Config",
-			"The default configuration for every XY chart view.",
+			"Mermaid config",
+			"The default frontmatter configuration for every XY chart view.",
 			() => this.plugin.settings.XYChartMermaidConfig,
 			value => {
 				this.plugin.settings.XYChartMermaidConfig = value
@@ -148,12 +148,12 @@ export class GeneralSettingTab extends PluginSettingTab {
 		);
 
 
-		new Setting(containerEl).setName("Quadrant Chart").setHeading();
+		new Setting(containerEl).setName("Quadrant chart").setHeading();
 
 		this.addMermaidFrontmatterConfigSetting(
 			containerEl,
-			"Mermaid Frontmatter Config",
-			"The default configuration for every quadrant chart view.",
+			"Mermaid config",
+			"The default frontmatter configuration for every quadrant chart view.",
 			() => this.plugin.settings.quadrantChartMermaidConfig,
 			value => {
 				this.plugin.settings.quadrantChartMermaidConfig = value
@@ -227,7 +227,7 @@ export class GeneralSettingTab extends PluginSettingTab {
 		const section = containerEl.createDiv();
 
 		const header = new Setting(section)
-			.setName("Grouping Color Palette")
+			.setName("Grouping color palette")
 			.setDesc("The default palette for coloring files when grouped. If there are more groups than colors it will loop around to the first color.")
 			.setHeading();
 
