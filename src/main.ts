@@ -1,9 +1,9 @@
 import {Plugin} from "obsidian";
-import {registerAllMermaidViews} from "src/core/view-registration";
-import { PropertyTypeRegistry } from "src/propertyTypes/PropertyTypeRegistry";
-import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "src/settings/mermaidBaseViewsSettings";
-import {GeneralSettingTab} from "./src/settings/generalSettingTab";
-import {MermaidBaseViewBase} from "./src/views/MermaidBaseViewBase";
+import {registerAllMermaidViews} from "./core/view-registration";
+import { PropertyTypeRegistry } from "./propertyTypes/PropertyTypeRegistry";
+import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "./settings/mermaidBaseViewsSettings";
+import {GeneralSettingTab} from "./settings/generalSettingTab";
+import {MermaidBaseViewBase} from "./views/MermaidBaseViewBase";
 
 export default class MermaidBaseViews extends Plugin {
 	settings: MermaidBaseViewsSettings;
@@ -15,7 +15,7 @@ export default class MermaidBaseViews extends Plugin {
 		await this.loadSettings();
 		this.addSettingTab(new GeneralSettingTab(this.app, this));
 
-		this.propertyTypes = new PropertyTypeRegistry(this.app);
+		this.propertyTypes = new PropertyTypeRegistry();
 		registerAllMermaidViews(this);
 	}
 
@@ -24,7 +24,7 @@ export default class MermaidBaseViews extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<MermaidBaseViewsSettings>);
 	}
 
 	async saveSettings() {

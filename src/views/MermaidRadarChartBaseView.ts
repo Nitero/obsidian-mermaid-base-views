@@ -1,7 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId, parsePropertyId} from "obsidian";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 
 
 type Curve = {

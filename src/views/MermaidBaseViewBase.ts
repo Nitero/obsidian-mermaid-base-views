@@ -6,7 +6,7 @@ import {
 	Keymap, Menu, Notice,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 
 export abstract class MermaidBaseViewBase extends BasesView {
 	protected plugin: MermaidBaseViews;

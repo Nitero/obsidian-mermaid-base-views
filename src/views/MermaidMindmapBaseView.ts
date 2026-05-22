@@ -2,7 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MetadataCache, TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {indent} from "../core/utils";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 
 interface MindmapRenderContext {
 	visited: Set<string>;

@@ -1,6 +1,6 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 
 export class MermaidPieChartBaseView extends MermaidBaseViewBase {

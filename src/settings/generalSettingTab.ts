@@ -1,5 +1,5 @@
 import {App, PluginSettingTab, Setting} from "obsidian";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 import {DEFAULT_SETTINGS} from "./mermaidBaseViewsSettings";
 
 export class GeneralSettingTab extends PluginSettingTab {
@@ -288,7 +288,8 @@ export class GeneralSettingTab extends PluginSettingTab {
 							return;
 
 						const arr = this.plugin.settings.defaultGroupingPalette;
-						[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+						if (!this.swapArrayItems(arr, index - 1, index))
+							return;
 
 						await this.plugin.saveSettings();
 						this.renderGroupingColorSettingsList(bodyElement);
@@ -303,7 +304,8 @@ export class GeneralSettingTab extends PluginSettingTab {
 							return;
 
 						const arr = this.plugin.settings.defaultGroupingPalette;
-						[arr[index + 1], arr[index]] = [arr[index], arr[index + 1]];
+						if (!this.swapArrayItems(arr, index - 1, index))
+							return;
 
 						await this.plugin.saveSettings();
 						this.renderGroupingColorSettingsList(bodyElement);
@@ -329,5 +331,18 @@ export class GeneralSettingTab extends PluginSettingTab {
 				this.renderGroupingColorSettingsList(bodyElement);
 			})
 		);
+	}
+
+	private swapArrayItems<T>(arr: T[], firstIndex: number, secondIndex: number): boolean {
+		const first = arr[firstIndex];
+		const second = arr[secondIndex];
+
+		if (first === undefined || second === undefined)
+			return false;
+
+		arr[firstIndex] = second;
+		arr[secondIndex] = first;
+
+		return true;
 	}
 }

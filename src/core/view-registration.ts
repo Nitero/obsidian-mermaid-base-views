@@ -9,7 +9,7 @@ import {MermaidSankeyBaseView} from "../views/MermaidSankeyBaseView";
 import { MermaidPieChartBaseView } from "../views/MermaidPieChartBaseView";
 import { MermaidXYChartBaseView } from "../views/MermaidXYChartBaseView";
 import {MermaidQuadrantChartBaseView} from "../views/MermaidQuadrantChartBaseView";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 
 export function registerAllMermaidViews(plugin: MermaidBaseViews): void {
 	registerMermaidView(plugin, MermaidFlowchartBaseView, MermaidFlowchartBaseView.RegistrationData);

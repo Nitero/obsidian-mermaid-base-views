@@ -1,7 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId} from "obsidian";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 
 type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";

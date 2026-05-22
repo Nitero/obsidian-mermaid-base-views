@@ -1,7 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, TFile} from "obsidian";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 
 type Edge = {
 	from: string;
@@ -119,6 +119,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				ctx.groupIndexToNodeIds.set(groupIndex, nodeSet);
 			}
 
+			if(!group)
+				continue;
+
 			for (const entry of group.entries) {
 				if (!entry.file)
 					continue;
@@ -220,6 +223,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				const group = this.data.groupedData[groupIndex];
 				const nodeSet = ctx.groupIndexToNodeIds.get(groupIndex);
 				if (!nodeSet || nodeSet.size === 0)
+					continue;
+
+				if(!group)
 					continue;
 
 				const groupLabel = this.getGroupLabel(group, groupIndex, hasGroupingConfigured);

@@ -1,7 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
-import MermaidBaseViews from "../../main";
+import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 
 type Point = {
@@ -172,7 +172,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 			palette.splice(0, palette.length, ...this.plugin.settings.defaultGroupingPalette);
 
 		const groups = this.data.groupedData;
-		const groupingEnabled = groups.length > 1 || (groups.length === 1 && groups[0].key !== undefined);
+		const groupingEnabled = groups.length > 1 || (groups.length === 1 && groups[0]!.key !== undefined);
 
 		const {
 			points,
@@ -229,7 +229,13 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 
 		for (let gi = 0; gi < groups.length; gi++) {
 			const group = groups[gi];
-			const groupColor = groupingEnabled ? palette[gi % palette.length] : "";
+			const groupColor =
+				groupingEnabled && palette.length > 0
+					? palette[gi % palette.length] ?? ""
+					: "";
+
+			if(!group)
+				continue;
 
 			for (const entry of group.entries) {
 				const xValue = entry.getValue(xPropertyId);
