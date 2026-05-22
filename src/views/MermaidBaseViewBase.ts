@@ -235,4 +235,47 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 		return options.default;
 	}
+
+	protected collectBaseFilesByPath(): Map<string, TFile> {
+		const fileByPath = new Map<string, TFile>();
+
+		for (const group of this.data.groupedData) {
+			if (!group)
+				continue;
+
+			for (const entry of group.entries) {
+				if (!entry.file)
+					continue;
+
+				if (!fileByPath.has(entry.file.path))
+					fileByPath.set(entry.file.path, entry.file);
+			}
+		}
+
+		return fileByPath;
+	}
+
+	protected shouldShowLinkedTarget(
+		target: TFile,
+		baseFilesByPath: Map<string, TFile>,
+		showLinksToFilteredOutNotes: boolean,
+	): boolean {
+		return showLinksToFilteredOutNotes || baseFilesByPath.has(target.path);
+	}
+
+	protected getLinkedFileIfVisible(
+		linkpath: string,
+		sourcePath: string,
+		baseFilesByPath: Map<string, TFile>,
+		showLinksToFilteredOutNotes: boolean,
+	): TFile | null {
+		const target = this.app.metadataCache.getFirstLinkpathDest(linkpath, sourcePath);
+		if (!target)
+			return null;
+
+		if (!this.shouldShowLinkedTarget(target, baseFilesByPath, showLinksToFilteredOutNotes))
+			return null;
+
+		return target;
+	}
 }

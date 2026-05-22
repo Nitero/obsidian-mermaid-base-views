@@ -18,6 +18,8 @@ interface FlowchartRenderContext {
 	edges: Map<string, Edge>;
 	nodeLabelContent: string;
 	showPropertyNames: boolean;
+	filesByPath: Map<string, TFile>;
+	showLinksToFilteredOutNotes: boolean;
 }
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
@@ -64,6 +66,12 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				default: true,
 			},
 			{
+				type: "toggle",
+				displayName: "Show links to filtered-out notes",
+				key: "showLinksToFilteredOutNotes",
+				default: false,
+			},
+			{
 				type: "text",
 				displayName: "Mermaid Config Override Directive (optional)",
 				key: "mermaidConfigOverrideDirective",
@@ -77,6 +85,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const direction = this.getConfigValue<string>("direction");
 		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
+		const filesByPath = this.collectBaseFilesByPath();
 
 		const ctx: FlowchartRenderContext = {
 			fileToNodeId: new Map<string, string>(),
@@ -87,6 +97,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			edges: new Map<string, Edge>(),
 			nodeLabelContent,
 			showPropertyNames,
+			filesByPath: filesByPath,
+			showLinksToFilteredOutNotes,
 		};
 
 		this.collectNodesAndEdges(ctx);
@@ -165,7 +177,12 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const fileCache = this.app.metadataCache.getFileCache(file);
 		const links = fileCache?.links ?? [];
 		for (const link of links) {
-			const target = this.app.metadataCache.getFirstLinkpathDest(link.link, file.path);
+			const target = this.getLinkedFileIfVisible(
+				link.link,
+				file.path,
+				ctx.filesByPath,
+				ctx.showLinksToFilteredOutNotes,
+			);
 			if (!target)
 				continue;
 
@@ -185,7 +202,12 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const fileCache = this.app.metadataCache.getFileCache(file);
 		const fmLinks = fileCache?.frontmatterLinks ?? [];
 		for (const fm of fmLinks) {
-			const target = this.app.metadataCache.getFirstLinkpathDest(fm.link, file.path);
+			const target = this.getLinkedFileIfVisible(
+				fm.link,
+				file.path,
+				ctx.filesByPath,
+				ctx.showLinksToFilteredOutNotes,
+			);
 			if (!target)
 				continue;
 

@@ -1,16 +1,18 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
-import {MetadataCache, TFile} from "obsidian";
+import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {indent} from "../core/utils";
 import MermaidBaseViews from "../main";
 
 interface MindmapRenderContext {
 	visited: Set<string>;
-	filesByPaths: Map<string, TFile>;
+	filesByPath: Map<string, TFile>;
 	fileToNodeIdsToLabels: Map<string, string>;
 	pathToOutgoingLinks: Map<string, Set<string>>;
+	indegree: Map<string, number>;
 	showPropertyNames: boolean;
 	lines: string[];
+	showLinksToFilteredOutNotes: boolean;
 }
 
 export class MermaidMindmapBaseView extends MermaidBaseViewBase {
@@ -35,6 +37,12 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 				default: true,
 			},
 			{
+				type: "toggle",
+				displayName: "Show links to filtered-out notes",
+				key: "showLinksToFilteredOutNotes",
+				default: false,
+			},
+			{
 				type: "text",
 				displayName: "Mermaid Config Override Directive (optional)",
 				key: "mermaidConfigOverrideDirective",
@@ -45,76 +53,72 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 
 	protected async render(): Promise<void> {
 		const rootLabel = this.getConfigValue<string>("rootLabel");
-
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
 
-		const metadataCache = this.app.metadataCache;
+		const filesByPath = this.collectBaseFilesByPath();
+		const ctx: MindmapRenderContext = {
+			visited: new Set<string>(),
+			filesByPath: new Map<string, TFile>(filesByPath),
+			fileToNodeIdsToLabels: new Map<string, string>(),
+			pathToOutgoingLinks: new Map<string, Set<string>>(),
+			indegree: new Map<string, number>(),
+			showPropertyNames,
+			lines: [],
+			showLinksToFilteredOutNotes,
+		};
 
-		const filesByPaths = new Map<string, TFile>();
-		for (const group of this.data.groupedData) {
-			for (const entry of group.entries) {
-				if (!filesByPaths.has(entry.file.path))
-					filesByPaths.set(entry.file.path, entry.file);
-			}
-		}
-
-		if (filesByPaths.size === 0) {
+		if (filesByPath.size === 0) {
 			this.containerEl.createDiv({text: "No files found in this base."});
 			return;
 		}
 
-		if (filesByPaths.size > this.plugin.settings.mindmapResultLimit) {
+		this.collectOutgoingLinks(filesByPath, ctx);
+
+		if (ctx.filesByPath.size > this.plugin.settings.mindmapResultLimit) {
 			this.containerEl.createDiv({text: `Exceeded result limit (${this.plugin.settings.mindmapResultLimit}). This can be increased in the settings, but may impact performance.`});
 			return;
 		}
 
-		const {pathToOutgoingLinks, pathIndegrees} = this.buildAdjacencyFromOutgoingLinksRestrictedToBase(filesByPaths, metadataCache);
+		const mermaidCode = this.buildMermaidCode(rootLabel, ctx);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.mindmapMermaidConfig);
+	}
 
-		const allPaths = Array.from(filesByPaths.keys());
-		let roots = allPaths.filter((p) => (pathIndegrees.get(p) ?? 0) === 0);
+	private buildMermaidCode(
+		rootLabel: string,
+		ctx: MindmapRenderContext,
+	): string {
+		const allPaths = Array.from(ctx.filesByPath.keys());
+		let roots = allPaths.filter((p) => (ctx.indegree.get(p) ?? 0) === 0);
 		if (roots.length === 0)
 			roots = allPaths;
-
-		const fileToNodeIdsToLabels = new Map<string, string>();
 
 		let idx = 0;
 		for (const path of allPaths) {
 			const id = `n${idx++}`;
-			fileToNodeIdsToLabels.set(path, id);
+			ctx.fileToNodeIdsToLabels.set(path, id);
 		}
 
-		const mermaidCode = this.buildMermaidCode(rootLabel, filesByPaths, fileToNodeIdsToLabels, pathToOutgoingLinks, showPropertyNames, roots);
-		await this.renderMermaid(mermaidCode, this.plugin.settings.mindmapMermaidConfig);
-	}
-
-	private buildMermaidCode(rootLabel: string, filesByPaths: Map<string, TFile>, fileToNodeIdsToLabels: Map<string, string>, pathToOutgoingLinks: Map<string, Set<string>>, showPropertyNames: boolean, roots: string[]): string {
-		const lines: string[] = [];
-		lines.push("mindmap");
+		ctx.lines.push("mindmap");
 
 		const rootId = "root";
-		lines.push(`  ${rootId}["${rootLabel}"]`);
-
-		const ctx: MindmapRenderContext = {
-			visited: new Set<string>(),
-			filesByPaths,
-			fileToNodeIdsToLabels,
-			pathToOutgoingLinks,
-			showPropertyNames,
-			lines,
-		};
+		ctx.lines.push(`  ${rootId}["${rootLabel}"]`);
 
 		for (const rootPath of roots)
 			this.renderNode(rootPath, 2, ctx);
 
-		return lines.join("\n");
+		return ctx.lines.join("\n");
 	}
-
-	private renderNode(path: string, level: number, ctx: MindmapRenderContext): void{
+	private renderNode(
+		path: string,
+		level: number,
+		ctx: MindmapRenderContext,
+	): void {
 		if (ctx.visited.has(path))
 			return;
 		ctx.visited.add(path);
 
-		const file = ctx.filesByPaths.get(path);
+		const file = ctx.filesByPath.get(path);
 		if (!file)
 			return;
 
@@ -131,43 +135,49 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			this.renderNode(childPath, level + 1, ctx);
 	}
 
-	private buildAdjacencyFromOutgoingLinksRestrictedToBase(filesByPaths: Map<string, TFile>, metadataCache: MetadataCache):
-		{ pathToOutgoingLinks: Map<string, Set<string>>; pathIndegrees: Map<string, number>; } {
-		const pathToOutgoingLinks = new Map<string, Set<string>>();
-		const pathIndegrees = new Map<string, number>();
+	private collectOutgoingLinks(
+		baseFileByPath: Map<string, TFile>,
+		ctx: MindmapRenderContext,
+	): void {
+		for (const path of ctx.filesByPath.keys())
+			ctx.indegree.set(path, 0);
 
-		const basePaths = new Set<string>();
-		for (const path of filesByPaths.keys()) {
-			basePaths.add(path);
-			pathIndegrees.set(path, 0);
-		}
+		for (const [path, file] of baseFileByPath.entries()) {
+			const cache = this.app.metadataCache.getFileCache(file);
+			const links = cache?.links ?? [];
+			const embeds = cache?.embeds ?? [];
+			const allLinks = [...links, ...embeds];
 
-		const resolvedLinks = metadataCache.resolvedLinks;
-
-		for (const fromPath in resolvedLinks) {
-			if (!basePaths.has(fromPath))
-				continue;
-
-			const targets = resolvedLinks[fromPath];
-			let outgoing = pathToOutgoingLinks.get(fromPath);
-			for (const toPath in targets) {
-				if (!basePaths.has(toPath))
+			for (const link of allLinks) {
+				const target = this.getLinkedFileIfVisible(
+					link.link,
+					file.path,
+					baseFileByPath,
+					ctx.showLinksToFilteredOutNotes,
+				);
+				if (!target)
 					continue;
-				if (toPath === fromPath)
+				if (target.path === path)
 					continue;
 
-				if (!outgoing) {
-					outgoing = new Set<string>();
-					pathToOutgoingLinks.set(fromPath, outgoing);
+				if (!ctx.filesByPath.has(target.path)) {
+					ctx.filesByPath.set(target.path, target);
+					ctx.indegree.set(target.path, 0);
 				}
 
-				if (!outgoing.has(toPath)) {
-					outgoing.add(toPath);
-					pathIndegrees.set(toPath, (pathIndegrees.get(toPath) ?? 0) + 1);
+				let set = ctx.pathToOutgoingLinks.get(path);
+				if (!set) {
+					set = new Set<string>();
+					ctx.pathToOutgoingLinks.set(path, set);
+				}
+				if (!set.has(target.path)) {
+					set.add(target.path);
+					ctx.indegree.set(
+						target.path,
+						(ctx.indegree.get(target.path) ?? 0) + 1,
+					);
 				}
 			}
 		}
-
-		return { pathToOutgoingLinks, pathIndegrees };
 	}
 }
