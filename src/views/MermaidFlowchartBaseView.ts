@@ -20,6 +20,7 @@ interface FlowchartRenderContext {
 	showPropertyNames: boolean;
 	filesByPath: Map<string, TFile>;
 	showLinksToFilteredOutNotes: boolean;
+	showBodyLinks: boolean;
 }
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
@@ -72,6 +73,12 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				default: false,
 			},
 			{
+				type: "toggle",
+				displayName: "Show links from note body",
+				key: "showBodyLinks",
+				default: true,
+			},
+			{
 				type: "text",
 				displayName: "Mermaid Config Override Directive (optional)",
 				key: "mermaidConfigOverrideDirective",
@@ -86,6 +93,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
+		const showBodyLinks = this.getConfigValue<boolean>("showBodyLinks");
 		const filesByPath = this.collectBaseFilesByPath();
 
 		const ctx: FlowchartRenderContext = {
@@ -99,6 +107,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			showPropertyNames,
 			filesByPath: filesByPath,
 			showLinksToFilteredOutNotes,
+			showBodyLinks,
 		};
 
 		this.collectNodesAndEdges(ctx);
@@ -145,7 +154,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				nodeSet.add(srcId);
 				ctx.groupedNodeIds.add(srcId);
 
-				this.collectOutgoingEdgesFromLinks(entry.file, srcId, ctx);
+				if (ctx.showBodyLinks)
+					this.collectOutgoingEdgesFromLinks(entry.file, srcId, ctx);
 				this.collectEdgesFromFrontmatterLinks(entry.file, srcId, ctx);
 			}
 		}
