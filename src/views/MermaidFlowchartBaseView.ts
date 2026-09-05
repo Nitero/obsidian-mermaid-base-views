@@ -1,7 +1,8 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import {BasesEntryGroup, TFile} from "obsidian";
+import {BasesEntryGroup, parsePropertyId, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
+import {frontmatterLinkKeyToProperty, frontmatterLinkMatchesProperty} from "../core/frontmatterLinks";
 
 type Edge = {
 	from: string;
@@ -20,6 +21,8 @@ interface FlowchartRenderContext {
 	showPropertyNames: boolean;
 	filesByPath: Map<string, TFile>;
 	showLinksToFilteredOutNotes: boolean;
+	edgePropertyName: string | null;
+	showEdgePropertyNames: boolean;
 }
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
@@ -72,6 +75,19 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				default: false,
 			},
 			{
+				type: "property",
+				displayName: "Edges property (optional)",
+				key: "edgeProperty",
+				placeholder: "e.g. depends_on",
+				filter: plugin.propertyTypes.createSourceFilter("note"),
+			},
+			{
+				type: "toggle",
+				displayName: "Show edge property names",
+				key: "showEdgePropertyNames",
+				default: true,
+			},
+			{
 				type: "text",
 				displayName: "Mermaid Config Override Directive (optional)",
 				key: "mermaidConfigOverrideDirective",
@@ -86,6 +102,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
+		const edgePropertyId = this.config.getAsPropertyId("edgeProperty");
+		const edgePropertyName = edgePropertyId ? parsePropertyId(edgePropertyId).name : null;
+		const showEdgePropertyNames = this.getConfigValue<boolean>("showEdgePropertyNames");
 		const filesByPath = this.collectBaseFilesByPath();
 
 		const ctx: FlowchartRenderContext = {
@@ -99,6 +118,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			showPropertyNames,
 			filesByPath: filesByPath,
 			showLinksToFilteredOutNotes,
+			edgePropertyName,
+			showEdgePropertyNames,
 		};
 
 		this.collectNodesAndEdges(ctx);
@@ -202,6 +223,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const fileCache = this.app.metadataCache.getFileCache(file);
 		const fmLinks = fileCache?.frontmatterLinks ?? [];
 		for (const fm of fmLinks) {
+			if (!frontmatterLinkMatchesProperty(fm.key, ctx.edgePropertyName))
+				continue;
+
 			const target = this.getLinkedFileIfVisible(
 				fm.link,
 				file.path,
@@ -215,8 +239,10 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			if (!tgtId)
 				return;
 
-			const frontmatterKey: string = fm.key;
-			const label = ctx.notePropDisplayByKey.get(frontmatterKey) ?? frontmatterKey;
+			const frontmatterKey = frontmatterLinkKeyToProperty(fm.key);
+			const label = ctx.showEdgePropertyNames
+				? (ctx.notePropDisplayByKey.get(frontmatterKey) ?? frontmatterKey)
+				: undefined;
 
 			this.addEdge({from: srcId, to: tgtId, label}, ctx);
 		}

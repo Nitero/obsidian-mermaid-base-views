@@ -1,5 +1,6 @@
 import {
 	BasesPropertyId,
+	BasesPropertyType,
 	parsePropertyId,
 } from "obsidian";
 import {InferredPropertyType} from "./InferredPropertyType";
@@ -25,5 +26,10 @@ export class PropertyTypeRegistry {
     }
 	createFilter(...types: InferredPropertyType[]) {
 		return (propertyId: BasesPropertyId) => this.filter(propertyId, ...types);
+	}
+
+	// Filters by where a property comes from rather than by its value type.
+	createSourceFilter(...sources: BasesPropertyType[]) {
+		return (propertyId: BasesPropertyId) => sources.includes(parsePropertyId(propertyId).type);
 	}
 }
