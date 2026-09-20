@@ -1,348 +1,165 @@
-import {App, PluginSettingTab, Setting} from "obsidian";
+import {App, PluginSettingTab, Setting, type SettingDefinition, type SettingDefinitionItem} from "obsidian";
 import MermaidBaseViews from "../main";
-import {DEFAULT_SETTINGS} from "./mermaidBaseViewsSettings";
+import {DEFAULT_CONFIG, DEFAULT_SETTINGS, MermaidBaseViewsSettings} from "./mermaidBaseViewsSettings";
+
+type SettingKey = keyof MermaidBaseViewsSettings;
+type StringSettingKey = {
+	[K in SettingKey]: MermaidBaseViewsSettings[K] extends string ? K : never;
+}[SettingKey];
+type NumberSettingKey = {
+	[K in SettingKey]: MermaidBaseViewsSettings[K] extends number ? K : never;
+}[SettingKey];
 
 export class GeneralSettingTab extends PluginSettingTab {
 	plugin: MermaidBaseViews;
-
-	private paletteCollapsed: boolean = false;
 
 	constructor(app: App, plugin: MermaidBaseViews) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
 
-	display(): void {
-		const {containerEl} = this;
+	async setControlValue(key: string, value: unknown): Promise<void> {
+		if (!this.isSettingKey(key))
+			return;
 
-		containerEl.empty();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"General mermaid config",
-			"The default frontmatter configuration for everything. Can be used to e.g. set a theme.",
-			() => this.plugin.settings.generalMermaidConfig,
-			value => {
-				this.plugin.settings.generalMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.generalMermaidConfig
-		);
-
-		this.addGroupingColorSettings(containerEl);
-
-
-		new Setting(containerEl).setName("Flowchart").setHeading();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"Mermaid config",
-			"The default frontmatter configuration for every flowchart view.",
-			() => this.plugin.settings.flowchartMermaidConfig,
-			value => {
-				this.plugin.settings.flowchartMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.flowchartMermaidConfig
-		);
-
-		this.addEntryLimitConfigSetting(
-			containerEl,
-			"Result limit",
-			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
-			() => this.plugin.settings.flowchartResultLimit,
-			value => {
-				this.plugin.settings.flowchartResultLimit = value
-			},
-			DEFAULT_SETTINGS.flowchartResultLimit
-		);
-
-
-		new Setting(containerEl).setName("Mindmap").setHeading();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"Mermaid config",
-			"The default frontmatter configuration for every mindmap view.",
-			() => this.plugin.settings.mindmapMermaidConfig,
-			value => {
-				this.plugin.settings.mindmapMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.mindmapMermaidConfig
-		);
-
-		this.addEntryLimitConfigSetting(
-			containerEl,
-			"Result limit",
-			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
-			() => this.plugin.settings.mindmapResultLimit,
-			value => {
-				this.plugin.settings.mindmapResultLimit = value
-			},
-			DEFAULT_SETTINGS.mindmapResultLimit
-		);
-
-
-		new Setting(containerEl).setName("Timeline").setHeading();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"Mermaid config",
-			"The default frontmatter configuration for every timeline view.",
-			() => this.plugin.settings.timelineMermaidConfig,
-			value => {
-				this.plugin.settings.timelineMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.timelineMermaidConfig
-		);
-
-		this.addEntryLimitConfigSetting(
-			containerEl,
-			"Result limit",
-			"The maximum amount of entries to display. Needed because this view type is performance heavy.",
-			() => this.plugin.settings.timelineResultLimit,
-			value => {
-				this.plugin.settings.timelineResultLimit = value
-			},
-			DEFAULT_SETTINGS.timelineResultLimit
-		);
-
-
-		new Setting(containerEl).setName("Sankey").setHeading();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"Mermaid config",
-			"The default frontmatter configuration for every sankey view.",
-			() => this.plugin.settings.sankeyMermaidConfig,
-			value => {
-				this.plugin.settings.sankeyMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.sankeyMermaidConfig
-		);
-
-
-		new Setting(containerEl).setName("Pie chart").setHeading();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"Mermaid config",
-			"The default frontmatter configuration for every pie chart view.",
-			() => this.plugin.settings.pieChartMermaidConfig,
-			value => {
-				this.plugin.settings.pieChartMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.pieChartMermaidConfig
-		);
-
-
-		new Setting(containerEl).setName("XY chart").setHeading();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"Mermaid config",
-			"The default frontmatter configuration for every XY chart view.",
-			() => this.plugin.settings.XYChartMermaidConfig,
-			value => {
-				this.plugin.settings.XYChartMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.XYChartMermaidConfig
-		);
-
-
-		new Setting(containerEl).setName("Quadrant chart").setHeading();
-
-		this.addMermaidFrontmatterConfigSetting(
-			containerEl,
-			"Mermaid config",
-			"The default frontmatter configuration for every quadrant chart view.",
-			() => this.plugin.settings.quadrantChartMermaidConfig,
-			value => {
-				this.plugin.settings.quadrantChartMermaidConfig = value
-			},
-			DEFAULT_SETTINGS.quadrantChartMermaidConfig
-		);
+		(this.plugin.settings as unknown as Record<string, unknown>)[key] = value;
+		await this.plugin.saveSettings();
 	}
 
-	private addMermaidFrontmatterConfigSetting(
-		containerEl: HTMLElement,
+	getSettingDefinitions(): SettingDefinitionItem[] {
+		return [
+			this.createMermaidConfigSetting(
+				"General mermaid config",
+				"The default frontmatter configuration for everything. Can be used to e.g. set a theme.",
+				"generalMermaidConfig",
+				DEFAULT_CONFIG,
+			),
+			this.createGroupingPaletteList(),
+			this.createChartConfigGroup("Flowchart", "flowchartMermaidConfig", "flowchartResultLimit"),
+			this.createChartConfigGroup("Mindmap", "mindmapMermaidConfig", "mindmapResultLimit"),
+			this.createChartConfigGroup("Timeline", "timelineMermaidConfig", "timelineResultLimit"),
+			this.createChartConfigGroup("Sankey", "sankeyMermaidConfig"),
+			this.createChartConfigGroup("Pie chart", "pieChartMermaidConfig"),
+			this.createChartConfigGroup("XY chart", "XYChartMermaidConfig"),
+			this.createChartConfigGroup("Quadrant chart", "quadrantChartMermaidConfig"),
+			this.createChartConfigGroup("Radar chart", "radarChartMermaidConfig"),
+		];
+	}
+
+	private createChartConfigGroup(
+		heading: string,
+		mermaidConfigKey: StringSettingKey,
+		resultLimitKey?: NumberSettingKey,
+	): SettingDefinitionItem {
+		return {
+			type: "group",
+			heading,
+			items: [
+				this.createMermaidConfigSetting(
+					"Mermaid config",
+					`The default frontmatter configuration for every ${heading.toLowerCase()} view.`,
+					mermaidConfigKey,
+					DEFAULT_SETTINGS[mermaidConfigKey],
+				),
+				...(resultLimitKey ? [
+					this.createResultLimitSetting(resultLimitKey),
+				] : []),
+			],
+		};
+	}
+
+	private createMermaidConfigSetting(
 		name: string,
-		description: string,
-		getConfigValue: () => string,
-		setConfigValue: (value: string) => void | Promise<void>,
-		configDefaultValue: string
-	) {
-		new Setting(containerEl)
-			.setName(name)
-			.setDesc(description)
-			.addTextArea(text => text
-				.setPlaceholder(`config:\n  theme: 'forest'`)
-				.setValue(getConfigValue())
-				.onChange(async (value) => {
-					await setConfigValue(value);
-					await this.plugin.saveSettings();
-				})
-			)
-			.addExtraButton(button => button
-				.setIcon("reset")
-				.setTooltip("Reset to default")
-				.onClick(async () => {
-					await setConfigValue(configDefaultValue);
-					await this.plugin.saveSettings();
-					this.display();
-				})
-			);
+		desc: string,
+		key: StringSettingKey,
+		defaultValue: string,
+	): SettingDefinition {
+		return {
+			name,
+			desc,
+			control: {
+				type: "textarea",
+				key,
+				defaultValue,
+				placeholder: "config:\n  theme: 'forest'",
+				rows: 4,
+			},
+		};
 	}
 
-	private addEntryLimitConfigSetting(
-		containerEl: HTMLElement,
-		name: string,
-		description: string,
-		getConfigValue: () => number,
-		setConfigValue: (value: number) => void | Promise<void>,
-		configDefaultValue: number
-	) {
-		new Setting(containerEl)
-			.setName(name)
-			.setDesc(description)
-			.addSlider(slider => slider
-				.setDynamicTooltip()
-				.setLimits(50, 1000, 50)
-				.setValue(getConfigValue())
-				.onChange(async (value) => {
-					await setConfigValue(value);
-					await this.plugin.saveSettings();
-				})
-			)
-			.addExtraButton((button) => button
-				.setIcon("reset")
-				.setTooltip("Reset to default")
-				.onClick(async () => {
-					await setConfigValue(configDefaultValue);
-					await this.plugin.saveSettings();
-					this.display();
-				})
-			);
+	private createResultLimitSetting(key: NumberSettingKey): SettingDefinition {
+		return {
+			name: "Result limit",
+			desc: "The maximum amount of entries to display. Needed because this view type is performance heavy.",
+			control: {
+				type: "slider",
+				key,
+				defaultValue: DEFAULT_SETTINGS[key],
+				min: 50,
+				max: 1000,
+				step: 50,
+			},
+		};
 	}
 
-	private addGroupingColorSettings(containerEl: HTMLElement) {
-		const section = containerEl.createDiv();
-
-		const header = new Setting(section)
-			.setName("Grouping color palette")
-			.setDesc("The default palette for coloring files when grouped. If there are more groups than colors it will loop around to the first color.")
-			.setHeading();
-
-		const bodyElement = section.createDiv();
-
-		header.addExtraButton(button => button
-			.setIcon("reset")
-			.setTooltip("Reset to default")
-			.onClick(async () => {
-				this.plugin.settings.defaultGroupingPalette = [...DEFAULT_SETTINGS.defaultGroupingPalette];
-				await this.plugin.saveSettings();
-				this.display();
-			})
-		)
-			.addExtraButton(button => {
-				const setIconForState = () => {
-					button.setIcon(this.paletteCollapsed ? "chevron-right" : "chevron-down");
-				};
-				setIconForState();
-
-				button.setTooltip("Show / hide section")
-					.onClick(() => {
-						this.paletteCollapsed = !this.paletteCollapsed;
-						setIconForState();
-						this.updateGroupingColorSettingsBodyVisibility(bodyElement);
-					});
-			});
-
-		this.updateGroupingColorSettingsBodyVisibility(bodyElement);
-		this.renderGroupingColorSettingsList(bodyElement);
-	}
-
-	private updateGroupingColorSettingsBodyVisibility(bodyEl: HTMLElement) {
-		bodyEl.style.display = this.paletteCollapsed ? "none" : "";
-	}
-
-	private renderGroupingColorSettingsList(bodyElement: HTMLElement) {
-		bodyElement.empty();
-
+	private createGroupingPaletteList(): SettingDefinitionItem {
 		const palette = this.plugin.settings.defaultGroupingPalette;
-		const listElement = bodyElement.createDiv();
 
-		palette.forEach((colorValue, index) => {
-			new Setting(listElement).setName(`Group ${index + 1}`)
-				.addColorPicker(color => color
-					.setValue(colorValue)
-					.onChange(async (value) => {
-						this.plugin.settings.defaultGroupingPalette[index] = value;
-						await this.plugin.saveSettings();
-					})
-				)
-				.addExtraButton(button => button
-					.setIcon("arrow-up")
-					.setTooltip("Move up")
-					.setDisabled(index === 0)
-					.onClick(async () => {
-						if (index === 0)
-							return;
-
-						const arr = this.plugin.settings.defaultGroupingPalette;
-						if (!this.swapArrayItems(arr, index - 1, index))
-							return;
-
-						await this.plugin.saveSettings();
-						this.renderGroupingColorSettingsList(bodyElement);
-					})
-				)
-				.addExtraButton(button => button
-					.setIcon("arrow-down")
-					.setTooltip("Move down")
-					.setDisabled(index === palette.length - 1)
-					.onClick(async () => {
-						if (index === palette.length - 1)
-							return;
-
-						const arr = this.plugin.settings.defaultGroupingPalette;
-						if (!this.swapArrayItems(arr, index - 1, index))
-							return;
-
-						await this.plugin.saveSettings();
-						this.renderGroupingColorSettingsList(bodyElement);
-					})
-				)
-				.addExtraButton(button => button
-					.setIcon("trash")
-					.setTooltip("Remove color")
-					.onClick(async () => {
-						this.plugin.settings.defaultGroupingPalette.splice(index, 1);
-						await this.plugin.saveSettings();
-						this.renderGroupingColorSettingsList(bodyElement);
-					})
-				);
-		});
-
-		new Setting(listElement).addButton(button => button
-			.setButtonText("Add color")
-			.setTooltip("Add a new color to the palette")
-			.onClick(async () => {
-				this.plugin.settings.defaultGroupingPalette.push("#ffffff");
-				await this.plugin.saveSettings();
-				this.renderGroupingColorSettingsList(bodyElement);
-			})
-		);
+		return {
+			type: "list",
+			heading: "Grouping color palette",
+			emptyState: "No colors groups defined.",
+			addItem: {
+				name: "Add color",
+				action: () => {
+					void this.addPaletteColor(palette);
+				},
+			},
+			onReorder: (oldIndex: number, newIndex: number) => {
+				void this.reorderPaletteColor(palette, oldIndex, newIndex);
+			},
+			onDelete: (idx: number) => {
+				void this.deletePaletteColor(palette, idx);
+			},
+			items: palette.map((colorValue, index) => ({
+				name: `Group ${index + 1}`,
+				searchable: false,
+				render: (setting: Setting) => {
+					setting.addColorPicker(color => color
+						.setValue(colorValue)
+						.onChange(async (value) => {
+							this.plugin.settings.defaultGroupingPalette[index] = value;
+							await this.plugin.saveSettings();
+						}),
+					);
+				},
+			})),
+		};
 	}
 
-	private swapArrayItems<T>(arr: T[], firstIndex: number, secondIndex: number): boolean {
-		const first = arr[firstIndex];
-		const second = arr[secondIndex];
+	private isSettingKey(key: string): key is SettingKey {
+		return key in DEFAULT_SETTINGS;
+	}
 
-		if (first === undefined || second === undefined)
-			return false;
+	private async addPaletteColor(palette: string[]) {
+		palette.push("#ffffff");
+		await this.plugin.saveSettings();
+		this.update();
+	}
 
-		arr[firstIndex] = second;
-		arr[secondIndex] = first;
+	private async reorderPaletteColor(palette: string[], oldIndex: number, newIndex: number) {
+		const [moved] = palette.splice(oldIndex, 1);
+		if (moved === undefined)
+			return;
 
-		return true;
+		palette.splice(newIndex, 0, moved);
+		await this.plugin.saveSettings();
+		this.update();
+	}
+
+	private async deletePaletteColor(palette: string[], index: number) {
+		palette.splice(index, 1);
+		await this.plugin.saveSettings();
+		this.update();
 	}
 }

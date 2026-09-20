@@ -22,6 +22,18 @@ interface FlowchartRenderContext {
 	showLinksToFilteredOutNotes: boolean;
 }
 
+const FLOWCHART_DIRECTION_OPTIONS: Record<string, string> = {
+	"TB": "Top to bottom",
+	"BT": "Bottom to top",
+	"LR": "Left to right",
+	"RL": "Right to left",
+};
+
+const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
+	"named-links": "Note Names (Clickable Links)",
+	"properties": "Selected Properties",
+};
+
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidFlowchartBaseView.RegistrationData.id;
 	readonly registrationData = MermaidFlowchartBaseView.RegistrationData;
@@ -42,22 +54,14 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				displayName: "Direction",
 				key: "direction",
 				default: "TB",
-				options: {
-					"TB": "Top to bottom",
-					"BT": "Bottom to top",
-					"LR": "Left to right",
-					"RL": "Right to left"
-				},
+				options: FLOWCHART_DIRECTION_OPTIONS,
 			},
 			{
 				type: "dropdown",
 				displayName: "Node Label Content",
 				key: "nodeLabelContent",
 				default: "named-links",
-				options: {
-					"named-links": "Note Names (Clickable Links)",
-					"properties": "Selected Properties"
-				},
+				options: NODE_LABEL_CONTENT_OPTIONS,
 			},
 			{
 				type: "toggle",
