@@ -6,10 +6,10 @@ import {GeneralSettingTab} from "./settings/generalSettingTab";
 import {MermaidBaseViewBase} from "./views/MermaidBaseViewBase";
 
 export default class MermaidBaseViews extends Plugin {
-	settings: MermaidBaseViewsSettings;
+	settings!: MermaidBaseViewsSettings;
 
 	private mermaidViews = new Set<MermaidBaseViewBase>();
-	propertyTypes: PropertyTypeRegistry;
+	propertyTypes!: PropertyTypeRegistry;
 
 	async onload() {
 		await this.loadSettings();
