@@ -28,22 +28,44 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 	getSettingDefinitions(): SettingDefinitionItem[] {
 		return [
-			this.createMermaidConfigSetting(
-				"General mermaid config",
-				"The default frontmatter configuration for everything. Can be used to e.g. set a theme.",
-				"generalMermaidConfig",
-				DEFAULT_CONFIG,
-			),
-			this.createGroupingPaletteList(),
-			this.createChartConfigGroup("Flowchart", "flowchartMermaidConfig", "flowchartResultLimit"),
-			this.createChartConfigGroup("Mindmap", "mindmapMermaidConfig", "mindmapResultLimit"),
-			this.createChartConfigGroup("Timeline", "timelineMermaidConfig", "timelineResultLimit"),
-			this.createChartConfigGroup("Sankey", "sankeyMermaidConfig"),
-			this.createChartConfigGroup("Pie chart", "pieChartMermaidConfig"),
-			this.createChartConfigGroup("XY chart", "XYChartMermaidConfig"),
-			this.createChartConfigGroup("Quadrant chart", "quadrantChartMermaidConfig"),
-			this.createChartConfigGroup("Radar chart", "radarChartMermaidConfig"),
+			this.createGeneralSettingsPage(),
+			this.createChartOverrideSettingsPage(),
 		];
+	}
+
+	private createGeneralSettingsPage(): SettingDefinitionItem {
+		return {
+			type: "page",
+			name: "General",
+			desc: "Shared Mermaid configuration and grouping colors.",
+			items: [
+				this.createMermaidConfigSetting(
+					"General mermaid config",
+					"The default frontmatter configuration for everything. Can be used to e.g. set a theme.",
+					"generalMermaidConfig",
+					DEFAULT_CONFIG,
+				),
+				this.createGroupingPaletteList(),
+			],
+		};
+	}
+
+	private createChartOverrideSettingsPage(): SettingDefinitionItem {
+		return {
+			type: "page",
+			name: "Chart overrides",
+			desc: "Chart-specific Mermaid config and result limits.",
+			items: [
+				this.createChartConfigGroup("Flowchart", "flowchartMermaidConfig", "flowchartResultLimit"),
+				this.createChartConfigGroup("Mindmap", "mindmapMermaidConfig", "mindmapResultLimit"),
+				this.createChartConfigGroup("Timeline", "timelineMermaidConfig", "timelineResultLimit"),
+				this.createChartConfigGroup("Sankey", "sankeyMermaidConfig"),
+				this.createChartConfigGroup("Pie chart", "pieChartMermaidConfig"),
+				this.createChartConfigGroup("XY chart", "XYChartMermaidConfig"),
+				this.createChartConfigGroup("Quadrant chart", "quadrantChartMermaidConfig"),
+				this.createChartConfigGroup("Radar chart", "radarChartMermaidConfig"),
+			],
+		};
 	}
 
 	private createChartConfigGroup(
