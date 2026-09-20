@@ -131,6 +131,14 @@ export class GeneralSettingTab extends PluginSettingTab {
 			type: "list",
 			heading: "Grouping color palette",
 			emptyState: "No colors groups defined.",
+			extraButtons: [
+				button => button
+					.setIcon("reset")
+					.setTooltip("Restore default color palette")
+					.onClick(() => {
+						void this.restoreDefaultPalette();
+					}),
+			],
 			addItem: {
 				name: "Add color",
 				action: () => {
@@ -165,6 +173,12 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 	private async addPaletteColor(palette: string[]) {
 		palette.push("#ffffff");
+		await this.plugin.saveSettings();
+		this.update();
+	}
+
+	private async restoreDefaultPalette() {
+		this.plugin.settings.defaultGroupingPalette = [...DEFAULT_SETTINGS.defaultGroupingPalette];
 		await this.plugin.saveSettings();
 		this.update();
 	}
