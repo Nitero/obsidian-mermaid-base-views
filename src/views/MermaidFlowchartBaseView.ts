@@ -47,7 +47,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 					"BT": "Bottom to top",
 					"LR": "Left to right",
 					"RL": "Right to left"
-				} as Record<string, string>,
+				},
 			},
 			{
 				type: "dropdown",
@@ -57,7 +57,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				options: {
 					"named-links": "Note Names (Clickable Links)",
 					"properties": "Selected Properties"
-				} as Record<string, string>,
+				},
 			},
 			{
 				type: "toggle",
