@@ -18,9 +18,9 @@ interface FlowchartRenderContext {
 	edges: Map<string, Edge>;
 	nodeLabelContent: string;
 	showPropertyNames: boolean;
-	filesByPath: Map<string, TFile>;
+	linkSource: string;
 	showLinksToFilteredOutNotes: boolean;
-	showBodyLinks: boolean;
+	filesByPath: Map<string, TFile>;
 }
 
 const FLOWCHART_DIRECTION_OPTIONS: Record<string, string> = {
@@ -33,6 +33,12 @@ const FLOWCHART_DIRECTION_OPTIONS: Record<string, string> = {
 const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
 	"named-links": "Note Names (Clickable Links)",
 	"properties": "Selected Properties",
+};
+
+const EDGE_LINK_SOURCE_OPTIONS: Record<string, string> = {
+	"properties-and-body": "Properties And Body",
+	"properties-only": "Properties",
+	"body-only": "Body",
 };
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
@@ -71,16 +77,17 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				default: true,
 			},
 			{
+				type: "dropdown",
+				displayName: "Link Source",
+				key: "linkSource",
+				default: "properties-and-body",
+				options: EDGE_LINK_SOURCE_OPTIONS,
+			},
+			{
 				type: "toggle",
 				displayName: "Show links to filtered-out notes",
 				key: "showLinksToFilteredOutNotes",
 				default: false,
-			},
-			{
-				type: "toggle",
-				displayName: "Show links from note body",
-				key: "showBodyLinks",
-				default: true,
 			},
 			{
 				type: "text",
@@ -96,8 +103,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const direction = this.getConfigValue<string>("direction");
 		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const linkSource = this.getConfigValue<string>("linkSource");
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
-		const showBodyLinks = this.getConfigValue<boolean>("showBodyLinks");
 		const filesByPath = this.collectBaseFilesByPath();
 
 		const ctx: FlowchartRenderContext = {
@@ -109,9 +116,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			edges: new Map<string, Edge>(),
 			nodeLabelContent,
 			showPropertyNames,
-			filesByPath: filesByPath,
+			linkSource,
 			showLinksToFilteredOutNotes,
-			showBodyLinks,
+			filesByPath: filesByPath,
 		};
 
 		this.collectNodesAndEdges(ctx);
@@ -158,9 +165,14 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				nodeSet.add(srcId);
 				ctx.groupedNodeIds.add(srcId);
 
-				if (ctx.showBodyLinks)
+				if (ctx.linkSource === "properties-and-body"){
 					this.collectOutgoingEdgesFromLinks(entry.file, srcId, ctx);
-				this.collectEdgesFromFrontmatterLinks(entry.file, srcId, ctx);
+					this.collectEdgesFromFrontmatterLinks(entry.file, srcId, ctx);
+				}
+				if (ctx.linkSource === "properties-only")
+					this.collectEdgesFromFrontmatterLinks(entry.file, srcId, ctx);
+				if (ctx.linkSource === "body-only")
+					this.collectOutgoingEdgesFromLinks(entry.file, srcId, ctx);
 			}
 		}
 	}
