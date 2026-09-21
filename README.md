@@ -47,7 +47,7 @@ Currently supported are:
 Can be used to show the links between notes. Good for small amounts of results.
 
 This will display all notes based on the filters of the base as labels. The labels will show either clickable links of the note names, or the selected properties (depending on the settings).
-It will also show any links between the notes as lines. If the links come from properties their names will be visible on the lines. 
+It will also show any links between the notes as lines. If the links come from properties their names will be visible on the lines.
 Supports grouping, by adding boxes around each group.
 
 ### Mindmap
