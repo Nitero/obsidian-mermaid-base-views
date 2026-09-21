@@ -3,6 +3,9 @@ import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, parsePropertyId, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
 import {frontmatterLinkKeyToProperty, frontmatterLinkMatchesProperty} from "../core/frontmatterLinks";
+import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
+import {getBodyLinksForSource, getFrontmatterLinksForSource} from "../core/utils";
+import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
 
 type Edge = {
 	from: string;
@@ -19,11 +22,25 @@ interface FlowchartRenderContext {
 	edges: Map<string, Edge>;
 	nodeLabelContent: string;
 	showPropertyNames: boolean;
+	linkSource: string;
+	showLinksToFilteredOutNotes: boolean;
 	filesByPath: Map<string, TFile>;
 	showLinksToFilteredOutNotes: boolean;
 	edgePropertyName: string | null;
 	showEdgePropertyNames: boolean;
 }
+
+const FLOWCHART_DIRECTION_OPTIONS: Record<string, string> = {
+	"TB": "Top to bottom",
+	"BT": "Bottom to top",
+	"LR": "Left to right",
+	"RL": "Right to left",
+};
+
+const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
+	"named-links": "Note Names (Clickable Links)",
+	"properties": "Selected Properties",
+};
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidFlowchartBaseView.RegistrationData.id;
@@ -45,34 +62,46 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				displayName: "Direction",
 				key: "direction",
 				default: "TB",
-				options: {
-					"TB": "Top to bottom",
-					"BT": "Bottom to top",
-					"LR": "Left to right",
-					"RL": "Right to left"
-				} as Record<string, string>,
+				options: FLOWCHART_DIRECTION_OPTIONS,
 			},
 			{
-				type: "dropdown",
-				displayName: "Node Label Content",
-				key: "nodeLabelContent",
-				default: "named-links",
-				options: {
-					"named-links": "Note Names (Clickable Links)",
-					"properties": "Selected Properties"
-				} as Record<string, string>,
+				displayName: "Labels",
+				type: "group",
+				items: [
+					{
+						type: "dropdown",
+						displayName: "Node Label Content",
+						key: "nodeLabelContent",
+						default: "named-links",
+						options: NODE_LABEL_CONTENT_OPTIONS,
+					},
+					{
+						type: "toggle",
+						displayName: "Show property names",
+						key: "showPropertyNames",
+						default: true,
+						shouldHide: shouldHideShowPropertyNames("named-links"),
+					},
+				],
 			},
 			{
-				type: "toggle",
-				displayName: "Show property names",
-				key: "showPropertyNames",
-				default: true,
-			},
-			{
-				type: "toggle",
-				displayName: "Show links to filtered-out notes",
-				key: "showLinksToFilteredOutNotes",
-				default: false,
+				displayName: "Links",
+				type: "group",
+				items: [
+					{
+						type: "dropdown",
+						displayName: "Link Source",
+						key: "linkSource",
+						default: "properties-and-body",
+						options: EDGE_LINK_SOURCE_OPTIONS,
+					},
+					{
+						type: "toggle",
+						displayName: "Show links to filtered-out notes",
+						key: "showLinksToFilteredOutNotes",
+						default: false,
+					},
+				],
 			},
 			{
 				type: "property",
@@ -101,6 +130,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const direction = this.getConfigValue<string>("direction");
 		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const linkSource = this.getConfigValue<string>("linkSource");
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
 		const edgePropertyId = this.config.getAsPropertyId("edgeProperty");
 		const edgePropertyName = edgePropertyId ? parsePropertyId(edgePropertyId).name : null;
@@ -116,6 +146,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			edges: new Map<string, Edge>(),
 			nodeLabelContent,
 			showPropertyNames,
+			linkSource,
+			showLinksToFilteredOutNotes,
 			filesByPath: filesByPath,
 			showLinksToFilteredOutNotes,
 			edgePropertyName,
@@ -196,7 +228,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		ctx: FlowchartRenderContext,
 	): void {
 		const fileCache = this.app.metadataCache.getFileCache(file);
-		const links = fileCache?.links ?? [];
+		const links = getBodyLinksForSource(fileCache, ctx.linkSource);
 		for (const link of links) {
 			const target = this.getLinkedFileIfVisible(
 				link.link,
@@ -221,7 +253,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		ctx: FlowchartRenderContext,
 	): void {
 		const fileCache = this.app.metadataCache.getFileCache(file);
-		const fmLinks = fileCache?.frontmatterLinks ?? [];
+		const fmLinks = getFrontmatterLinksForSource(fileCache, ctx.linkSource);
 		for (const fm of fmLinks) {
 			if (!frontmatterLinkMatchesProperty(fm.key, ctx.edgePropertyName))
 				continue;

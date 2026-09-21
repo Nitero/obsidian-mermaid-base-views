@@ -44,3 +44,5 @@ export const DEFAULT_SETTINGS: MermaidBaseViewsSettings = {
 		"#edc948",
 	],
 }
+
+export const DEFAULT_CONFIG = "config:\n  theme: 'forest";
