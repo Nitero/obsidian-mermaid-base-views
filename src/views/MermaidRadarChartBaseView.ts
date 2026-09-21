@@ -10,6 +10,11 @@ type Curve = {
 	values: number[]
 };
 
+type RawCurve = {
+	label: string;
+	values: (number | null)[]
+};
+
 type Axis = {
 	id: string;
 	label: string;
@@ -33,15 +38,15 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Min value",
+				displayName: "Min value (optional)",
 				key: "min",
-				default: "0",
+				placeholder: NUMBER_RANGE_PLACEHOLDER,
 			},
 			{
 				type: "text",
-				displayName: "Max value",
+				displayName: "Max value (optional)",
 				key: "max",
-				default: "100",
+				placeholder: NUMBER_RANGE_PLACEHOLDER,
 			},
 			{
 				type: "dropdown",
@@ -78,27 +83,6 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 		const ticks = this.getConfigValue<string>("ticks");
 		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
 
-		let minValue = 0;
-		let maxValue = 100;
-
-		const minConfig = this.getConfigValue<string>("min");
-		if(minConfig){
-			const minConfigNumber = Number(minConfig);
-			if (Number.isFinite(minConfigNumber))
-				minValue = minConfigNumber;
-		}
-		const maxConfig = this.getConfigValue<string>("max");
-		if(maxConfig){
-			const maxConfigNumber = Number(maxConfig);
-			if (Number.isFinite(maxConfigNumber))
-				maxValue = maxConfigNumber;
-		}
-
-		if (minValue === maxValue) {
-			minValue -= 1;
-			maxValue += 1;
-		}
-
 		const axes: Axis[] = [];
 		let axisId = 0;
 		for (const property of this.data.properties)
@@ -109,24 +93,39 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
-		const {curves, hasAnyValue} = this.generateCurves(
+		const {
+			curves: rawCurves,
+			minValue: dataMinValue,
+			maxValue: dataMaxValue,
+		} = this.generateRawCurves(
 			axes,
 			showDataLabel,
-			minValue,
-			maxValue,
 		);
 
-		if (!hasAnyValue || curves.length === 0) {
+		if (rawCurves.length === 0) {
 			this.containerEl.createDiv({text: "No numeric/boolean values found for the selected axis properties."});
 			return;
 		}
+
+		const minOverride = this.getNumberOverride("min");
+		const maxOverride = this.getNumberOverride("max");
+
+		let minValue = minOverride ?? dataMinValue;
+		let maxValue = maxOverride ?? dataMaxValue;
+
+		if (minValue === maxValue) {
+			minValue -= 1;
+			maxValue += 1;
+		}
+
+		const curves = this.applyRange(rawCurves, minValue, maxValue);
 
 		const mermaidCode = this.buildMermaidCode(
 			title,
 			axes,
 			curves,
-			minValue,
-			maxValue,
+			minOverride !== null || minValue !== 0 ? minValue : null,
+			maxOverride !== null || maxValue !== dataMaxValue ? maxValue : null,
 			graticule,
 			ticks
 		);
@@ -134,25 +133,24 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 		await this.renderMermaid(mermaidCode, this.plugin.settings.radarChartMermaidConfig);
 	}
 
-	private generateCurves(
+	private generateRawCurves(
 		axes: Axis[],
 		showDataLabel: boolean,
-		minValue: number,
-		maxValue: number,
-	): {curves: Curve[]; hasAnyValue: boolean} {
+	): {curves: RawCurve[]; minValue: number; maxValue: number} {
 
-		const curves: Curve[] = [];
-		let hasAnyValue = false;
+		const curves: RawCurve[] = [];
+		let minValue = Number.POSITIVE_INFINITY;
+		let maxValue = Number.NEGATIVE_INFINITY;
 
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
-				const values: number[] = [];
+				const values: (number | null)[] = [];
 				let allMissing = true;
 
 				for (const axis of axes) {
 					const value = entry.getValue(axis.propertyId);
-					if (!value) {
-						values.push(minValue);
+					if (value === null || value === undefined) {
+						values.push(null);
 						continue;
 					}
 
@@ -170,14 +168,18 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 					}
 
 					if (number === null) {
-						values.push(minValue);
+						values.push(null);
 						continue;
 					}
 
 					allMissing = false;
 
-					const clamped = Math.clamp(number, minValue, maxValue);
-					values.push(clamped);
+					if (number < minValue)
+						minValue = number;
+					if (number > maxValue)
+						maxValue = number;
+
+					values.push(number);
 				}
 
 				if (allMissing)
@@ -188,15 +190,38 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 					label += ` (${this.getLabelWithProperties(entry.file, true, ", ", "ː")})`
 
 				curves.push({label, values});
-				hasAnyValue = true;
 			}
 		}
 
-		return {curves, hasAnyValue};
+		return {curves, minValue, maxValue};
+	}
+
+	private getNumberOverride(key: string): number | null {
+		const config = this.getConfigValue<string>(key, "").trim();
+		if (config.length === 0)
+			return null;
+
+		const value = Number(config);
+		if (!Number.isFinite(value))
+			return null;
+
+		return value;
+	}
+
+	private applyRange(rawCurves: RawCurve[], minValue: number, maxValue: number): Curve[] {
+		return rawCurves.map((curve) => ({
+			label: curve.label,
+			values: curve.values.map((value) => {
+				if (value === null)
+					return minValue;
+
+				return Math.min(maxValue, Math.max(minValue, value));
+			}),
+		}));
 	}
 
 	private buildMermaidCode(
-		title: string, axes: Axis[], curves: Curve[], minValue: number, maxValue: number, graticule: string, ticks: string,
+		title: string, axes: Axis[], curves: Curve[], minValue: number | null, maxValue: number | null, graticule: string, ticks: string,
 	): string {
 		const lines: string[] = [];
 		lines.push("radar-beta");
@@ -221,8 +246,10 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 			lines.push(`  curve id${i}["${curve.label}"]{${values}}`);
 		}
 
-		lines.push(`  max ${maxValue}`);
-		lines.push(`  min ${minValue}`);
+		if (maxValue !== null)
+			lines.push(`  max ${maxValue}`);
+		if (minValue !== null)
+			lines.push(`  min ${minValue}`);
 		lines.push(`  graticule ${graticule}`);
 		lines.push(`  ticks ${ticks}`);
 
