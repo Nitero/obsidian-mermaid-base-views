@@ -25,7 +25,6 @@ interface FlowchartRenderContext {
 	linkSource: string;
 	showLinksToFilteredOutNotes: boolean;
 	filesByPath: Map<string, TFile>;
-	showLinksToFilteredOutNotes: boolean;
 	edgePropertyName: string | null;
 	showEdgePropertyNames: boolean;
 }
@@ -133,9 +132,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		const linkSource = this.getConfigValue<string>("linkSource");
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
 		const edgePropertyId = this.config.getAsPropertyId("edgeProperty");
+		const filesByPath = this.collectBaseFilesByPath();
 		const edgePropertyName = edgePropertyId ? parsePropertyId(edgePropertyId).name : null;
 		const showEdgePropertyNames = this.getConfigValue<boolean>("showEdgePropertyNames");
-		const filesByPath = this.collectBaseFilesByPath();
 
 		const ctx: FlowchartRenderContext = {
 			fileToNodeId: new Map<string, string>(),
@@ -149,7 +148,6 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 			linkSource,
 			showLinksToFilteredOutNotes,
 			filesByPath: filesByPath,
-			showLinksToFilteredOutNotes,
 			edgePropertyName,
 			showEdgePropertyNames,
 		};
