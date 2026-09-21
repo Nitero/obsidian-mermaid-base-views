@@ -1,9 +1,25 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import {getBodyLinksForSource, getFrontmatterLinksForSource, indent} from "../core/utils";
+import {
+	getBodyLinksForSource,
+	getFrontmatterLinksForSource,
+	getPropertyNameFromId,
+	indent,
+	shouldHidePropertyLinkOptions
+} from "../core/utils";
 import MermaidBaseViews from "../main";
-import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
+import {
+	DEFAULT_LINK_SOURCE,
+	EDGE_LINK_SOURCE_OPTIONS,
+	LINK_PROPERTY_CONFIG_KEY,
+	LINK_PROPERTY_DISPLAY_NAME,
+	LINK_PROPERTY_PLACEHOLDER,
+	LINK_SOURCE_CONFIG_KEY,
+	LINK_SOURCE_DISPLAY_NAME,
+	SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY,
+	SHOW_LINKS_TO_FILTERED_OUT_NOTES_DISPLAY_NAME
+} from "../core/constants";
 import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
 
 interface MindmapRenderContext {
@@ -17,6 +33,7 @@ interface MindmapRenderContext {
 	lines: string[];
 	linkSource: string;
 	showLinksToFilteredOutNotes: boolean;
+	linkPropertyName: string | null;
 }
 
 const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
@@ -65,16 +82,24 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 				items: [
 					{
 						type: "dropdown",
-						displayName: "Link Source",
-						key: "linkSource",
-						default: "properties-and-body",
+						displayName: LINK_SOURCE_DISPLAY_NAME,
+						key: LINK_SOURCE_CONFIG_KEY,
+						default: DEFAULT_LINK_SOURCE,
 						options: EDGE_LINK_SOURCE_OPTIONS,
 					},
 					{
 						type: "toggle",
-						displayName: "Show links to filtered-out notes",
-						key: "showLinksToFilteredOutNotes",
+						displayName: SHOW_LINKS_TO_FILTERED_OUT_NOTES_DISPLAY_NAME,
+						key: SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY,
 						default: false,
+					},
+					{
+						type: "property",
+						displayName: LINK_PROPERTY_DISPLAY_NAME,
+						key: LINK_PROPERTY_CONFIG_KEY,
+						placeholder: LINK_PROPERTY_PLACEHOLDER,
+						filter: plugin.propertyTypes.createSourceFilter("note"),
+						shouldHide: shouldHidePropertyLinkOptions(DEFAULT_LINK_SOURCE),
 					},
 				],
 			},
@@ -91,8 +116,9 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 		const rootLabel = this.getConfigValue<string>("rootLabel");
 		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
-		const linkSource = this.getConfigValue<string>("linkSource");
-		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
+		const linkSource = this.getConfigValue<string>(LINK_SOURCE_CONFIG_KEY);
+		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY);
+		const linkPropertyName = getPropertyNameFromId(this.config.getAsPropertyId(LINK_PROPERTY_CONFIG_KEY));
 
 		const filesByPath = this.collectBaseFilesByPath();
 		const ctx: MindmapRenderContext = {
@@ -106,6 +132,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			lines: [],
 			linkSource,
 			showLinksToFilteredOutNotes,
+			linkPropertyName,
 		};
 
 		if (filesByPath.size === 0) {
@@ -188,7 +215,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			const cache = this.app.metadataCache.getFileCache(file);
 			const allLinks = [
 				...getBodyLinksForSource(cache, ctx.linkSource),
-				...getFrontmatterLinksForSource(cache, ctx.linkSource),
+				...getFrontmatterLinksForSource(cache, ctx.linkSource, ctx.linkPropertyName),
 			];
 
 			for (const link of allLinks) {
