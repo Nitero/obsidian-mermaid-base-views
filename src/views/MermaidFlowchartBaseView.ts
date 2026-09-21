@@ -106,7 +106,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				type: "property",
 				displayName: "Edges property (optional)",
 				key: "edgeProperty",
-				placeholder: "e.g. depends_on",
+				placeholder: "e.g. parent_note",
 				filter: plugin.propertyTypes.createSourceFilter("note"),
 			},
 			{
