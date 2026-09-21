@@ -3,6 +3,7 @@ import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
+import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
 
 export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidXYChartBaseView.RegistrationData.id;
@@ -15,15 +16,15 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Title",
-				key: "title",
-				default: "Title",
+				displayName: COMMON_VIEW_OPTIONS.title.displayName,
+				key: COMMON_VIEW_OPTIONS.title.key,
+				default: COMMON_VIEW_OPTIONS.title.default,
 			},
 			{
 				type: "property",
 				displayName: "Y-axis property",
 				key: "yValueProperty",
-				placeholder: "e.g. file size",
+				placeholder: FILE_SIZE_PLACEHOLDER,
 				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
 			},
 			{
@@ -36,13 +37,13 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 				type: "text",
 				displayName: "Y-minimum (optional)",
 				key: "yMin",
-				placeholder: "number (defaults to automatic from data)",
+				placeholder: NUMBER_RANGE_PLACEHOLDER,
 			},
 			{
 				type: "text",
 				displayName: "Y-maximum (optional)",
 				key: "yMax",
-				placeholder: "number (defaults to automatic from data)",
+				placeholder: NUMBER_RANGE_PLACEHOLDER,
 			},
 			{
 				type: "dropdown",
@@ -59,15 +60,15 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 			// },
 			{
 				type: "toggle",
-				displayName: "Show property names",
-				key: "showPropertyNames",
-				default: true,
+				displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
+				key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
+				default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};
@@ -75,14 +76,14 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const yValuePropertyId = this.config.getAsPropertyId("yValueProperty");
 
-		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 
 		if (!yValuePropertyId) {
 			this.containerEl.createDiv({text: "Configure a numeric Y-axis value property in the view settings."});
 			return;
 		}
 
-		const title = this.getConfigValue<string>("title");
+		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
 		const yAxisLabel = this.getConfigValue<string>("yAxisLabel", parsePropertyId(yValuePropertyId).name);
 		const chartType = this.getConfigValue<"bar" | "line" | "bar-and-line">("chartType");
 

@@ -2,6 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId, parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
+import {COMMON_VIEW_OPTIONS} from "../core/constants";
 
 
 type Curve = {
@@ -27,8 +28,8 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 			{
 				type: "text",
 				displayName: "Chart title",
-				key: "title",
-				default: "Title",
+				key: COMMON_VIEW_OPTIONS.title.key,
+				default: COMMON_VIEW_OPTIONS.title.default,
 			},
 			{
 				type: "text",
@@ -50,15 +51,15 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};
 
 	protected async render(): Promise<void> {
-		const title = this.getConfigValue<string>("title");
+		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
 
 		const labelPropertyId = this.config.getAsPropertyId("labelProperty");
 

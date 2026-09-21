@@ -3,6 +3,7 @@ import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
+import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
 
 type Point = {
 	label: string;
@@ -22,9 +23,9 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Title",
-				key: "title",
-				default: "Title",
+				displayName: COMMON_VIEW_OPTIONS.title.displayName,
+				key: COMMON_VIEW_OPTIONS.title.key,
+				default: COMMON_VIEW_OPTIONS.title.default,
 			},
 
 			{
@@ -104,34 +105,34 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 						type: "text",
 						displayName: "X-minimum (optional)",
 						key: "xMin",
-						placeholder: "number (defaults to automatic from data)",
+						placeholder: NUMBER_RANGE_PLACEHOLDER,
 					},
 					{
 						type: "text",
 						displayName: "X-maximum (optional)",
 						key: "xMax",
-						placeholder: "number (defaults to automatic from data)",
+						placeholder: NUMBER_RANGE_PLACEHOLDER,
 					},
 					{
 						type: "text",
 						displayName: "Y-minimum (optional)",
 						key: "yMin",
-						placeholder: "number (defaults to automatic from data)",
+						placeholder: NUMBER_RANGE_PLACEHOLDER,
 					},
 					{
 						type: "text",
 						displayName: "Y-maximum (optional)",
 						key: "yMax",
-						placeholder: "number (defaults to automatic from data)",
+						placeholder: NUMBER_RANGE_PLACEHOLDER,
 					},
 				],
 			},
 
 			{
 				type: "toggle",
-				displayName: "Show property names",
-				key: "showPropertyNames",
-				default: true,
+				displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
+				key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
+				default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
 			},
 			{
 				type: "multitext",
@@ -140,9 +141,9 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};
@@ -152,7 +153,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 		const xPropertyId = this.config.getAsPropertyId("xProperty");
 		const yPropertyId = this.config.getAsPropertyId("yProperty");
 
-		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 
 		if (!xPropertyId || !yPropertyId) {
 			this.containerEl.createDiv({text: "Configure numeric X and Y properties in the view settings."});
@@ -323,7 +324,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 	}
 
 	private buildMermaidCode(normalizedPoints: Point[]): string {
-		const title = this.getConfigValue<string>("title");
+		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
 
 		let xAxisLabels: string = "";
 		const xAxisLabelLeft = this.getConfigValue<string>("xAxisLabelLeft", "");

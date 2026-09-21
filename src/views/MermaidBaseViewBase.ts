@@ -8,6 +8,7 @@ import {
 } from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../main";
+import {COMMON_VIEW_OPTIONS} from "../core/constants";
 
 export abstract class MermaidBaseViewBase extends BasesView {
 	protected plugin: MermaidBaseViews;
@@ -35,7 +36,7 @@ export abstract class MermaidBaseViewBase extends BasesView {
 
 	protected async renderMermaid(mermaidCode: string, viewTypeMermaidConfig: string): Promise<void> {
 		const usesSettingOverride = viewTypeMermaidConfig && viewTypeMermaidConfig.length > 0;
-		const configBlock = this.getConfigValue<string>("mermaidConfigOverrideDirective", `---\n${usesSettingOverride ? viewTypeMermaidConfig : this.plugin.settings.generalMermaidConfig}\n---`);
+		const configBlock = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, `---\n${usesSettingOverride ? viewTypeMermaidConfig : this.plugin.settings.generalMermaidConfig}\n---`);
 
 		mermaidCode = mermaidCode.trim();
 		if (configBlock.length > 0)

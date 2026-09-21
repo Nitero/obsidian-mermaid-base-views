@@ -10,15 +10,11 @@ import {
 } from "../core/utils";
 import MermaidBaseViews from "../main";
 import {
-	DEFAULT_LINK_SOURCE,
-	EDGE_LINK_SOURCE_OPTIONS,
-	LINK_PROPERTY_CONFIG_KEY,
-	LINK_PROPERTY_DISPLAY_NAME,
-	LINK_PROPERTY_PLACEHOLDER,
-	LINK_SOURCE_CONFIG_KEY,
-	LINK_SOURCE_DISPLAY_NAME,
-	SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY,
-	SHOW_LINKS_TO_FILTERED_OUT_NOTES_DISPLAY_NAME
+	COMMON_OPTION_GROUPS,
+	COMMON_VIEW_OPTIONS,
+	LINK_OPTIONS,
+	NODE_LABEL_CONTENT_VALUES,
+	SELECTED_PROPERTIES_LABEL
 } from "../core/constants";
 import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
 
@@ -37,8 +33,8 @@ interface MindmapRenderContext {
 }
 
 const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
-	"named-links": "Note Names",
-	"properties": "Selected Properties",
+	[NODE_LABEL_CONTENT_VALUES.namedLinks]: "Note Names",
+	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
 };
 
 export class MermaidMindmapBaseView extends MermaidBaseViewBase {
@@ -57,68 +53,68 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 				default: "Mindmap",
 			},
 			{
-				displayName: "Labels",
+				displayName: COMMON_OPTION_GROUPS.labels,
 				type: "group",
 				items: [
 					{
 						type: "dropdown",
-						displayName: "Node Label Content",
-						key: "nodeLabelContent",
-						default: "properties",
+						displayName: COMMON_VIEW_OPTIONS.nodeLabelContent.displayName,
+						key: COMMON_VIEW_OPTIONS.nodeLabelContent.key,
+						default: NODE_LABEL_CONTENT_VALUES.properties,
 						options: NODE_LABEL_CONTENT_OPTIONS,
 					},
 					{
 						type: "toggle",
-						displayName: "Show property names",
-						key: "showPropertyNames",
-						default: true,
-						shouldHide: shouldHideShowPropertyNames("properties"),
+						displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
+						key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
+						default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
+						shouldHide: shouldHideShowPropertyNames(NODE_LABEL_CONTENT_VALUES.properties),
 					},
 				],
 			},
 			{
-				displayName: "Links",
+				displayName: COMMON_OPTION_GROUPS.links,
 				type: "group",
 				items: [
 					{
 						type: "dropdown",
-						displayName: LINK_SOURCE_DISPLAY_NAME,
-						key: LINK_SOURCE_CONFIG_KEY,
-						default: DEFAULT_LINK_SOURCE,
-						options: EDGE_LINK_SOURCE_OPTIONS,
+						displayName: LINK_OPTIONS.source.displayName,
+						key: LINK_OPTIONS.source.key,
+						default: LINK_OPTIONS.source.default,
+						options: LINK_OPTIONS.source.options,
 					},
 					{
 						type: "toggle",
-						displayName: SHOW_LINKS_TO_FILTERED_OUT_NOTES_DISPLAY_NAME,
-						key: SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY,
-						default: false,
+						displayName: LINK_OPTIONS.showFilteredOutNotes.displayName,
+						key: LINK_OPTIONS.showFilteredOutNotes.key,
+						default: LINK_OPTIONS.showFilteredOutNotes.default,
 					},
 					{
 						type: "property",
-						displayName: LINK_PROPERTY_DISPLAY_NAME,
-						key: LINK_PROPERTY_CONFIG_KEY,
-						placeholder: LINK_PROPERTY_PLACEHOLDER,
+						displayName: LINK_OPTIONS.property.displayName,
+						key: LINK_OPTIONS.property.key,
+						placeholder: LINK_OPTIONS.property.placeholder,
 						filter: plugin.propertyTypes.createSourceFilter("note"),
-						shouldHide: shouldHidePropertyLinkOptions(DEFAULT_LINK_SOURCE),
+						shouldHide: shouldHidePropertyLinkOptions(LINK_OPTIONS.source.default),
 					},
 				],
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};
 
 	protected async render(): Promise<void> {
 		const rootLabel = this.getConfigValue<string>("rootLabel");
-		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
-		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
-		const linkSource = this.getConfigValue<string>(LINK_SOURCE_CONFIG_KEY);
-		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY);
-		const linkPropertyName = getPropertyNameFromId(this.config.getAsPropertyId(LINK_PROPERTY_CONFIG_KEY));
+		const nodeLabelContent = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.nodeLabelContent.key);
+		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const linkSource = this.getConfigValue<string>(LINK_OPTIONS.source.key);
+		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(LINK_OPTIONS.showFilteredOutNotes.key);
+		const linkPropertyName = getPropertyNameFromId(this.config.getAsPropertyId(LINK_OPTIONS.property.key));
 
 		const filesByPath = this.collectBaseFilesByPath();
 		const ctx: MindmapRenderContext = {
@@ -190,7 +186,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			return;
 
 		const nodeId = ctx.fileToNodeIdsToLabels.get(path)!;
-		const label = ctx.nodeLabelContent === "named-links"
+		const label = ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks
 			? file.basename
 			: this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
 

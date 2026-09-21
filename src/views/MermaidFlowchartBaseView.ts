@@ -4,15 +4,11 @@ import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
 import {frontmatterLinkKeyToProperty} from "../core/frontmatterLinks";
 import {
-	DEFAULT_LINK_SOURCE,
-	EDGE_LINK_SOURCE_OPTIONS,
-	LINK_PROPERTY_CONFIG_KEY,
-	LINK_PROPERTY_DISPLAY_NAME,
-	LINK_PROPERTY_PLACEHOLDER,
-	LINK_SOURCE_CONFIG_KEY,
-	LINK_SOURCE_DISPLAY_NAME,
-	SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY,
-	SHOW_LINKS_TO_FILTERED_OUT_NOTES_DISPLAY_NAME
+	COMMON_OPTION_GROUPS,
+	COMMON_VIEW_OPTIONS,
+	LINK_OPTIONS,
+	NODE_LABEL_CONTENT_VALUES,
+	SELECTED_PROPERTIES_LABEL
 } from "../core/constants";
 import {
 	getBodyLinksForSource,
@@ -52,8 +48,8 @@ const FLOWCHART_DIRECTION_OPTIONS: Record<string, string> = {
 };
 
 const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
-	"named-links": "Note Names (Clickable Links)",
-	"properties": "Selected Properties",
+	[NODE_LABEL_CONTENT_VALUES.namedLinks]: "Note Names (Clickable Links)",
+	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
 };
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
@@ -67,9 +63,9 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Title",
-				key: "title",
-				default: "Title",
+				displayName: COMMON_VIEW_OPTIONS.title.displayName,
+				key: COMMON_VIEW_OPTIONS.title.key,
+				default: COMMON_VIEW_OPTIONS.title.default,
 			},
 			{
 				type: "dropdown",
@@ -79,76 +75,76 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				options: FLOWCHART_DIRECTION_OPTIONS,
 			},
 			{
-				displayName: "Labels",
+				displayName: COMMON_OPTION_GROUPS.labels,
 				type: "group",
 				items: [
 					{
 						type: "dropdown",
-						displayName: "Node Label Content",
-						key: "nodeLabelContent",
-						default: "named-links",
+						displayName: COMMON_VIEW_OPTIONS.nodeLabelContent.displayName,
+						key: COMMON_VIEW_OPTIONS.nodeLabelContent.key,
+						default: NODE_LABEL_CONTENT_VALUES.namedLinks,
 						options: NODE_LABEL_CONTENT_OPTIONS,
 					},
 					{
 						type: "toggle",
-						displayName: "Show property names",
-						key: "showPropertyNames",
-						default: true,
-						shouldHide: shouldHideShowPropertyNames("named-links"),
+						displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
+						key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
+						default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
+						shouldHide: shouldHideShowPropertyNames(NODE_LABEL_CONTENT_VALUES.namedLinks),
 					},
 				],
 			},
 			{
-				displayName: "Links",
+				displayName: COMMON_OPTION_GROUPS.links,
 				type: "group",
 				items: [
 					{
 						type: "dropdown",
-						displayName: LINK_SOURCE_DISPLAY_NAME,
-						key: LINK_SOURCE_CONFIG_KEY,
-						default: DEFAULT_LINK_SOURCE,
-						options: EDGE_LINK_SOURCE_OPTIONS,
+						displayName: LINK_OPTIONS.source.displayName,
+						key: LINK_OPTIONS.source.key,
+						default: LINK_OPTIONS.source.default,
+						options: LINK_OPTIONS.source.options,
 					},
 					{
 						type: "toggle",
-						displayName: SHOW_LINKS_TO_FILTERED_OUT_NOTES_DISPLAY_NAME,
-						key: SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY,
-						default: false,
+						displayName: LINK_OPTIONS.showFilteredOutNotes.displayName,
+						key: LINK_OPTIONS.showFilteredOutNotes.key,
+						default: LINK_OPTIONS.showFilteredOutNotes.default,
 					},
 					{
 						type: "property",
-						displayName: LINK_PROPERTY_DISPLAY_NAME,
-						key: LINK_PROPERTY_CONFIG_KEY,
-						placeholder: LINK_PROPERTY_PLACEHOLDER,
+						displayName: LINK_OPTIONS.property.displayName,
+						key: LINK_OPTIONS.property.key,
+						placeholder: LINK_OPTIONS.property.placeholder,
 						filter: plugin.propertyTypes.createSourceFilter("note"),
-						shouldHide: shouldHidePropertyLinkOptions(DEFAULT_LINK_SOURCE),
+						shouldHide: shouldHidePropertyLinkOptions(LINK_OPTIONS.source.default),
 					},
 					{
 						type: "toggle",
 						displayName: "Show link property names",
 						key: "showLinkPropertyNames",
 						default: true,
-						shouldHide: shouldHidePropertyLinkOptions(DEFAULT_LINK_SOURCE),
+						shouldHide: shouldHidePropertyLinkOptions(LINK_OPTIONS.source.default),
 					},
 				],
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};
 
 	protected async render(): Promise<void> {
-		const title = this.getConfigValue<string>("title");
+		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
 		const direction = this.getConfigValue<string>("direction");
-		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
-		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
-		const linkSource = this.getConfigValue<string>(LINK_SOURCE_CONFIG_KEY);
-		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(SHOW_LINKS_TO_FILTERED_OUT_NOTES_CONFIG_KEY);
-		const linkPropertyId = this.config.getAsPropertyId(LINK_PROPERTY_CONFIG_KEY);
+		const nodeLabelContent = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.nodeLabelContent.key);
+		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const linkSource = this.getConfigValue<string>(LINK_OPTIONS.source.key);
+		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(LINK_OPTIONS.showFilteredOutNotes.key);
+		const linkPropertyId = this.config.getAsPropertyId(LINK_OPTIONS.property.key);
 		const filesByPath = this.collectBaseFilesByPath();
 		const linkPropertyName = getPropertyNameFromId(linkPropertyId);
 		const showLinkPropertyNames = this.getConfigValue<boolean>("showLinkPropertyNames");
@@ -228,7 +224,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		ctx.fileToNodeId.set(file.path, id);
 
 		let label: string;
-		if (ctx.nodeLabelContent === "named-links")
+		if (ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks)
 			label = file.basename;
 		else
 			label = this.getLabelWithProperties(file, ctx.showPropertyNames, "<br>", ":");
@@ -350,7 +346,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		for (const edge of ctx.edges.values())
 			lines.push(`    ${this.formatEdgeForMermaid(edge)}`);
 
-		if (ctx.nodeLabelContent === "named-links") {
+		if (ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks) {
 			const allIds = Array.from(ctx.fileToNodeId.values());
 			if (allIds.length > 0)
 				lines.push(`    class ${allIds.join(",")} internal-link;`);

@@ -2,6 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {BasesPropertyId} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../main";
+import {COMMON_VIEW_OPTIONS} from "../core/constants";
 
 export class MermaidSankeyBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidSankeyBaseView.RegistrationData.id;
@@ -19,9 +20,9 @@ export class MermaidSankeyBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};

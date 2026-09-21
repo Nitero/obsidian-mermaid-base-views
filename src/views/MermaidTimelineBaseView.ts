@@ -3,6 +3,7 @@ import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
+import {COMMON_VIEW_OPTIONS} from "../core/constants";
 
 type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
 
@@ -23,9 +24,9 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Title",
-				key: "title",
-				default: "Title",
+				displayName: COMMON_VIEW_OPTIONS.title.displayName,
+				key: COMMON_VIEW_OPTIONS.title.key,
+				default: COMMON_VIEW_OPTIONS.title.default,
 			},
 			{
 				type: "property",
@@ -50,15 +51,15 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "toggle",
-				displayName: "Show property names",
-				key: "showPropertyNames",
-				default: true,
+				displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
+				key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
+				default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};
@@ -66,14 +67,14 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const timePropertyId = this.config.getAsPropertyId("timeProperty");
 
-		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 
 		if (!timePropertyId) {
 			this.containerEl.createDiv({text: "Configure a time property in the view settings."});
 			return;
 		}
 
-		const title = this.getConfigValue<string>("title");
+		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
 
 		const granularity = this.getConfigValue<TimeGranularity>("cutoff");
 

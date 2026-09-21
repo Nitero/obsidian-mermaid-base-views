@@ -2,6 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
+import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER} from "../core/constants";
 
 export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidPieChartBaseView.RegistrationData.id;
@@ -14,9 +15,9 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Title",
-				key: "title",
-				default: "Title",
+				displayName: COMMON_VIEW_OPTIONS.title.displayName,
+				key: COMMON_VIEW_OPTIONS.title.key,
+				default: COMMON_VIEW_OPTIONS.title.default,
 			},
 			{
 				type: "property",
@@ -28,7 +29,7 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 				type: "property",
 				displayName: "Value property (optional)",
 				key: "valueProperty",
-				placeholder: "e.g. file size",
+				placeholder: FILE_SIZE_PLACEHOLDER,
 				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
 			},
 			{
@@ -39,9 +40,9 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 			},
 			{
 				type: "text",
-				displayName: "Mermaid Config Override Directive (optional)",
-				key: "mermaidConfigOverrideDirective",
-				placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
 			},
 		],
 	};
@@ -49,7 +50,7 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const categoryPropertyId = this.config.getAsPropertyId("categoryProperty");
 		const valuePropertyId = this.config.getAsPropertyId("valueProperty");
-		const title = this.getConfigValue<string>("title");
+		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
 		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
 
 		if (!categoryPropertyId) {
