@@ -3,6 +3,7 @@ import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {indent} from "../core/utils";
 import MermaidBaseViews from "../main";
+import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
 
 interface MindmapRenderContext {
 	visited: Set<string>;
@@ -12,6 +13,7 @@ interface MindmapRenderContext {
 	indegree: Map<string, number>;
 	showPropertyNames: boolean;
 	lines: string[];
+	linkSource: string;
 	showLinksToFilteredOutNotes: boolean;
 }
 
@@ -37,6 +39,13 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 				default: true,
 			},
 			{
+				type: "dropdown",
+				displayName: "Link Source",
+				key: "linkSource",
+				default: "properties-and-body",
+				options: EDGE_LINK_SOURCE_OPTIONS,
+			},
+			{
 				type: "toggle",
 				displayName: "Show links to filtered-out notes",
 				key: "showLinksToFilteredOutNotes",
@@ -54,6 +63,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const rootLabel = this.getConfigValue<string>("rootLabel");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
+		const linkSource = this.getConfigValue<string>("linkSource");
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
 
 		const filesByPath = this.collectBaseFilesByPath();
@@ -65,6 +75,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			indegree: new Map<string, number>(),
 			showPropertyNames,
 			lines: [],
+			linkSource,
 			showLinksToFilteredOutNotes,
 		};
 

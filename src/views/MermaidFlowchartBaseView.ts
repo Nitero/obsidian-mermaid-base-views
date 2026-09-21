@@ -2,6 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
+import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
 
 type Edge = {
 	from: string;
@@ -33,12 +34,6 @@ const FLOWCHART_DIRECTION_OPTIONS: Record<string, string> = {
 const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
 	"named-links": "Note Names (Clickable Links)",
 	"properties": "Selected Properties",
-};
-
-const EDGE_LINK_SOURCE_OPTIONS: Record<string, string> = {
-	"properties-and-body": "Properties And Body",
-	"properties-only": "Properties",
-	"body-only": "Body",
 };
 
 export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
