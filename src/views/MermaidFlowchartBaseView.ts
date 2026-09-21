@@ -3,6 +3,7 @@ import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
 import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
+import {getBodyLinksForSource, getFrontmatterLinksForSource} from "../core/utils";
 
 type Edge = {
 	from: string;
@@ -160,14 +161,8 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 				nodeSet.add(srcId);
 				ctx.groupedNodeIds.add(srcId);
 
-				if (ctx.linkSource === "properties-and-body"){
-					this.collectOutgoingEdgesFromLinks(entry.file, srcId, ctx);
-					this.collectEdgesFromFrontmatterLinks(entry.file, srcId, ctx);
-				}
-				if (ctx.linkSource === "properties-only")
-					this.collectEdgesFromFrontmatterLinks(entry.file, srcId, ctx);
-				if (ctx.linkSource === "body-only")
-					this.collectOutgoingEdgesFromLinks(entry.file, srcId, ctx);
+				this.collectOutgoingEdgesFromLinks(entry.file, srcId, ctx);
+				this.collectEdgesFromFrontmatterLinks(entry.file, srcId, ctx);
 			}
 		}
 	}
@@ -196,7 +191,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		ctx: FlowchartRenderContext,
 	): void {
 		const fileCache = this.app.metadataCache.getFileCache(file);
-		const links = fileCache?.links ?? [];
+		const links = getBodyLinksForSource(fileCache, ctx.linkSource);
 		for (const link of links) {
 			const target = this.getLinkedFileIfVisible(
 				link.link,
@@ -221,7 +216,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 		ctx: FlowchartRenderContext,
 	): void {
 		const fileCache = this.app.metadataCache.getFileCache(file);
-		const fmLinks = fileCache?.frontmatterLinks ?? [];
+		const fmLinks = getFrontmatterLinksForSource(fileCache, ctx.linkSource);
 		for (const fm of fmLinks) {
 			const target = this.getLinkedFileIfVisible(
 				fm.link,

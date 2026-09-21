@@ -1,7 +1,7 @@
 import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
-import {indent} from "../core/utils";
+import {getBodyLinksForSource, getFrontmatterLinksForSource, indent} from "../core/utils";
 import MermaidBaseViews from "../main";
 import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
 
@@ -155,9 +155,10 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 
 		for (const [path, file] of baseFileByPath.entries()) {
 			const cache = this.app.metadataCache.getFileCache(file);
-			const links = cache?.links ?? [];
-			const embeds = cache?.embeds ?? [];
-			const allLinks = [...links, ...embeds];
+			const allLinks = [
+				...getBodyLinksForSource(cache, ctx.linkSource),
+				...getFrontmatterLinksForSource(cache, ctx.linkSource),
+			];
 
 			for (const link of allLinks) {
 				const target = this.getLinkedFileIfVisible(
