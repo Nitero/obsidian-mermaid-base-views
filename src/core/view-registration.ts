@@ -5,7 +5,7 @@ import {MermaidFlowchartBaseView} from "../views/MermaidFlowchartBaseView";
 import {MermaidMindmapBaseView} from "../views/MermaidMindmapBaseView";
 import {MermaidTimelineBaseView} from "../views/MermaidTimelineBaseView";
 import {MermaidSankeyBaseView} from "../views/MermaidSankeyBaseView";
-// import {MermaidRadarChartBaseView} from "../views/MermaidRadarChartBaseView";
+import {MermaidRadarChartBaseView} from "../views/MermaidRadarChartBaseView";
 import { MermaidPieChartBaseView } from "../views/MermaidPieChartBaseView";
 import { MermaidXYChartBaseView } from "../views/MermaidXYChartBaseView";
 import {MermaidQuadrantChartBaseView} from "../views/MermaidQuadrantChartBaseView";
@@ -16,7 +16,7 @@ export function registerAllMermaidViews(plugin: MermaidBaseViews): void {
 	registerMermaidView(plugin, MermaidMindmapBaseView, MermaidMindmapBaseView.RegistrationData);
 	registerMermaidView(plugin, MermaidTimelineBaseView, MermaidTimelineBaseView.RegistrationData);
 	registerMermaidView(plugin, MermaidSankeyBaseView, MermaidSankeyBaseView.RegistrationData);
-	// registerMermaidView(plugin, MermaidRadarChartBaseView);//requires mermaid v11.6.0+
+	registerMermaidView(plugin, MermaidRadarChartBaseView, MermaidRadarChartBaseView.RegistrationData);
 	registerMermaidView(plugin, MermaidPieChartBaseView, MermaidPieChartBaseView.RegistrationData);
 	registerMermaidView(plugin, MermaidXYChartBaseView, MermaidXYChartBaseView.RegistrationData);
 	registerMermaidView(plugin, MermaidQuadrantChartBaseView, MermaidQuadrantChartBaseView.RegistrationData);

@@ -2,7 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId, parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS} from "../core/constants";
+import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
 
 
 type Curve = {
@@ -44,10 +44,24 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 				default: "100",
 			},
 			{
-				type: "property",
-				displayName: "Label property (optional)",
-				key: "labelProperty",
-				placeholder: "defaults to file name",
+				type: "dropdown",
+				displayName: "Graticule (Shape)",
+				key: "graticule",
+				default: "circle",
+				options: {"circle": "Circle", "polygon": "Polygon"},
+			},
+			{
+				type: "text",
+				displayName: "Ticks",
+				key: "ticks",
+				default: "5",
+				placeholder: NUMBER_RANGE_PLACEHOLDER,
+			},
+			{
+				type: "toggle",
+				displayName: "Show values on labels",
+				key: "showDataLabel",
+				default: false,
 			},
 			{
 				type: "text",
@@ -60,8 +74,9 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 
 	protected async render(): Promise<void> {
 		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
-
-		const labelPropertyId = this.config.getAsPropertyId("labelProperty");
+		const graticule = this.getConfigValue<string>("graticule");
+		const ticks = this.getConfigValue<string>("ticks");
+		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
 
 		let minValue = 0;
 		let maxValue = 100;
@@ -96,7 +111,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 
 		const {curves, hasAnyValue} = this.generateCurves(
 			axes,
-			labelPropertyId,
+			showDataLabel,
 			minValue,
 			maxValue,
 		);
@@ -112,6 +127,8 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 			curves,
 			minValue,
 			maxValue,
+			graticule,
+			ticks
 		);
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.radarChartMermaidConfig);
@@ -119,7 +136,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 
 	private generateCurves(
 		axes: Axis[],
-		labelPropertyId: BasesPropertyId | null | undefined,
+		showDataLabel: boolean,
 		minValue: number,
 		maxValue: number,
 	): {curves: Curve[]; hasAnyValue: boolean} {
@@ -127,7 +144,6 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 		const curves: Curve[] = [];
 		let hasAnyValue = false;
 
-		let curveIndex = 0;
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
 				const values: number[] = [];
@@ -167,14 +183,9 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 				if (allMissing)
 					continue;
 
-				let label = "";
-				if (labelPropertyId) {
-					const labelValue = entry.getValue(labelPropertyId);
-					if (labelValue)
-						label = labelValue.toString().trim();
-				}
-				if (!label)
-					label = entry.file?.basename ?? `(series ${curveIndex + 1})`;
+				let label = entry.file.basename;
+				if(showDataLabel)
+					label += ` (${this.getLabelWithProperties(entry.file, true, ", ", "ː")})`
 
 				curves.push({label, values});
 				hasAnyValue = true;
@@ -185,11 +196,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 	}
 
 	private buildMermaidCode(
-		title: string,
-		axes: Axis[],
-		curves: Curve[],
-		minValue: number,
-		maxValue: number,
+		title: string, axes: Axis[], curves: Curve[], minValue: number, maxValue: number, graticule: string, ticks: string,
 	): string {
 		const lines: string[] = [];
 		lines.push("radar-beta");
@@ -208,13 +215,16 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 			lines.push(`  axis ${parts.join(", ")}`);
 		}
 
-		for (const curve of curves) {
+		for (let i = 0; i < curves.length; i++){
+			const curve = curves[i]!;
 			const values = curve.values.join(", ");
-			lines.push(`  curve $["${curve.label}"]{${values}}`);
+			lines.push(`  curve id${i}["${curve.label}"]{${values}}`);
 		}
 
 		lines.push(`  max ${maxValue}`);
 		lines.push(`  min ${minValue}`);
+		lines.push(`  graticule ${graticule}`);
+		lines.push(`  ticks ${ticks}`);
 
 		return lines.join("\n");
 	}
