@@ -4,6 +4,7 @@ import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
 import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
 import {getBodyLinksForSource, getFrontmatterLinksForSource} from "../core/utils";
+import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
 
 type Edge = {
 	from: string;
@@ -75,6 +76,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 						displayName: "Show property names",
 						key: "showPropertyNames",
 						default: true,
+						shouldHide: shouldHideShowPropertyNames("named-links"),
 					},
 				],
 			},

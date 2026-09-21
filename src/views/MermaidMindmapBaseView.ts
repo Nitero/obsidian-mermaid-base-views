@@ -4,6 +4,7 @@ import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {getBodyLinksForSource, getFrontmatterLinksForSource, indent} from "../core/utils";
 import MermaidBaseViews from "../main";
 import {EDGE_LINK_SOURCE_OPTIONS} from "../core/constants";
+import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
 
 interface MindmapRenderContext {
 	visited: Set<string>;
@@ -54,6 +55,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 						displayName: "Show property names",
 						key: "showPropertyNames",
 						default: true,
+						shouldHide: shouldHideShowPropertyNames("properties"),
 					},
 				],
 			},
