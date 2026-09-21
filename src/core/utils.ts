@@ -1,4 +1,4 @@
-import type {CachedMetadata, FrontmatterLinkCache, LinkCache} from "obsidian";
+import type {BasesViewConfig, CachedMetadata, FrontmatterLinkCache, LinkCache} from "obsidian";
 
 export function indent(level: number): string{
 	return '  '.repeat(level);
@@ -16,4 +16,15 @@ export function getFrontmatterLinksForSource(cache: CachedMetadata | null | unde
 		return [];
 
 	return cache?.frontmatterLinks ?? [];
+}
+
+export function shouldHidePropertyLinkOptions(defaultLinkSource: string) {
+	return (config?: BasesViewConfig): boolean => {
+		const linkSource = config?.get("linkSource");
+		const resolvedLinkSource = typeof linkSource === "string" && linkSource.length > 0
+			? linkSource
+			: defaultLinkSource;
+
+		return resolvedLinkSource === "body-only";
+	};
 }
