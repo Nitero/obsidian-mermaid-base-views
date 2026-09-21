@@ -11,11 +11,17 @@ interface MindmapRenderContext {
 	fileToNodeIdsToLabels: Map<string, string>;
 	pathToOutgoingLinks: Map<string, Set<string>>;
 	indegree: Map<string, number>;
+	nodeLabelContent: string;
 	showPropertyNames: boolean;
 	lines: string[];
 	linkSource: string;
 	showLinksToFilteredOutNotes: boolean;
 }
+
+const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
+	"named-links": "Note Names",
+	"properties": "Selected Properties",
+};
 
 export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 	readonly type = MermaidMindmapBaseView.RegistrationData.id;
@@ -33,23 +39,42 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 				default: "Mindmap",
 			},
 			{
-				type: "toggle",
-				displayName: "Show property names",
-				key: "showPropertyNames",
-				default: true,
+				displayName: "Labels",
+				type: "group",
+				items: [
+					{
+						type: "dropdown",
+						displayName: "Node Label Content",
+						key: "nodeLabelContent",
+						default: "properties",
+						options: NODE_LABEL_CONTENT_OPTIONS,
+					},
+					{
+						type: "toggle",
+						displayName: "Show property names",
+						key: "showPropertyNames",
+						default: true,
+					},
+				],
 			},
 			{
-				type: "dropdown",
-				displayName: "Link Source",
-				key: "linkSource",
-				default: "properties-and-body",
-				options: EDGE_LINK_SOURCE_OPTIONS,
-			},
-			{
-				type: "toggle",
-				displayName: "Show links to filtered-out notes",
-				key: "showLinksToFilteredOutNotes",
-				default: false,
+				displayName: "Links",
+				type: "group",
+				items: [
+					{
+						type: "dropdown",
+						displayName: "Link Source",
+						key: "linkSource",
+						default: "properties-and-body",
+						options: EDGE_LINK_SOURCE_OPTIONS,
+					},
+					{
+						type: "toggle",
+						displayName: "Show links to filtered-out notes",
+						key: "showLinksToFilteredOutNotes",
+						default: false,
+					},
+				],
 			},
 			{
 				type: "text",
@@ -62,6 +87,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 
 	protected async render(): Promise<void> {
 		const rootLabel = this.getConfigValue<string>("rootLabel");
+		const nodeLabelContent = this.getConfigValue<string>("nodeLabelContent");
 		const showPropertyNames = this.getConfigValue<boolean>("showPropertyNames");
 		const linkSource = this.getConfigValue<string>("linkSource");
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>("showLinksToFilteredOutNotes");
@@ -73,6 +99,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			fileToNodeIdsToLabels: new Map<string, string>(),
 			pathToOutgoingLinks: new Map<string, Set<string>>(),
 			indegree: new Map<string, number>(),
+			nodeLabelContent,
 			showPropertyNames,
 			lines: [],
 			linkSource,
@@ -134,7 +161,9 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 			return;
 
 		const nodeId = ctx.fileToNodeIdsToLabels.get(path)!;
-		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
+		const label = ctx.nodeLabelContent === "named-links"
+			? file.basename
+			: this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
 
 		ctx.lines.push(`${indent(level)}${nodeId}["${label}"]`);
 

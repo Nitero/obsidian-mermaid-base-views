@@ -4,6 +4,7 @@ import {
 	QueryController,
 	MarkdownRenderer,
 	Keymap, Menu, Notice,
+	type BasesAllOptions,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../main";
@@ -227,13 +228,30 @@ export abstract class MermaidBaseViewBase extends BasesView {
 	}
 
 	private getConfigDefaultValue<T>(key: string): T {
-		const options = this.registrationData.getOptions(this.plugin)
-			.find(option => (option as { key: string }).key === key) as { default?: T } | undefined;
+		const options = this.findConfigOptionWithDefault<T>(this.registrationData.getOptions(this.plugin), key);
 
 		if (!options || options.default === undefined)
 			throw new Error(`No default configured for key "${key}".`);
 
 		return options.default;
+	}
+
+	private findConfigOptionWithDefault<T>(
+		options: BasesAllOptions[],
+		key: string,
+	): {default?: T} | undefined {
+		for (const option of options) {
+			if ("key" in option && option.key === key)
+				return option as {default?: T};
+
+			if (option.type === "group") {
+				const nestedOption = this.findConfigOptionWithDefault<T>(option.items, key);
+				if (nestedOption)
+					return nestedOption;
+			}
+		}
+
+		return undefined;
 	}
 
 	protected collectBaseFilesByPath(): Map<string, TFile> {
