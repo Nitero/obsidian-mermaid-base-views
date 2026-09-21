@@ -74,7 +74,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
-		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
+		const title = this.getOptionalTitle();
 
 		const granularity = this.getConfigValue<TimeGranularity>("cutoff");
 
@@ -133,10 +133,10 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 		);
 	}
 
-	private buildMermaidCode(title: string, groups: Group[]): string {
+	private buildMermaidCode(title: string | null, groups: Group[]): string {
 		const lines: string[] = [];
 		lines.push("timeline");
-		if (title)
+		if (title !== null)
 			lines.push(`    title ${title}`);
 
 		for (const g of groups) {

@@ -198,6 +198,17 @@ export abstract class MermaidBaseViewBase extends BasesView {
 		return file.basename;
 	};
 
+	protected getOptionalTitle(key: string = COMMON_VIEW_OPTIONS.title.key): string | null {
+		const rawValue = this.config.get(key);
+		const title = typeof rawValue === "string" ? rawValue : "";
+
+		if (title.length === 0)
+			return this.config.name;
+		if (title.trim().length === 0)
+			return null;
+		return title;
+	}
+
 	protected getConfigValue<T>(key: string, defaultValue?: T): T {
 		if(defaultValue === null || defaultValue === undefined)
 			defaultValue = this.getConfigDefaultValue<T>(key);

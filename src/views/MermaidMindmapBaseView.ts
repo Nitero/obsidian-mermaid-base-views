@@ -48,9 +48,9 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Central node label",
+				displayName: "Central node label (optional)",
 				key: "rootLabel",
-				default: "Mindmap",
+				default: "",
 			},
 			{
 				displayName: COMMON_OPTION_GROUPS.labels,
@@ -109,7 +109,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 	};
 
 	protected async render(): Promise<void> {
-		const rootLabel = this.getConfigValue<string>("rootLabel");
+		const rootLabel = this.getOptionalTitle("rootLabel");
 		const nodeLabelContent = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.nodeLabelContent.key);
 		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 		const linkSource = this.getConfigValue<string>(LINK_OPTIONS.source.key);
@@ -148,7 +148,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 	}
 
 	private buildMermaidCode(
-		rootLabel: string,
+		rootLabel: string | null,
 		ctx: MindmapRenderContext,
 	): string {
 		const allPaths = Array.from(ctx.filesByPath.keys());
@@ -165,7 +165,10 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 		ctx.lines.push("mindmap");
 
 		const rootId = "root";
-		ctx.lines.push(`  ${rootId}["${rootLabel}"]`);
+		if (rootLabel === null)
+			ctx.lines.push(`  ${rootId}`);
+		else
+			ctx.lines.push(`  ${rootId}["${rootLabel}"]`);
 
 		for (const rootPath of roots)
 			this.renderNode(rootPath, 2, ctx);

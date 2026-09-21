@@ -138,7 +138,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 	};
 
 	protected async render(): Promise<void> {
-		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
+		const title = this.getOptionalTitle();
 		const direction = this.getConfigValue<string>("direction");
 		const nodeLabelContent = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.nodeLabelContent.key);
 		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
@@ -296,14 +296,14 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 
 	private buildMermaidCode(
 		direction: string,
-		title: string,
+		title: string | null,
 		ctx: FlowchartRenderContext,
 		hasGroupingConfigured: boolean,
 	): string {
 		const lines: string[] = [];
 
 		lines.push(`flowchart ${direction}`);
-		if (title?.length > 0)
+		if (title !== null)
 			lines.push(`    %% ${title}`);
 
 		if (hasGroupingConfigured) {

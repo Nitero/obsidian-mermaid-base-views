@@ -1,8 +1,8 @@
 export const COMMON_VIEW_OPTIONS = {
 	title: {
-		displayName: "Title",
+		displayName: "Title (optional)",
 		key: "title",
-		default: "Title",
+		default: "",
 	},
 	showPropertyNames: {
 		displayName: "Show property names",

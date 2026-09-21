@@ -32,7 +32,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
-				displayName: "Chart title",
+				displayName: COMMON_VIEW_OPTIONS.title.displayName,
 				key: COMMON_VIEW_OPTIONS.title.key,
 				default: COMMON_VIEW_OPTIONS.title.default,
 			},
@@ -78,7 +78,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 	};
 
 	protected async render(): Promise<void> {
-		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
+		const title = this.getOptionalTitle();
 		const graticule = this.getConfigValue<string>("graticule");
 		const ticks = this.getConfigValue<string>("ticks");
 		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
@@ -221,12 +221,12 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 	}
 
 	private buildMermaidCode(
-		title: string, axes: Axis[], curves: Curve[], minValue: number | null, maxValue: number | null, graticule: string, ticks: string,
+		title: string | null, axes: Axis[], curves: Curve[], minValue: number | null, maxValue: number | null, graticule: string, ticks: string,
 	): string {
 		const lines: string[] = [];
 		lines.push("radar-beta");
-		if (title)
-			lines.push(`  title "${title}"`);
+		if (title !== null)
+			lines.push(`  title ${title}`);
 
 		const axisChunks: Axis[][] = [];
 		const chunkSize = 6;

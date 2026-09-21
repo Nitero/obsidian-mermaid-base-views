@@ -83,7 +83,7 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
-		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
+		const title = this.getOptionalTitle();
 		const yAxisLabel = this.getConfigValue<string>("yAxisLabel", parsePropertyId(yValuePropertyId).name);
 		const chartType = this.getConfigValue<"bar" | "line" | "bar-and-line">("chartType");
 
@@ -145,8 +145,8 @@ export class MermaidXYChartBaseView extends MermaidBaseViewBase {
 
 		const lines: string[] = [];
 		lines.push("xychart-beta");
-		if (title)
-			lines.push(`    title "${title}"`);
+		if (title !== null)
+			lines.push(`    title ${title}`);
 		lines.push(`    x-axis ${xAxis}`);
 		lines.push(`    y-axis "${yAxisLabel}" ${yMin} --> ${yMax}`);
 

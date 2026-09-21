@@ -324,7 +324,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 	}
 
 	private buildMermaidCode(normalizedPoints: Point[]): string {
-		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
+		const title = this.getOptionalTitle();
 
 		let xAxisLabels: string = "";
 		const xAxisLabelLeft = this.getConfigValue<string>("xAxisLabelLeft", "");
@@ -349,7 +349,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 
 		const lines: string[] = [];
 		lines.push("quadrantChart");
-		if (title)
+		if (title !== null)
 			lines.push(`    title ${title}`);
 		if (xAxisLabels)
 			lines.push(`    x-axis ${xAxisLabels}`);

@@ -50,7 +50,7 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 	protected async render(): Promise<void> {
 		const categoryPropertyId = this.config.getAsPropertyId("categoryProperty");
 		const valuePropertyId = this.config.getAsPropertyId("valueProperty");
-		const title = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.title.key);
+		const title = this.getOptionalTitle();
 		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
 
 		if (!categoryPropertyId) {
@@ -89,9 +89,11 @@ export class MermaidPieChartBaseView extends MermaidBaseViewBase {
 			return;
 		}
 
-		let mermaidCode = `pie ${showDataLabel ? "showData" : ""} title ${title}\n`;
+		const lines = [`pie${showDataLabel ? " showData" : ""}${title !== null ? ` title ${title}` : ""}`];
 		for (const [label, amount] of categoryTotals)
-			mermaidCode += `    "${label}" : ${amount}\n`;
+			lines.push(`    "${label}" : ${amount}`);
+
+		const mermaidCode = lines.join("\n");
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.pieChartMermaidConfig);
 	}
