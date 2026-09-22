@@ -2,7 +2,7 @@ import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
-import {frontmatterLinkKeyToProperty} from "../core/frontmatterLinks";
+import {frontmatterLinkKeyToProperty} from "../utils/frontmatterLinks";
 import {
 	COMMON_OPTION_GROUPS,
 	COMMON_VIEW_OPTIONS,
@@ -15,7 +15,7 @@ import {
 	getFrontmatterLinksForSource,
 	getPropertyNameFromId,
 	shouldHidePropertyLinkOptions
-} from "../core/utils";
+} from "../utils/utils";
 import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
 
 type Edge = {
@@ -59,7 +59,7 @@ export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-flowchart",
 		name: "Flowchart",
-		icon: "git-fork",//waypoints//workflow//share-2
+		icon: "network",//git-fork//waypoints//workflow//share-2
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",

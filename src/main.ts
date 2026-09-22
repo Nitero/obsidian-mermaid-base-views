@@ -4,6 +4,7 @@ import { PropertyTypeRegistry } from "./propertyTypes/PropertyTypeRegistry";
 import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "./settings/mermaidBaseViewsSettings";
 import {GeneralSettingTab} from "./settings/generalSettingTab";
 import {MermaidBaseViewBase} from "./views/MermaidBaseViewBase";
+import {CustomLucideIcons} from "./utils/lucideIcons";
 
 export default class MermaidBaseViews extends Plugin {
 	settings!: MermaidBaseViewsSettings;
@@ -12,6 +13,8 @@ export default class MermaidBaseViews extends Plugin {
 	propertyTypes!: PropertyTypeRegistry;
 
 	async onload() {
+		new CustomLucideIcons();
+
 		await this.loadSettings();
 		this.addSettingTab(new GeneralSettingTab(this.app, this));
 

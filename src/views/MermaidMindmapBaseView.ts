@@ -7,7 +7,7 @@ import {
 	getPropertyNameFromId,
 	indent,
 	shouldHidePropertyLinkOptions
-} from "../core/utils";
+} from "../utils/utils";
 import MermaidBaseViews from "../main";
 import {
 	COMMON_OPTION_GROUPS,
@@ -44,7 +44,7 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-mindmap",
 		name: "Mindmap",
-		icon: "brain",
+		icon: "custom-molecule",//brain
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",

@@ -28,7 +28,7 @@ export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-radar",
 		name: "Radar Chart",
-		icon: "radar",//radius
+		icon: "custom-radar-chart",//life-buoy//ship-wheel//radar//radius
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",

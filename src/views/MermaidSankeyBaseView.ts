@@ -11,7 +11,7 @@ export class MermaidSankeyBaseView extends MermaidBaseViewBase {
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-sankey",
 		name: "Sankey",
-		icon: "shuffle",
+		icon: "custom-sankey",//shuffle
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "multitext",//TODO: should use property type to select formulas more easily, but currently there is no way to make a list of them?

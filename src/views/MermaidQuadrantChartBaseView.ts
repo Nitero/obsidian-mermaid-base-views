@@ -19,7 +19,7 @@ export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-quadrant-chart",
 		name: "Quadrant Chart",
-		icon: "scatter-chart",
+		icon: "custom-quadrant-chart",//grid-2x2//square-plus//scatter-chart
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
