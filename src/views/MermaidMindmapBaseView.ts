@@ -5,9 +5,9 @@ import {
 	getBodyLinksForSource,
 	getFrontmatterLinksForSource,
 	getPropertyNameFromId,
-	indent,
 	shouldHidePropertyLinkOptions
 } from "../utils/utils";
+import {buildMindmapCode} from "../utils/mindmap";
 import MermaidBaseViews from "../main";
 import {
 	COMMON_OPTION_GROUPS,
@@ -19,14 +19,10 @@ import {
 import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
 
 interface MindmapRenderContext {
-	visited: Set<string>;
 	filesByPath: Map<string, TFile>;
-	fileToNodeIdsToLabels: Map<string, string>;
 	pathToOutgoingLinks: Map<string, Set<string>>;
-	indegree: Map<string, number>;
 	nodeLabelContent: string;
 	showPropertyNames: boolean;
-	lines: string[];
 	linkSource: string;
 	showLinksToFilteredOutNotes: boolean;
 	linkPropertyName: string | null;
@@ -118,14 +114,10 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 
 		const filesByPath = this.collectBaseFilesByPath();
 		const ctx: MindmapRenderContext = {
-			visited: new Set<string>(),
 			filesByPath: new Map<string, TFile>(filesByPath),
-			fileToNodeIdsToLabels: new Map<string, string>(),
 			pathToOutgoingLinks: new Map<string, Set<string>>(),
-			indegree: new Map<string, number>(),
 			nodeLabelContent,
 			showPropertyNames,
-			lines: [],
 			linkSource,
 			showLinksToFilteredOutNotes,
 			linkPropertyName,
@@ -151,65 +143,23 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 		rootLabel: string | null,
 		ctx: MindmapRenderContext,
 	): string {
-		const allPaths = Array.from(ctx.filesByPath.keys());
-		let roots = allPaths.filter((p) => (ctx.indegree.get(p) ?? 0) === 0);
-		if (roots.length === 0)
-			roots = allPaths;
-
-		let idx = 0;
-		for (const path of allPaths) {
-			const id = `n${idx++}`;
-			ctx.fileToNodeIdsToLabels.set(path, id);
-		}
-
-		ctx.lines.push("mindmap");
-
-		const rootId = "root";
-		if (rootLabel === null)
-			ctx.lines.push(`  ${rootId}`);
-		else
-			ctx.lines.push(`  ${rootId}["${rootLabel}"]`);
-
-		for (const rootPath of roots)
-			this.renderNode(rootPath, 2, ctx);
-
-		return ctx.lines.join("\n");
+		return buildMindmapCode(rootLabel, {
+			paths: Array.from(ctx.filesByPath.keys()),
+			outgoingLinks: ctx.pathToOutgoingLinks,
+			getLabel: (path) => this.getNodeLabel(ctx.filesByPath.get(path)!, ctx),
+		});
 	}
-	private renderNode(
-		path: string,
-		level: number,
-		ctx: MindmapRenderContext,
-	): void {
-		if (ctx.visited.has(path))
-			return;
-		ctx.visited.add(path);
 
-		const file = ctx.filesByPath.get(path);
-		if (!file)
-			return;
-
-		const nodeId = ctx.fileToNodeIdsToLabels.get(path)!;
-		const label = ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks
+	private getNodeLabel(file: TFile, ctx: MindmapRenderContext): string {
+		return ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks
 			? file.basename
 			: this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
-
-		ctx.lines.push(`${indent(level)}${nodeId}["${label}"]`);
-
-		const children = ctx.pathToOutgoingLinks.get(path);
-		if (!children)
-			return;
-
-		for (const childPath of children)
-			this.renderNode(childPath, level + 1, ctx);
 	}
 
 	private collectOutgoingLinks(
 		baseFileByPath: Map<string, TFile>,
 		ctx: MindmapRenderContext,
 	): void {
-		for (const path of ctx.filesByPath.keys())
-			ctx.indegree.set(path, 0);
-
 		for (const [path, file] of baseFileByPath.entries()) {
 			const cache = this.app.metadataCache.getFileCache(file);
 			const allLinks = [
@@ -229,23 +179,15 @@ export class MermaidMindmapBaseView extends MermaidBaseViewBase {
 				if (target.path === path)
 					continue;
 
-				if (!ctx.filesByPath.has(target.path)) {
+				if (!ctx.filesByPath.has(target.path))
 					ctx.filesByPath.set(target.path, target);
-					ctx.indegree.set(target.path, 0);
-				}
 
 				let set = ctx.pathToOutgoingLinks.get(path);
 				if (!set) {
 					set = new Set<string>();
 					ctx.pathToOutgoingLinks.set(path, set);
 				}
-				if (!set.has(target.path)) {
-					set.add(target.path);
-					ctx.indegree.set(
-						target.path,
-						(ctx.indegree.get(target.path) ?? 0) + 1,
-					);
-				}
+				set.add(target.path);
 			}
 		}
 	}
