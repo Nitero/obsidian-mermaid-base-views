@@ -19,27 +19,20 @@ export class CustomLucideIcons {
 		addIcon(
 			"custom-sankey",
 			lucideIcon(`
-			  <path d="M 2 11 L 5.473 11" />
-			  <path d="M 2 2 L 2 11" />
-			  <path d="M 21.973 2 L 2 2" />
-			  <path d="M 21.973 6 L 21.973 2" />
-			  <path d="m10.723 15.206.05.094a4 4 0 01-3.3 1.7" />
-			  <path d="M11.23 14.481 9.572 13.2" />
-			  <path d="M15.227 17.2a4 4 0 01.773-.829" />
-			  <path d="M15.959 11.5a4 4 0 01-3.3-1.8L10.5 6.5" />
-			  <path d="M16 11.5h5.973l.027 5h-7.541a4 4 0 01-3.3-1.8" />
-			  <path d="M5.5 6.5H22" />
-			  <path d="M7.5 17H2.027L2 22h6.973a4 4 0 003.3-1.7l2.454-3.1" />
-			  <path d="M9.072 13.2a4 4 0 00-3.6-2.2" />
+			  <path d="M2 11h4.5c1.75 0 3 1 4.5 2.15 2 1.4 4 2.85 6.5 2.85H22v-4h-4.5c-2 0-3.5-1.65-5-2.7C10.75 8.1 8.75 7 6.5 7H22V3H2z" />
+			  <path d="M22 16c-3 0-5.65 1.35-8.15 3.15C11.6 20.65 9.25 21 6.5 21H2v-4h4.5c2.5 0 4.65-.85 6.75-2.25" />
 			`),
 		);
 		addIcon(
 			"custom-radar-chart",
 			lucideIcon(`
-			  <path d="m20 17-8.015-5.01.017-9.986" />
-			  <path d="m4 17.5 7.985-5.51" />
-			  <circle cx="11.985" cy="11.99" r="5.5" />
-			  <circle cx="12.002" cy="12.004" r="10" />
+			  <path d="M10.83 2.38a2 2 0 012.34 0l8 5.74a2 2 0 01.73 2.25l-3.04 9.26a2 2 0 01-1.9 1.37H7.04a2 2 0 01-1.9-1.37L2.1 10.37a2 2 0 01.73-2.25z" />
+			  <path d="M12 2.5v5.19" />
+			  <path d="m12 7.69 4.47 3.21-1.68 5.1H9.21l-1.68-5.1z" />
+			  <path d="M17.6 19.72 14.79 16" />
+			  <path d="m21 9.5-4.53 1.4" />
+			  <path d="m3 9.5 4.53 1.4" />
+			  <path d="M6.4 19.72 9.21 16" />
 			`),
 		);
 		addIcon(
@@ -64,6 +57,28 @@ export class CustomLucideIcons {
 			  <path d="M12 3v18" />
 			  <path d="M3 12h18" />
 			  <rect x="3" y="3" width="18" height="18" rx="2" />
+			`),
+		);
+		addIcon(
+			"custom-quadrant-chart-2",
+			lucideIcon(`
+			  <path d="M12 2v20" />
+			  <path d="M22 12H2" />
+			  <circle cx="17" cy="17" r=".5" fill="currentColor" />
+			  <circle cx="17" cy="7" r=".5" fill="currentColor" />
+			  <circle cx="7" cy="17" r=".5" fill="currentColor" />
+			  <circle cx="7" cy="7" r=".5" fill="currentColor" />
+			  <rect x="2" y="2" width="20" height="20" />
+			`),
+		);
+		addIcon(
+			"custom-timeline",
+			lucideIcon(`
+			  <path d="M2 8h20l-3 3" />
+			  <path d="m22 8-3-3" />
+			  <path d="M5 13 L13 13" />
+			  <path d="M5 18 L13 18" />
+			  <path d="M5 3 L13 3" />
 			`),
 		);
 	}

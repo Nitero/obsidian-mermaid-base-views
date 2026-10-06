@@ -20,7 +20,7 @@ export class MermaidTimelineBaseView extends MermaidBaseViewBase {
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-timeline",
 		name: "Timeline",
-		icon: "chart-no-axes-gantt",
+		icon: "custom-timeline",//timeline//chart-no-axes-gantt
 		getOptions: (plugin: MermaidBaseViews) => [
 			{
 				type: "text",
