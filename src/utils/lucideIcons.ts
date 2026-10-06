@@ -52,7 +52,7 @@ export class CustomLucideIcons {
 			`),
 		);
 		addIcon(
-			"custom-quadrant-chart", //== grid-2x2, not released?
+			"custom-quadrant-chart", //same as grid-2x2, just not released?
 			lucideIcon(`
 			  <path d="M12 3v18" />
 			  <path d="M3 12h18" />
@@ -74,11 +74,12 @@ export class CustomLucideIcons {
 		addIcon(
 			"custom-timeline",
 			lucideIcon(`
-			  <path d="M2 8h20l-3 3" />
-			  <path d="m22 8-3-3" />
-			  <path d="M5 13 L13 13" />
-			  <path d="M5 18 L13 18" />
-			  <path d="M5 3 L13 3" />
+			  <path d="M2 9 L22 9" />
+			  <path d="M22 9 L19 12" />
+			  <path d="M22 9 L19 6" />
+			  <path d="M5 14 L13 14" />
+			  <path d="M5 19 L13 19" />
+			  <path d="M5 4 L13 4" />
 			`),
 		);
 	}
