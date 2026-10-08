@@ -1,8 +1,8 @@
-import {MermaidBasesView} from "./MermaidBasesView";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
-import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
+import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
 
 type Point = {
@@ -12,9 +12,9 @@ type Point = {
 	color: string;
 };
 
-export class MermaidQuadrantChartBasesView extends MermaidBasesView {
-	readonly type = MermaidQuadrantChartBasesView.RegistrationData.id;
-	readonly registrationData = MermaidQuadrantChartBasesView.RegistrationData;
+export class QuadrantChartView extends MermaidBasesView {
+	readonly type = QuadrantChartView.RegistrationData.id;
+	readonly registrationData = QuadrantChartView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-quadrant-chart",
@@ -235,7 +235,7 @@ export class MermaidQuadrantChartBasesView extends MermaidBasesView {
 					? palette[gi % palette.length] ?? ""
 					: "";
 
-			if(!group)
+			if (!group)
 				continue;
 
 			for (const entry of group.entries) {

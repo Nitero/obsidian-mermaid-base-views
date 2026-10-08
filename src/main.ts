@@ -1,10 +1,10 @@
 import {Plugin} from "obsidian";
 import {registerAllMermaidViews} from "./core/view-registration";
-import { PropertyTypeRegistry } from "./propertyTypes/PropertyTypeRegistry";
-import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "./settings/mermaidBaseViewsSettings";
-import {GeneralSettingTab} from "./settings/generalSettingTab";
-import {MermaidBasesView} from "./views/MermaidBasesView";
-import {CustomLucideIcons} from "./utils/lucideIcons";
+import {PropertyTypeRegistry} from "./propertyTypes/property-type-registry";
+import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "./settings/mermaid-vase-views-settings";
+import {GeneralSettingTab} from "./settings/general-setting-tab";
+import {MermaidBasesView} from "./core/mermaid-bases-view";
+import {CustomLucideIcons} from "./utils/lucide-icons";
 
 export default class MermaidBaseViews extends Plugin {
 	settings!: MermaidBaseViewsSettings;

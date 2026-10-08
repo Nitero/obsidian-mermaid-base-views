@@ -1,25 +1,25 @@
 import {QueryController} from "obsidian";
-import { MermaidBasesView } from "../views/MermaidBasesView";
-import {MermaidViewRegistrationData} from "./MermaidViewRegistrationData";
-import {MermaidFlowchartBasesView} from "../views/MermaidFlowchartBasesView";
-import {MermaidMindmapBasesView} from "../views/MermaidMindmapBasesView";
-import {MermaidTimelineBasesView} from "../views/MermaidTimelineBasesView";
-import {MermaidSankeyBasesView} from "../views/MermaidSankeyBasesView";
-import {MermaidRadarChartBasesView} from "../views/MermaidRadarChartBasesView";
-import { MermaidPieChartBasesView } from "../views/MermaidPieChartBasesView";
-import { MermaidXYChartBasesView } from "../views/MermaidXYChartBasesView";
-import {MermaidQuadrantChartBasesView} from "../views/MermaidQuadrantChartBasesView";
+import {MermaidBasesView} from "./mermaid-bases-view";
+import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
+import {FlowchartView} from "../views/flowchart-view";
+import {MindmapView} from "../views/mindmap-view";
+import {TimelineView} from "../views/timeline-view";
+import {SankeyView} from "../views/sankey-view";
+import {RadarChartView} from "../views/radar-chart-view";
+import {PieChartView} from "../views/pie-chart-view";
+import {XYChartView} from "../views/xy-chart-view";
+import {QuadrantChartView} from "../views/quadrant-chart-view";
 
 export function registerAllMermaidViews(plugin: MermaidBaseViews): void {
-	registerMermaidView(plugin, MermaidFlowchartBasesView, MermaidFlowchartBasesView.RegistrationData);
-	registerMermaidView(plugin, MermaidMindmapBasesView, MermaidMindmapBasesView.RegistrationData);
-	registerMermaidView(plugin, MermaidTimelineBasesView, MermaidTimelineBasesView.RegistrationData);
-	registerMermaidView(plugin, MermaidSankeyBasesView, MermaidSankeyBasesView.RegistrationData);
-	registerMermaidView(plugin, MermaidRadarChartBasesView, MermaidRadarChartBasesView.RegistrationData);
-	registerMermaidView(plugin, MermaidPieChartBasesView, MermaidPieChartBasesView.RegistrationData);
-	registerMermaidView(plugin, MermaidXYChartBasesView, MermaidXYChartBasesView.RegistrationData);
-	registerMermaidView(plugin, MermaidQuadrantChartBasesView, MermaidQuadrantChartBasesView.RegistrationData);
+	registerMermaidView(plugin, FlowchartView, FlowchartView.RegistrationData);
+	registerMermaidView(plugin, MindmapView, MindmapView.RegistrationData);
+	registerMermaidView(plugin, TimelineView, TimelineView.RegistrationData);
+	registerMermaidView(plugin, SankeyView, SankeyView.RegistrationData);
+	registerMermaidView(plugin, RadarChartView, RadarChartView.RegistrationData);
+	registerMermaidView(plugin, PieChartView, PieChartView.RegistrationData);
+	registerMermaidView(plugin, XYChartView, XYChartView.RegistrationData);
+	registerMermaidView(plugin, QuadrantChartView, QuadrantChartView.RegistrationData);
 }
 
 export function registerMermaidView(

@@ -1,6 +1,6 @@
 import {App, PluginSettingTab, Setting, type SettingDefinition, type SettingDefinitionItem} from "obsidian";
 import MermaidBaseViews from "../main";
-import {DEFAULT_CONFIG, DEFAULT_SETTINGS, MermaidBaseViewsSettings} from "./mermaidBaseViewsSettings";
+import {DEFAULT_CONFIG, DEFAULT_SETTINGS, MermaidBaseViewsSettings} from "./mermaid-vase-views-settings";
 
 type SettingKey = keyof MermaidBaseViewsSettings;
 type StringSettingKey = {

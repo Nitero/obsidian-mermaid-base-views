@@ -1,13 +1,13 @@
-import {MermaidBasesView} from "./MermaidBasesView";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
-import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
+import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
 import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
 
-export class MermaidXYChartBasesView extends MermaidBasesView {
-	readonly type = MermaidXYChartBasesView.RegistrationData.id;
-	readonly registrationData = MermaidXYChartBasesView.RegistrationData;
+export class XYChartView extends MermaidBasesView {
+	readonly type = XYChartView.RegistrationData.id;
+	readonly registrationData = XYChartView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-xy-chart",

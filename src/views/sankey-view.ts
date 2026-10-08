@@ -1,12 +1,12 @@
-import {MermaidBasesView} from "./MermaidBasesView";
+import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {BasesPropertyId} from "obsidian";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS} from "../core/constants";
 
-export class MermaidSankeyBasesView extends MermaidBasesView {
-	readonly type = MermaidSankeyBasesView.RegistrationData.id;
-	readonly registrationData = MermaidSankeyBasesView.RegistrationData;
+export class SankeyView extends MermaidBasesView {
+	readonly type = SankeyView.RegistrationData.id;
+	readonly registrationData = SankeyView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-sankey",

@@ -1,5 +1,5 @@
-import {MermaidBasesView} from "./MermaidBasesView";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesPropertyId, parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
@@ -21,9 +21,9 @@ type Axis = {
 	propertyId: BasesPropertyId
 };
 
-export class MermaidRadarChartBasesView extends MermaidBasesView {
-	readonly type = MermaidRadarChartBasesView.RegistrationData.id;
-	readonly registrationData = MermaidRadarChartBasesView.RegistrationData;
+export class RadarChartView extends MermaidBasesView {
+	readonly type = RadarChartView.RegistrationData.id;
+	readonly registrationData = RadarChartView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-radar",
@@ -136,7 +136,7 @@ export class MermaidRadarChartBasesView extends MermaidBasesView {
 	private generateRawCurves(
 		axes: Axis[],
 		showDataLabel: boolean,
-	): {curves: RawCurve[]; minValue: number; maxValue: number} {
+	): { curves: RawCurve[]; minValue: number; maxValue: number } {
 
 		const curves: RawCurve[] = [];
 		let minValue = Number.POSITIVE_INFINITY;
@@ -186,7 +186,7 @@ export class MermaidRadarChartBasesView extends MermaidBasesView {
 					continue;
 
 				let label = entry.file.basename;
-				if(showDataLabel)
+				if (showDataLabel)
 					label += ` (${this.getLabelWithProperties(entry.file, true, ", ", "ː")})`
 
 				curves.push({label, values});
@@ -240,7 +240,7 @@ export class MermaidRadarChartBasesView extends MermaidBasesView {
 			lines.push(`  axis ${parts.join(", ")}`);
 		}
 
-		for (let i = 0; i < curves.length; i++){
+		for (let i = 0; i < curves.length; i++) {
 			const curve = curves[i]!;
 			const values = curve.values.join(", ");
 			lines.push(`  curve id${i}["${curve.label}"]{${values}}`);

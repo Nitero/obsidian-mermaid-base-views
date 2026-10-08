@@ -1,8 +1,8 @@
-import {MermaidBasesView} from "./MermaidBasesView";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
-import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
+import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
 import {COMMON_VIEW_OPTIONS} from "../core/constants";
 
 type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
@@ -13,9 +13,9 @@ type Group = {
 	events: string[];
 };
 
-export class MermaidTimelineBasesView extends MermaidBasesView {
-	readonly type = MermaidTimelineBasesView.RegistrationData.id;
-	readonly registrationData = MermaidTimelineBasesView.RegistrationData;
+export class TimelineView extends MermaidBasesView {
+	readonly type = TimelineView.RegistrationData.id;
+	readonly registrationData = TimelineView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-timeline",

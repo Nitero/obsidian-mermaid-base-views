@@ -1,8 +1,8 @@
-import {MermaidBasesView} from "./MermaidBasesView";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
-import {frontmatterLinkKeyToProperty} from "../utils/frontmatterLinks";
+import {frontmatterLinkKeyToProperty} from "../utils/frontmatter-links";
 import {
 	COMMON_OPTION_GROUPS,
 	COMMON_VIEW_OPTIONS,
@@ -16,7 +16,7 @@ import {
 	getPropertyNameFromId,
 	shouldHidePropertyLinkOptions
 } from "../utils/utils";
-import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
+import {shouldHideShowPropertyNames} from "../core/view-option-visibility";
 
 type Edge = {
 	from: string;
@@ -52,9 +52,9 @@ const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
 	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
 };
 
-export class MermaidFlowchartBasesView extends MermaidBasesView {
-	readonly type = MermaidFlowchartBasesView.RegistrationData.id;
-	readonly registrationData = MermaidFlowchartBasesView.RegistrationData;
+export class FlowchartView extends MermaidBasesView {
+	readonly type = FlowchartView.RegistrationData.id;
+	readonly registrationData = FlowchartView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-flowchart",
@@ -195,7 +195,7 @@ export class MermaidFlowchartBasesView extends MermaidBasesView {
 				ctx.groupIndexToNodeIds.set(groupIndex, nodeSet);
 			}
 
-			if(!group)
+			if (!group)
 				continue;
 
 			for (const entry of group.entries) {
@@ -313,7 +313,7 @@ export class MermaidFlowchartBasesView extends MermaidBasesView {
 				if (!nodeSet || nodeSet.size === 0)
 					continue;
 
-				if(!group)
+				if (!group)
 					continue;
 
 				const groupLabel = this.getGroupLabel(group, groupIndex, hasGroupingConfigured);

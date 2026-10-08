@@ -6,9 +6,9 @@ import {
 	Keymap, Menu, Notice,
 	type BasesAllOptions,
 } from "obsidian";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS} from "../core/constants";
+import {COMMON_VIEW_OPTIONS} from "./constants";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
@@ -210,7 +210,7 @@ export abstract class MermaidBasesView extends BasesView {
 	}
 
 	protected getConfigValue<T>(key: string, defaultValue?: T): T {
-		if(defaultValue === null || defaultValue === undefined)
+		if (defaultValue === null || defaultValue === undefined)
 			defaultValue = this.getConfigDefaultValue<T>(key);
 		const rawValue = this.config.get(key);
 
@@ -251,10 +251,10 @@ export abstract class MermaidBasesView extends BasesView {
 	private findConfigOptionWithDefault<T>(
 		options: BasesAllOptions[],
 		key: string,
-	): {default?: T} | undefined {
+	): { default?: T } | undefined {
 		for (const option of options) {
 			if ("key" in option && option.key === key)
-				return option as {default?: T};
+				return option as { default?: T };
 
 			if (option.type === "group") {
 				const nestedOption = this.findConfigOptionWithDefault<T>(option.items, key);

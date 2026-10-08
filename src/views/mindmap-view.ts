@@ -1,6 +1,6 @@
-import {MermaidBasesView} from "./MermaidBasesView";
+import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {TFile} from "obsidian";
-import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
+import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {
 	getBodyLinksForSource,
 	getFrontmatterLinksForSource,
@@ -16,7 +16,7 @@ import {
 	NODE_LABEL_CONTENT_VALUES,
 	SELECTED_PROPERTIES_LABEL
 } from "../core/constants";
-import {shouldHideShowPropertyNames} from "../core/viewOptionVisibility";
+import {shouldHideShowPropertyNames} from "../core/view-option-visibility";
 
 interface MindmapRenderContext {
 	visited: Set<string>;
@@ -37,9 +37,9 @@ const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
 	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
 };
 
-export class MermaidMindmapBasesView extends MermaidBasesView {
-	readonly type = MermaidMindmapBasesView.RegistrationData.id;
-	readonly registrationData = MermaidMindmapBasesView.RegistrationData;
+export class MindmapView extends MermaidBasesView {
+	readonly type = MindmapView.RegistrationData.id;
+	readonly registrationData = MindmapView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-mindmap",
@@ -175,6 +175,7 @@ export class MermaidMindmapBasesView extends MermaidBasesView {
 
 		return ctx.lines.join("\n");
 	}
+
 	private renderNode(
 		path: string,
 		level: number,

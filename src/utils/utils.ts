@@ -1,8 +1,15 @@
-import {parsePropertyId, type BasesPropertyId, type BasesViewConfig, type CachedMetadata, type FrontmatterLinkCache, type LinkCache} from "obsidian";
-import {frontmatterLinkMatchesProperty} from "./frontmatterLinks";
+import {
+	parsePropertyId,
+	type BasesPropertyId,
+	type BasesViewConfig,
+	type CachedMetadata,
+	type FrontmatterLinkCache,
+	type LinkCache
+} from "obsidian";
+import {frontmatterLinkMatchesProperty} from "./frontmatter-links";
 import {LINK_OPTIONS, LINK_SOURCE_VALUES} from "../core/constants";
 
-export function indent(level: number): string{
+export function indent(level: number): string {
 	return '  '.repeat(level);
 }
 
