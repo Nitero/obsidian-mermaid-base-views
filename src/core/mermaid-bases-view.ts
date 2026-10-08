@@ -35,8 +35,8 @@ export abstract class MermaidBasesView extends BasesView {
 	protected abstract render(): Promise<void>;
 
 	protected async renderMermaid(mermaidCode: string, viewTypeMermaidConfig: string): Promise<void> {
-		const usesSettingOverride = viewTypeMermaidConfig && viewTypeMermaidConfig.length > 0;
-		const configBlock = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, `---\n${usesSettingOverride ? viewTypeMermaidConfig : this.plugin.settings.generalMermaidConfig}\n---`);
+		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
+		const configBlock = `---\nconfig:\n${this.trimConfig(this.plugin.settings.generalMermaidConfig)}\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
 
 		mermaidCode = mermaidCode.trim();
 		if (configBlock.length > 0)
@@ -55,6 +55,11 @@ export abstract class MermaidBasesView extends BasesView {
 		);
 
 		this.hookUpInternalLinks(this.containerEl, sourcePath);
+	}
+
+	private trimConfig(config: string): string{
+		const configRegex = new RegExp(`(^[-config:]*)|([-]*$)`, 'g');
+		return config.replaceAll(configRegex, '');
 	}
 
 	protected hookUpInternalLinks(containerEl: HTMLElement, sourcePath: string) {
