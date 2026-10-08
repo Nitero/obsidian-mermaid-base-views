@@ -62,13 +62,13 @@ export class CustomLucideIcons {
 		addIcon(
 			"custom-quadrant-chart-2",
 			lucideIcon(`
-			  <path d="M12 2v20" />
-			  <path d="M22 12H2" />
-			  <circle cx="17" cy="17" r=".5" fill="currentColor" />
-			  <circle cx="17" cy="7" r=".5" fill="currentColor" />
-			  <circle cx="7" cy="17" r=".5" fill="currentColor" />
-			  <circle cx="7" cy="7" r=".5" fill="currentColor" />
-			  <rect x="2" y="2" width="20" height="20" />
+			  <path d="M12 3v18" />
+			  <path d="M3 12h18" />
+			  <circle cx="16.5" cy="16.5" r=".5" fill="currentColor" />
+			  <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
+			  <circle cx="7.5" cy="16.5" r=".5" fill="currentColor" />
+			  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+			  <rect x="3" y="3" width="18" height="18" rx="2" />
 			`),
 		);
 		addIcon(
