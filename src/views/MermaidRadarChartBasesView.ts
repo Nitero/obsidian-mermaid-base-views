@@ -1,4 +1,4 @@
-import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
+import {MermaidBasesView} from "./MermaidBasesView";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId, parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
@@ -21,9 +21,9 @@ type Axis = {
 	propertyId: BasesPropertyId
 };
 
-export class MermaidRadarChartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidRadarChartBaseView.RegistrationData.id;
-	readonly registrationData = MermaidRadarChartBaseView.RegistrationData;
+export class MermaidRadarChartBasesView extends MermaidBasesView {
+	readonly type = MermaidRadarChartBasesView.RegistrationData.id;
+	readonly registrationData = MermaidRadarChartBasesView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-radar",

@@ -1,12 +1,12 @@
-import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
+import {MermaidBasesView} from "./MermaidBasesView";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/InferredPropertyType";
 import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER} from "../core/constants";
 
-export class MermaidPieChartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidPieChartBaseView.RegistrationData.id;
-	readonly registrationData = MermaidPieChartBaseView.RegistrationData;
+export class MermaidPieChartBasesView extends MermaidBasesView {
+	readonly type = MermaidPieChartBasesView.RegistrationData.id;
+	readonly registrationData = MermaidPieChartBasesView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-pie-chart",

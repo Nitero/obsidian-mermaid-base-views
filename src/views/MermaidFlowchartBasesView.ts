@@ -1,4 +1,4 @@
-import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
+import {MermaidBasesView} from "./MermaidBasesView";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
@@ -52,9 +52,9 @@ const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
 	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
 };
 
-export class MermaidFlowchartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidFlowchartBaseView.RegistrationData.id;
-	readonly registrationData = MermaidFlowchartBaseView.RegistrationData;
+export class MermaidFlowchartBasesView extends MermaidBasesView {
+	readonly type = MermaidFlowchartBasesView.RegistrationData.id;
+	readonly registrationData = MermaidFlowchartBasesView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-flowchart",

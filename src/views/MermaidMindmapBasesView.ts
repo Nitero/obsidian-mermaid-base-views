@@ -1,4 +1,4 @@
-import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
+import {MermaidBasesView} from "./MermaidBasesView";
 import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {
@@ -37,9 +37,9 @@ const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
 	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
 };
 
-export class MermaidMindmapBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidMindmapBaseView.RegistrationData.id;
-	readonly registrationData = MermaidMindmapBaseView.RegistrationData;
+export class MermaidMindmapBasesView extends MermaidBasesView {
+	readonly type = MermaidMindmapBasesView.RegistrationData.id;
+	readonly registrationData = MermaidMindmapBasesView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-mindmap",

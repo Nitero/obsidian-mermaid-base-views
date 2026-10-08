@@ -1,4 +1,4 @@
-import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
+import {MermaidBasesView} from "./MermaidBasesView";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
@@ -12,9 +12,9 @@ type Point = {
 	color: string;
 };
 
-export class MermaidQuadrantChartBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidQuadrantChartBaseView.RegistrationData.id;
-	readonly registrationData = MermaidQuadrantChartBaseView.RegistrationData;
+export class MermaidQuadrantChartBasesView extends MermaidBasesView {
+	readonly type = MermaidQuadrantChartBasesView.RegistrationData.id;
+	readonly registrationData = MermaidQuadrantChartBasesView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-quadrant-chart",

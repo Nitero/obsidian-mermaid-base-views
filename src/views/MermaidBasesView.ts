@@ -10,7 +10,7 @@ import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS} from "../core/constants";
 
-export abstract class MermaidBaseViewBase extends BasesView {
+export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
 	protected containerEl: HTMLElement;
 

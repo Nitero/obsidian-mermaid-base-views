@@ -3,13 +3,13 @@ import {registerAllMermaidViews} from "./core/view-registration";
 import { PropertyTypeRegistry } from "./propertyTypes/PropertyTypeRegistry";
 import {MermaidBaseViewsSettings, DEFAULT_SETTINGS} from "./settings/mermaidBaseViewsSettings";
 import {GeneralSettingTab} from "./settings/generalSettingTab";
-import {MermaidBaseViewBase} from "./views/MermaidBaseViewBase";
+import {MermaidBasesView} from "./views/MermaidBasesView";
 import {CustomLucideIcons} from "./utils/lucideIcons";
 
 export default class MermaidBaseViews extends Plugin {
 	settings!: MermaidBaseViewsSettings;
 
-	private mermaidViews = new Set<MermaidBaseViewBase>();
+	private mermaidViews = new Set<MermaidBasesView>();
 	propertyTypes!: PropertyTypeRegistry;
 
 	async onload() {
@@ -37,7 +37,7 @@ export default class MermaidBaseViews extends Plugin {
 			view.onDataUpdated();
 	}
 
-	registerMermaidView(view: MermaidBaseViewBase) {
+	registerMermaidView(view: MermaidBasesView) {
 		this.mermaidViews.add(view);
 
 		view.register(() => {

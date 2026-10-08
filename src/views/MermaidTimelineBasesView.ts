@@ -1,4 +1,4 @@
-import {MermaidBaseViewBase} from "./MermaidBaseViewBase";
+import {MermaidBasesView} from "./MermaidBasesView";
 import {MermaidViewRegistrationData} from "../core/MermaidViewRegistrationData";
 import {BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
@@ -13,9 +13,9 @@ type Group = {
 	events: string[];
 };
 
-export class MermaidTimelineBaseView extends MermaidBaseViewBase {
-	readonly type = MermaidTimelineBaseView.RegistrationData.id;
-	readonly registrationData = MermaidTimelineBaseView.RegistrationData;
+export class MermaidTimelineBasesView extends MermaidBasesView {
+	readonly type = MermaidTimelineBasesView.RegistrationData.id;
+	readonly registrationData = MermaidTimelineBasesView.RegistrationData;
 
 	static readonly RegistrationData: MermaidViewRegistrationData = {
 		id: "mermaid-timeline",
