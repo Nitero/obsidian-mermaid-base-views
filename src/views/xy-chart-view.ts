@@ -52,20 +52,6 @@ export class XYChartView extends MermaidBasesView {
 				default: "bar",
 				options: {"bar": "bar", "line": "line", "bar-and-line": "both"},
 			},
-			// {
-			// 	type: "toggle",
-			// 	displayName: "Show data labels",
-			// 	key: "showDataLabel",
-			// 	default: false,
-			// 	//TODO: hide if type is line
-			// },
-			// {
-			// 	type: "toggle",
-			// 	displayName: "Show data labels outside bar",
-			// 	key: "showDataLabelOutsideBar",
-			// 	default: false,
-			// 	shouldHide: shouldHideShowDataLabel("showDataLabel", false),//TODO: or if type is line
-			// },
 			{
 				type: "toggle",
 				displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
@@ -152,12 +138,6 @@ export class XYChartView extends MermaidBasesView {
 		const valuesArray = `[${yValues.join(", ")}]`;
 
 		const lines: string[] = [];
-
-		// const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
-		// lines.push(`%%{init: {"xyChart": {"showDataLabel": ${showDataLabel}} }}%%`);
-
-		// const showDataLabelOutsideBar = this.getConfigValue<boolean>("showDataLabelOutsideBar");
-		// lines.push(`%%{init: {"xyChart": {"showDataLabelOutsideBar": ${showDataLabelOutsideBar}} }}%%`);
 
 		lines.push("xychart-beta");
 		if (title !== null)

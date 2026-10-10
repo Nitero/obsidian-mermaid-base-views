@@ -18,6 +18,11 @@ export const COMMON_VIEW_OPTIONS = {
 		key: "mermaidConfigOverrideDirective",
 		placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 	},
+	showDataLabel: {
+		displayName: "Show values on labels",
+		key: "showDataLabel",
+		default: false,
+	},
 } as const;
 
 export const COMMON_OPTION_GROUPS = {

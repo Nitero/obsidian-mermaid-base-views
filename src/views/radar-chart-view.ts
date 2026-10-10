@@ -71,9 +71,9 @@ export class RadarChartView extends MermaidBasesView {
 			},
 			{
 				type: "toggle",
-				displayName: "Show values on labels",
-				key: "showDataLabel",
-				default: false,
+				displayName: COMMON_VIEW_OPTIONS.showDataLabel.displayName,
+				key: COMMON_VIEW_OPTIONS.showDataLabel.key,
+				default: COMMON_VIEW_OPTIONS.showDataLabel.default,
 				shouldHide: shouldHideShowDataLabel("showLegend", true),
 			},
 			{
