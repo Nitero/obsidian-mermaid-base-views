@@ -11,3 +11,14 @@ export function shouldHideShowPropertyNames(defaultNodeLabelContent: string) {
 		return resolvedNodeLabelContent !== NODE_LABEL_CONTENT_VALUES.properties;
 	};
 }
+
+export function shouldHideShowDataLabel(key: string, defaultValue: boolean) {
+	return (config?: BasesViewConfig): boolean => {
+		const showLegendContent = config?.get(key);
+		const resolvedNodeLabelContent = typeof showLegendContent === "boolean"
+			? showLegendContent
+			: defaultValue;
+
+		return !resolvedNodeLabelContent;
+	};
+}

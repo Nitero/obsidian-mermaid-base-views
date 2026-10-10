@@ -3,6 +3,7 @@ import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-dat
 import {BasesPropertyId, parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
+import {shouldHideShowDataLabel} from "../core/view-option-visibility";
 
 
 type Curve = {
@@ -64,9 +65,16 @@ export class RadarChartView extends MermaidBasesView {
 			},
 			{
 				type: "toggle",
+				displayName: "Show Legend",
+				key: "showLegend",
+				default: true,
+			},
+			{
+				type: "toggle",
 				displayName: "Show values on labels",
 				key: "showDataLabel",
 				default: false,
+				shouldHide: shouldHideShowDataLabel("showLegend", true),
 			},
 			{
 				type: "text",
@@ -81,6 +89,7 @@ export class RadarChartView extends MermaidBasesView {
 		const title = this.getOptionalTitle();
 		const graticule = this.getConfigValue<string>("graticule");
 		const ticks = this.getConfigValue<string>("ticks");
+		const showLegend = this.getConfigValue<boolean>("showLegend");
 		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
 
 		const axes: Axis[] = [];
@@ -127,7 +136,8 @@ export class RadarChartView extends MermaidBasesView {
 			minOverride !== null || minValue !== 0 ? minValue : null,
 			maxOverride !== null || maxValue !== dataMaxValue ? maxValue : null,
 			graticule,
-			ticks
+			ticks,
+			showLegend
 		);
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.radarChartMermaidConfig);
@@ -221,7 +231,7 @@ export class RadarChartView extends MermaidBasesView {
 	}
 
 	private buildMermaidCode(
-		title: string | null, axes: Axis[], curves: Curve[], minValue: number | null, maxValue: number | null, graticule: string, ticks: string,
+		title: string | null, axes: Axis[], curves: Curve[], minValue: number | null, maxValue: number | null, graticule: string, ticks: string, showLegend: boolean | null,
 	): string {
 		const lines: string[] = [];
 		lines.push("radar-beta");
@@ -252,6 +262,7 @@ export class RadarChartView extends MermaidBasesView {
 			lines.push(`  min ${minValue}`);
 		lines.push(`  graticule ${graticule}`);
 		lines.push(`  ticks ${ticks}`);
+		lines.push(`  showLegend ${showLegend}`);
 
 		return lines.join("\n");
 	}

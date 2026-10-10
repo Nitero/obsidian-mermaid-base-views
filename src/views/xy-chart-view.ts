@@ -57,6 +57,14 @@ export class XYChartView extends MermaidBasesView {
 			// 	displayName: "Show data labels",
 			// 	key: "showDataLabel",
 			// 	default: false,
+			// 	//TODO: hide if type is line
+			// },
+			// {
+			// 	type: "toggle",
+			// 	displayName: "Show data labels outside bar",
+			// 	key: "showDataLabelOutsideBar",
+			// 	default: false,
+			// 	shouldHide: shouldHideShowDataLabel("showDataLabel", false),//TODO: or if type is line
 			// },
 			{
 				type: "toggle",
@@ -144,6 +152,13 @@ export class XYChartView extends MermaidBasesView {
 		const valuesArray = `[${yValues.join(", ")}]`;
 
 		const lines: string[] = [];
+
+		// const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
+		// lines.push(`%%{init: {"xyChart": {"showDataLabel": ${showDataLabel}} }}%%`);
+
+		// const showDataLabelOutsideBar = this.getConfigValue<boolean>("showDataLabelOutsideBar");
+		// lines.push(`%%{init: {"xyChart": {"showDataLabelOutsideBar": ${showDataLabelOutsideBar}} }}%%`);
+
 		lines.push("xychart-beta");
 		if (title !== null)
 			lines.push(`    title ${title}`);
@@ -160,9 +175,6 @@ export class XYChartView extends MermaidBasesView {
 		}
 
 		const mermaidCode = lines.join("\n");
-
-		// const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
-		// const extraConfig = showDataLabel ? "%%{init: {\"xyChart\": {\"showDataLabel\": \"true\"} }}%%" : "";//TODO: wait for mermaid v11.7.0
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);
 	}

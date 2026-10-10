@@ -103,7 +103,7 @@ export class GeneralSettingTab extends PluginSettingTab {
 				type: "textarea",
 				key,
 				defaultValue,
-				placeholder: "config:\n  theme: 'forest'",
+				placeholder: DEFAULT_CONFIG,
 				rows: 4,
 			},
 		};
