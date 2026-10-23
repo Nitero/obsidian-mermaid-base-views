@@ -9,9 +9,10 @@ export const COMMON_VIEW_OPTIONS = {
 		key: "showPropertyNames",
 		default: true,
 	},
-	nodeLabelContent: {
-		displayName: "Node Label Content",
-		key: "nodeLabelContent",
+	renderFileNameAsLink: {
+		displayName: "Render file name as link",
+		key: "renderFileNameAsLink",
+		default: true,
 	},
 	mermaidConfigOverride: {
 		displayName: "Mermaid Config Override Directive (optional)",
@@ -30,18 +31,10 @@ export const COMMON_OPTION_GROUPS = {
 	links: "Links",
 } as const;
 
-export const NODE_LABEL_CONTENT_VALUES = {
-	namedLinks: "named-links",
-	properties: "properties",
-} as const;
-
-export const SELECTED_PROPERTIES_LABEL = "Selected Properties";
-export const NOTE_NAMES_LINKS_LABEL = "Note names (clickable links)";
-
-export const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
-	[NODE_LABEL_CONTENT_VALUES.namedLinks]: NOTE_NAMES_LINKS_LABEL,
-	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
-};
+export const NOTE_LABEL_OPTIONS = [
+	{type: "toggle", ...COMMON_VIEW_OPTIONS.showPropertyNames},
+	{type: "toggle", ...COMMON_VIEW_OPTIONS.renderFileNameAsLink},
+] as const;
 
 export const NUMBER_RANGE_PLACEHOLDER = "number (defaults to automatic from data)";
 export const FILE_SIZE_PLACEHOLDER = "e.g. file size";

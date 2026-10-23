@@ -3,14 +3,14 @@ import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-dat
 import {BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
-import {COMMON_VIEW_OPTIONS} from "../core/constants";
+import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../core/constants";
 
 type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
 
 type Group = {
 	label: string;
 	date: Date;
-	events: string[];
+	events: {label: string; path: string}[];
 };
 
 export class TimelineView extends MermaidBasesView {
@@ -49,12 +49,7 @@ export class TimelineView extends MermaidBasesView {
 					"second": "Second"
 				},
 			},
-			{
-				type: "toggle",
-				displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
-				key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
-				default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
-			},
+			...NOTE_LABEL_OPTIONS,
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
@@ -92,6 +87,24 @@ export class TimelineView extends MermaidBasesView {
 
 		const mermaidCode = this.buildMermaidCode(title, sortedGroups);
 		await this.renderMermaid(mermaidCode, this.plugin.settings.timelineMermaidConfig);
+		this.hookUpEventLinks(sortedGroups);
+	}
+
+	private hookUpEventLinks(groups: Group[]): void {
+		const groupsByLabel = new Map(groups.map((group) => [group.label, group]));
+		this.containerEl.querySelectorAll(".pele-period[data-id]").forEach((period) => {
+			const group = groupsByLabel.get(period.getAttribute("data-id") ?? "");
+			if (!group)
+				return;
+			const events = period.querySelectorAll(".pele-event");
+			if (events.length !== group.events.length)
+				return;
+			events.forEach((node, index) => {
+				const event = group.events[index];
+				if (event)
+					this.markNoteLink(node, event.path);
+			});
+		});
 	}
 
 	private generateGroups(
@@ -124,7 +137,10 @@ export class TimelineView extends MermaidBasesView {
 					g = {label, date: truncatedDate, events: []};
 					groups.set(label, g);
 				}
-				g.events.push(eventLabel);
+				g.events.push({
+					label: eventLabel,
+					path: entry.file.path,
+				});
 			}
 		}
 
@@ -143,9 +159,9 @@ export class TimelineView extends MermaidBasesView {
 			if (g.events.length === 0)
 				continue;
 
-			let line = `    ${g.label} : ${g.events[0]}`;
+			let line = `    ${g.label} : ${g.events[0]?.label}`;
 			for (let i = 1; i < g.events.length; i++)
-				line += ` : ${g.events[i]}`;
+				line += ` : ${g.events[i]?.label}`;
 			lines.push(line);
 		}
 

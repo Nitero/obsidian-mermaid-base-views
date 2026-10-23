@@ -1,19 +1,21 @@
+.bases-mermaid-view-container .bases-mermaid-note-link {
+	fill: inherit;
+	color: inherit;
+	text-decoration: none;
+}
+
 .bases-mermaid-view-container .bases-mermaid-note-link,
 .bases-mermaid-view-container .bases-mermaid-note-link * {
 	cursor: pointer;
 }
 
-.bases-mermaid-view-container .bases-mermaid-note-link text,
-.bases-mermaid-view-container .bases-mermaid-note-link tspan,
-.bases-mermaid-view-container .bases-mermaid-note-link .nodeLabel {
+.bases-mermaid-view-container .bases-mermaid-file-name-link {
 	fill: var(--link-color);
 	color: var(--link-color);
 	text-decoration: var(--link-decoration, underline);
 }
 
-.bases-mermaid-view-container .bases-mermaid-note-link:hover text,
-.bases-mermaid-view-container .bases-mermaid-note-link:hover tspan,
-.bases-mermaid-view-container .bases-mermaid-note-link:hover .nodeLabel {
+.bases-mermaid-view-container .bases-mermaid-file-name-link:hover {
 	fill: var(--link-color-hover);
 	color: var(--link-color-hover);
 	text-decoration: var(--link-decoration-hover, underline);

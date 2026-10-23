@@ -13,10 +13,8 @@ import {
 	COMMON_OPTION_GROUPS,
 	COMMON_VIEW_OPTIONS,
 	LINK_OPTIONS,
-	NODE_LABEL_CONTENT_VALUES,
-	NODE_LABEL_CONTENT_OPTIONS
+	NOTE_LABEL_OPTIONS
 } from "../core/constants";
-import {shouldHideShowPropertyNames} from "../core/view-option-visibility";
 
 interface MindmapRenderContext {
 	visited: Set<string>;
@@ -24,7 +22,6 @@ interface MindmapRenderContext {
 	fileToNodeIdsToLabels: Map<string, string>;
 	pathToOutgoingLinks: Map<string, Set<string>>;
 	indegree: Map<string, number>;
-	nodeLabelContent: string;
 	showPropertyNames: boolean;
 	lines: string[];
 	linkSource: string;
@@ -51,20 +48,7 @@ export class MindmapView extends MermaidBasesView {
 				displayName: COMMON_OPTION_GROUPS.labels,
 				type: "group",
 				items: [
-					{
-						type: "dropdown",
-						displayName: COMMON_VIEW_OPTIONS.nodeLabelContent.displayName,
-						key: COMMON_VIEW_OPTIONS.nodeLabelContent.key,
-						default: NODE_LABEL_CONTENT_VALUES.properties,
-						options: NODE_LABEL_CONTENT_OPTIONS,
-					},
-					{
-						type: "toggle",
-						displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
-						key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
-						default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
-						shouldHide: shouldHideShowPropertyNames(NODE_LABEL_CONTENT_VALUES.properties),
-					},
+					...NOTE_LABEL_OPTIONS,
 				],
 			},
 			{
@@ -105,7 +89,6 @@ export class MindmapView extends MermaidBasesView {
 
 	protected async render(): Promise<void> {
 		const rootLabel = this.getOptionalTitle("rootLabel");
-		const nodeLabelContent = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.nodeLabelContent.key);
 		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 		const linkSource = this.getConfigValue<string>(LINK_OPTIONS.source.key);
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(LINK_OPTIONS.showFilteredOutNotes.key);
@@ -118,7 +101,6 @@ export class MindmapView extends MermaidBasesView {
 			fileToNodeIdsToLabels: new Map<string, string>(),
 			pathToOutgoingLinks: new Map<string, Set<string>>(),
 			indegree: new Map<string, number>(),
-			nodeLabelContent,
 			showPropertyNames,
 			lines: [],
 			linkSource,
@@ -142,7 +124,7 @@ export class MindmapView extends MermaidBasesView {
 		await this.renderMermaid(
 			mermaidCode,
 			this.plugin.settings.mindmapMermaidConfig,
-			nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks ? ctx.fileToNodeIdsToLabels : undefined,
+			ctx.fileToNodeIdsToLabels,
 		);
 	}
 
@@ -189,13 +171,10 @@ export class MindmapView extends MermaidBasesView {
 			return;
 
 		const nodeId = ctx.fileToNodeIdsToLabels.get(path)!;
-		const label = ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks
-			? file.basename
-			: this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
+		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
 
 		ctx.lines.push(`${indent(level)}${nodeId}["${label}"]`);
-		if (ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks)
-			ctx.lines.push(`${indent(level + 1)}:::bases-mermaid-note-${nodeId}`);
+		ctx.lines.push(`${indent(level + 1)}:::bases-mermaid-note-${nodeId}`);
 
 		const children = ctx.pathToOutgoingLinks.get(path);
 		if (!children)

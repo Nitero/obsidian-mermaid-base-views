@@ -13,6 +13,7 @@ export default class MermaidBaseViews extends Plugin {
 	propertyTypes!: PropertyTypeRegistry;
 
 	async onload() {
+		this.registerHoverLinkSource(this.manifest.id, {display: this.manifest.name, defaultMod: true});
 		new CustomLucideIcons();
 
 		await this.loadSettings();

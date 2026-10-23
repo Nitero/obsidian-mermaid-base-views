@@ -3,16 +3,18 @@ import {
 	BasesView,
 	QueryController,
 	MarkdownRenderer,
-	Keymap, Menu, Notice,
 	type BasesAllOptions,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS} from "./constants";
+import {createNoteFileNameLinks} from "../utils/note-link-label";
+import {registerNoteLinkInteractions} from "./note-link-interactions";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
 	protected containerEl: HTMLElement;
+	private readonly noteFileNames = new Map<string, string[]>();
 
 	abstract registrationData: MermaidViewRegistrationData;
 
@@ -21,9 +23,12 @@ export abstract class MermaidBasesView extends BasesView {
 		this.plugin = plugin;
 		this.containerEl = parentEl.createDiv("bases-mermaid-view-container");
 		plugin.registerMermaidView(this);
+		registerNoteLinkInteractions(this, this.app, this.containerEl, plugin.manifest.id,
+			() => this.app.workspace.getActiveFile()?.path ?? "");
 	}
 
 	public onDataUpdated(): void {
+		this.noteFileNames.clear();
 		this.containerEl.empty();
 		void this.render().catch((error) => {
 			console.error("Failed to render Mermaid", error);
@@ -61,13 +66,22 @@ export abstract class MermaidBasesView extends BasesView {
 		if (noteNodes) {
 			for (const [path, nodeId] of noteNodes) {
 				this.containerEl.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
-					node.classList.add("bases-mermaid-note-link");
-					node.setAttribute("data-href", path);
+					this.markNoteLink(node, path);
 				});
 			}
 		}
 
-		this.hookUpInternalLinks(this.containerEl, sourcePath);
+	}
+
+	protected markNoteLink(node: Element, path: string): void {
+		const linkCount = createNoteFileNameLinks(node, this.noteFileNames.get(path) ?? [], path,
+			this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.renderFileNameAsLink.key, true));
+		if (linkCount > 0)
+			return;
+		node.classList.add("bases-mermaid-note-link");
+		node.setAttribute("data-href", path);
+		node.setAttribute("role", "link");
+		node.setAttribute("tabindex", "0");
 	}
 
 	private trimConfig(config: string): string{
@@ -75,114 +89,10 @@ export abstract class MermaidBasesView extends BasesView {
 		return config.replaceAll(configRegex, '');
 	}
 
-	protected hookUpInternalLinks(containerEl: HTMLElement, sourcePath: string) {
-
-		containerEl
-			.querySelectorAll<HTMLElement>("a.internal-link, .bases-mermaid-note-link[data-href]")
-			.forEach((el) => {
-				const getLinkText = () => el.getAttribute("data-href") || el.getAttribute("href");
-
-				// Hover preview
-				this.registerDomEvent(el, "mouseover", (evt: MouseEvent) => {
-					const linkText = getLinkText();
-					if (!linkText)
-						return;
-
-					this.app.workspace.trigger("hover-link", {
-						event: evt,
-						source: "preview",
-						hoverParent: {hoverPopover: null},
-						targetEl: el,
-						linktext: linkText,
-						sourcePath,
-					});
-				});
-
-				// Left click
-				this.registerDomEvent(el, "click", (evt: MouseEvent) => {
-					if (evt.button !== 0)
-						return;
-
-					const linkText = getLinkText();
-					if (!linkText)
-						return;
-
-					evt.preventDefault();
-
-					void this.app.workspace.openLinkText(
-						linkText,
-						sourcePath,
-						Keymap.isModEvent(evt)
-					);
-				});
-
-				// Middle click
-				this.registerDomEvent(el, "auxclick", (evt: MouseEvent) => {
-					if (evt.button !== 1)
-						return;
-
-					const linkText = getLinkText();
-					if (!linkText)
-						return;
-
-					evt.preventDefault();
-					void this.app.workspace.openLinkText(linkText, sourcePath, "tab");
-				});
-
-				// Right click
-				this.registerDomEvent(el, "contextmenu", (evt: MouseEvent) => {
-					const linkText = getLinkText();
-					if (!linkText)
-						return;
-
-					evt.preventDefault();
-					evt.stopPropagation();
-
-					const file = this.app.metadataCache.getFirstLinkpathDest(linkText, sourcePath);
-					if (!file) {
-						new Notice(`File not found for link: ${linkText}`);
-						return;
-					}
-
-					const menu = new Menu();
-					menu.addItem((item) =>
-						item
-							.setTitle("Open in new tab")
-							.setIcon("file-plus")
-							.setSection("open")
-							.onClick(() => {
-								void this.app.workspace.openLinkText(linkText, sourcePath, "tab");
-							}),
-					);
-					menu.addItem((item) =>
-						item
-							.setTitle("Open to the right")
-							.setIcon("separator-vertical")
-							.setSection("open")
-							.onClick(() => {
-								void this.app.workspace.openLinkText(linkText, sourcePath, "split");
-							}),
-					);
-					menu.addItem((item) =>
-						item
-							.setTitle("Rename...")
-							.setIcon("pencil-line")
-							.setSection("action")
-							.onClick(() => {
-								this.app.workspace.trigger("rename", file);//TODO: fix this not working (why have to reimplement it anyways?)
-							}),
-					);
-
-					//TODO: add "Copy - copy" that copies not name to section "clipboard"
-					//TODO: remove merge entire file with...
-
-					this.app.workspace.trigger("file-menu", menu, file);
-					menu.showAtMouseEvent(evt);
-				});
-			});
-	}
 
 	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string): string {
+		const fileNames: string[] = [];
+		this.noteFileNames.set(file.path, fileNames);
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
 
@@ -205,14 +115,18 @@ export abstract class MermaidBasesView extends BasesView {
 					if (showPropertyNames && property != "file.name" && property != "file.basename")
 						label += `${this.config.getDisplayName(property)}${colon} `;
 					label += value.toString();
+					if (property === "file.name" || property === "file.basename")
+						fileNames.push(value.toString());
 				}
 
-				if (label == "")
+				if (label == "") {
+					fileNames.push(file.basename);
 					return file.basename;
-				else
+				} else
 					return label;
 			}
 		}
+		fileNames.push(file.basename);
 		return file.basename;
 	};
 

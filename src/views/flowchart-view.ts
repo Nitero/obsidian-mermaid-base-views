@@ -7,8 +7,7 @@ import {
 	COMMON_OPTION_GROUPS,
 	COMMON_VIEW_OPTIONS,
 	LINK_OPTIONS,
-	NODE_LABEL_CONTENT_VALUES,
-	NODE_LABEL_CONTENT_OPTIONS
+	NOTE_LABEL_OPTIONS
 } from "../core/constants";
 import {
 	getBodyLinksForSource,
@@ -16,7 +15,6 @@ import {
 	getPropertyNameFromId,
 	shouldHidePropertyLinkOptions
 } from "../utils/utils";
-import {shouldHideShowPropertyNames} from "../core/view-option-visibility";
 
 type Edge = {
 	from: string;
@@ -31,7 +29,6 @@ interface FlowchartRenderContext {
 	groupedNodeIds: Set<string>;
 	notePropDisplayByKey: Map<string, string>;
 	edges: Map<string, Edge>;
-	nodeLabelContent: string;
 	showPropertyNames: boolean;
 	linkSource: string;
 	showLinksToFilteredOutNotes: boolean;
@@ -73,20 +70,7 @@ export class FlowchartView extends MermaidBasesView {
 				displayName: COMMON_OPTION_GROUPS.labels,
 				type: "group",
 				items: [
-					{
-						type: "dropdown",
-						displayName: COMMON_VIEW_OPTIONS.nodeLabelContent.displayName,
-						key: COMMON_VIEW_OPTIONS.nodeLabelContent.key,
-						default: NODE_LABEL_CONTENT_VALUES.namedLinks,
-						options: NODE_LABEL_CONTENT_OPTIONS,
-					},
-					{
-						type: "toggle",
-						displayName: COMMON_VIEW_OPTIONS.showPropertyNames.displayName,
-						key: COMMON_VIEW_OPTIONS.showPropertyNames.key,
-						default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
-						shouldHide: shouldHideShowPropertyNames(NODE_LABEL_CONTENT_VALUES.namedLinks),
-					},
+					...NOTE_LABEL_OPTIONS,
 				],
 			},
 			{
@@ -135,7 +119,6 @@ export class FlowchartView extends MermaidBasesView {
 	protected async render(): Promise<void> {
 		const title = this.getOptionalTitle();
 		const direction = this.getConfigValue<string>("direction");
-		const nodeLabelContent = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.nodeLabelContent.key);
 		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 		const linkSource = this.getConfigValue<string>(LINK_OPTIONS.source.key);
 		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(LINK_OPTIONS.showFilteredOutNotes.key);
@@ -151,7 +134,6 @@ export class FlowchartView extends MermaidBasesView {
 			groupedNodeIds: new Set<string>(),
 			notePropDisplayByKey: new Map<string, string>(),
 			edges: new Map<string, Edge>(),
-			nodeLabelContent,
 			showPropertyNames,
 			linkSource,
 			showLinksToFilteredOutNotes,
@@ -178,7 +160,7 @@ export class FlowchartView extends MermaidBasesView {
 		await this.renderMermaid(
 			mermaidCode,
 			this.plugin.settings.flowchartMermaidConfig,
-			nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks ? ctx.fileToNodeId : undefined,
+			ctx.fileToNodeId,
 		);
 	}
 
@@ -222,11 +204,7 @@ export class FlowchartView extends MermaidBasesView {
 		id = `n${ctx.fileToNodeId.size}`;
 		ctx.fileToNodeId.set(file.path, id);
 
-		let label: string;
-		if (ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks)
-			label = file.basename;
-		else
-			label = this.getLabelWithProperties(file, ctx.showPropertyNames, "<br>", ":");
+		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "<br>", ":");
 
 		ctx.nodeIdToLabel.set(id, label);
 		return id;
@@ -345,10 +323,8 @@ export class FlowchartView extends MermaidBasesView {
 		for (const edge of ctx.edges.values())
 			lines.push(`    ${this.formatEdgeForMermaid(edge)}`);
 
-		if (ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks) {
-			for (const nodeId of ctx.fileToNodeId.values())
-				lines.push(`    class ${nodeId} bases-mermaid-note-${nodeId};`);
-		}
+		for (const nodeId of ctx.fileToNodeId.values())
+			lines.push(`    class ${nodeId} bases-mermaid-note-${nodeId};`);
 
 		return lines.join("\n");
 	}
