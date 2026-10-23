@@ -9,11 +9,6 @@ export const COMMON_VIEW_OPTIONS = {
 		key: "showPropertyNames",
 		default: true,
 	},
-	renderFileNameAsLink: {
-		displayName: "Render file name as link",
-		key: "renderFileNameAsLink",
-		default: true,
-	},
 	mermaidConfigOverride: {
 		displayName: "Mermaid Config Override Directive (optional)",
 		key: "mermaidConfigOverrideDirective",
@@ -32,7 +27,6 @@ export const COMMON_OPTION_GROUPS = {
 
 export const NOTE_LABEL_OPTIONS = [
 	{type: "toggle", ...COMMON_VIEW_OPTIONS.showPropertyNames},
-	{type: "toggle", ...COMMON_VIEW_OPTIONS.renderFileNameAsLink},
 ] as const;
 
 export const NUMBER_RANGE_PLACEHOLDER = "number (defaults to automatic from data)";

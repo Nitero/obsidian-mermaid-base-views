@@ -8,11 +8,15 @@ import {shouldHideShowDataLabel} from "../core/view-option-visibility";
 
 
 type Curve = {
+	path: string;
+	fileName: string;
 	label: string;
 	values: number[]
 };
 
 type RawCurve = {
+	path: string;
+	fileName: string;
 	label: string;
 	values: (number | null)[]
 };
@@ -142,6 +146,12 @@ export class RadarChartView extends MermaidBasesView {
 		);
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.radarChartMermaidConfig);
+		const notesById = new Map(curves.map((curve, index) => [`id${index}`, curve]));
+		this.containerEl.querySelectorAll(".pele-legend-item[data-id]").forEach((legend) => {
+			const curve = notesById.get(legend.getAttribute("data-id") ?? "");
+			if (curve)
+				this.markNoteLink(legend, curve.path, [curve.fileName]);
+		});
 	}
 
 	private generateRawCurves(
@@ -200,7 +210,7 @@ export class RadarChartView extends MermaidBasesView {
 				if (showDataLabel)
 					label += ` (${this.getLabelWithProperties(entry.file, true, ", ", "ː")})`
 
-				curves.push({label, values});
+				curves.push({label, values, path: entry.file.path, fileName: entry.file.basename});
 			}
 		}
 
@@ -221,6 +231,8 @@ export class RadarChartView extends MermaidBasesView {
 
 	private applyRange(rawCurves: RawCurve[], minValue: number, maxValue: number): Curve[] {
 		return rawCurves.map((curve) => ({
+			path: curve.path,
+			fileName: curve.fileName,
 			label: curve.label,
 			values: curve.values.map((value) => {
 				if (value === null)

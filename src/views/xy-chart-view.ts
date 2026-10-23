@@ -84,6 +84,7 @@ export class XYChartView extends MermaidBasesView {
 
 		const xLabels: string[] = [];
 		const yValues: number[] = [];
+		const paths: string[] = [];
 
 		let minValue = Number.POSITIVE_INFINITY;
 		let maxValue = Number.NEGATIVE_INFINITY;
@@ -103,6 +104,7 @@ export class XYChartView extends MermaidBasesView {
 
 				xLabels.push(label);
 				yValues.push(number);
+				paths.push(entry.file.path);
 
 				if (number < minValue)
 					minValue = number;
@@ -158,5 +160,8 @@ export class XYChartView extends MermaidBasesView {
 		const mermaidCode = lines.join("\n");
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);
+		this.markOrderedNoteLinks(".pele-bars > rect", paths);
+		this.markOrderedNoteLinks(".pele-line > circle", paths);
+		this.markOrderedNoteLinks('.pele-axis-labels > text[text-anchor="middle"]', paths);
 	}
 }

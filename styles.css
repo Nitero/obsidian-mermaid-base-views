@@ -1,4 +1,4 @@
-.bases-mermaid-view-container .bases-mermaid-note-link {
+.bases-mermaid-view-container a.bases-mermaid-note-link {
 	fill: inherit;
 	color: inherit;
 	text-decoration: none;
@@ -9,13 +9,14 @@
 	cursor: pointer;
 }
 
-.bases-mermaid-view-container .bases-mermaid-file-name-link {
+.bases-mermaid-view-container a.bases-mermaid-file-name {
 	fill: var(--link-color);
 	color: var(--link-color);
 	text-decoration: var(--link-decoration, underline);
 }
 
-.bases-mermaid-view-container .bases-mermaid-file-name-link:hover {
+.bases-mermaid-view-container .bases-mermaid-file-name-link:hover,
+.bases-mermaid-view-container .bases-mermaid-file-name-link:focus-visible {
 	fill: var(--link-color-hover);
 	color: var(--link-color-hover);
 	text-decoration: var(--link-decoration-hover, underline);

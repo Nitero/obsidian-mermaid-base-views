@@ -73,15 +73,27 @@ export abstract class MermaidBasesView extends BasesView {
 
 	}
 
-	protected markNoteLink(node: Element, path: string): void {
-		const linkCount = createNoteFileNameLinks(node, this.noteFileNames.get(path) ?? [], path,
-			this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.renderFileNameAsLink.key, true));
+	protected markNoteLink(node: Element, path: string, fileNames = this.noteFileNames.get(path) ?? []): void {
+		const linkCount = createNoteFileNameLinks(node, fileNames, path);
 		if (linkCount > 0)
 			return;
 		node.classList.add("bases-mermaid-note-link");
 		node.setAttribute("data-href", path);
 		node.setAttribute("role", "link");
 		node.setAttribute("tabindex", "0");
+	}
+
+	protected markOrderedNoteLinks(selector: string, paths: readonly string[], reversed = false): void {
+		const nodes = Array.from(this.containerEl.querySelectorAll(selector));
+		if (nodes.length !== paths.length)
+			return;
+		if (reversed)
+			nodes.reverse();
+		nodes.forEach((node, index) => {
+			const path = paths[index];
+			if (path !== undefined)
+				this.markNoteLink(node, path);
+		});
 	}
 
 	private trimConfig(config: string): string{

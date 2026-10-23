@@ -1,7 +1,8 @@
-export function createNoteFileNameLinks(node: Element, fileNames: readonly string[], path: string, styled: boolean): number {
+export function createNoteFileNameLinks(node: Element, fileNames: readonly string[], path: string): number {
 	let linkCount = 0;
 	const document = node.ownerDocument;
-	for (const label of Array.from(node.querySelectorAll("text"))) {
+	const labels = node.matches("text") ? [node] : Array.from(node.querySelectorAll("text"));
+	for (const label of labels) {
 		const content = label.textContent ?? "";
 		const ranges = fileNames.flatMap((fileName) => {
 			const start = content.indexOf(fileName);
@@ -25,9 +26,7 @@ export function createNoteFileNameLinks(node: Element, fileNames: readonly strin
 				const matchedText = textNode.splitText(segment.start);
 				matchedText.splitText(segment.end - segment.start);
 				const span = createSvg("a");
-				span.classList.add("bases-mermaid-note-link");
-				if (styled)
-					span.classList.add("bases-mermaid-file-name-link");
+				span.classList.add("bases-mermaid-note-link", "bases-mermaid-file-name", "bases-mermaid-file-name-link");
 				span.setAttribute("href", path);
 				span.setAttribute("data-href", path);
 				span.setAttribute("tabindex", "0");

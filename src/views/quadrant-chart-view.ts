@@ -7,6 +7,7 @@ import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
 
 type Point = {
+	path: string;
 	label: string;
 	x: number;
 	y: number;
@@ -189,6 +190,9 @@ export class QuadrantChartView extends MermaidBasesView {
 		const mermaidCode = this.buildMermaidCode(normalizedPoints);
 
 		await this.renderMermaid(mermaidCode, this.plugin.settings.quadrantChartMermaidConfig);
+		const paths = normalizedPoints.map((point) => point.path);
+		this.markOrderedNoteLinks(".pele-points > .pele-point", paths, true);
+		this.markOrderedNoteLinks(".pele-point-labels > text", paths);
 	}
 
 	private collectPointsFromGroups(
@@ -232,7 +236,7 @@ export class QuadrantChartView extends MermaidBasesView {
 
 				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː");
 
-				points.push({label, x: xNumber, y: yNumber, series});
+				points.push({label, path: entry.file.path, x: xNumber, y: yNumber, series});
 
 				if (xNumber < minX)
 					minX = xNumber;
@@ -295,6 +299,7 @@ export class QuadrantChartView extends MermaidBasesView {
 			const clampedY = Math.min(1, Math.max(0, normalizedY));
 
 			return {
+				path: point.path,
 				label: point.label,
 				x: clampedX,
 				y: clampedY,
