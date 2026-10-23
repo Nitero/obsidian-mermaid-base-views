@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
@@ -42,7 +43,7 @@ export class PieChartView extends MermaidBasesView {
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
 				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
-				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
+				placeholder: MERMAID_CONFIG_EXAMPLES.pie.directive,
 			},
 		],
 	};

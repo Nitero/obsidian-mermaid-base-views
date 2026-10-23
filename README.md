@@ -2,6 +2,8 @@
 
 Create dynamic mermaid diagrams and charts in bases.
 
+Now requires Obsidian 1.15.0 or newer. Diagrams use Obsidian's built-in [Pele](https://pele.run/) renderer with [Mermaid](https://mermaid.js.org/) syntax.
+
 ## Usage
 
 - Go to a base
@@ -11,45 +13,33 @@ Create dynamic mermaid diagrams and charts in bases.
 
 ![Recording2025-12-02002507-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/b65977f0-e17f-45f9-b1c1-4756081e2de3)
 
+### Styling
+
+Pele adapts to your Obsidian theme. For further styling use [CSS variables](https://pele.run/theming) in [CSS snippets](https://obsidian.md/help/snippets). Use `--mermaid-*` CSS variables for colors, corner radius, and font weights and `.pele-*` classes for Elements inside a diagram.
+
 ### Mermaid Config
 
-[Mermaid configs](https://mermaid.js.org/config/configuration.html) can be used to change the [visual style](https://mermaid.js.org/config/theming.html) or specific mermaid settings when they are not yet supported by this plugin.
+In some cases [Mermaid configuration](https://mermaid.js.org/config/configuration.html) can be used to change the behavior of certain diagrams when this plugin doesn't explicitly expose the setting (yet).
 
-The config can be set for all views globally in the plugin settings, or for specific view types.
-There is also a local override possible for each individual view in the base instance (see the last setting).
+Mermaid configuration can be defined for the different diagram types in the plugin settings and each individual base view can override it.
 
-#### Global Plugin Settings
+#### Global Mermaid Config
 In the plugin settings the syntax used is [frontmatter config](https://mermaid.js.org/config/configuration.html#frontmatter-config).
 
-For example to change the look of all bases:
-```
-config:
-  look: "handDrawn"
-  theme: "neutral"
-```
-
-#### Per View Settings
-In the base view settings the syntax used is [directives](https://mermaid.js.org/config/directives.html).
-
-For example to change the look of a specific base view:
-```
-%%{init: { "look": "handDrawn", "theme": "neutral" }}%%
-```
-
-#### View Specific Settings
-Some view types have unique settings that only apply to this kind. These are usually not supported via view setting inputs and have to be set via a global setting or a local directive.
-
-For example to set all XY Charts to a certain width and show data labels use this global setting:
+For example to show values on all XY charts and set a width use this in the plugin settings:
 ```
 config:
   xyChart:
-    width: 1000
     showDataLabel: true
+    width: 1000
 ```
 
-For example to set one specific XY Chart to a certain width and show data labels use this directive:
+#### Per View Mermaid Config
+In the base view settings the syntax used is [directives](https://mermaid.js.org/config/directives.html).
+
+For example to do the same as above, but for one specific XY Chart use this directive in the base:
 ```
-%%{init: { "xyChart": { "width": "1150", "showDataLabel": true }}}%%
+%%{init: { "xyChart": { "showDataLabel": true, "width": "1000" } }}%%
 ```
 
 ## View Types

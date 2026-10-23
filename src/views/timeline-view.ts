@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
@@ -54,7 +55,7 @@ export class TimelineView extends MermaidBasesView {
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
 				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
-				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
+				placeholder: MERMAID_CONFIG_EXAMPLES.timeline.directive,
 			},
 		],
 	};
@@ -77,11 +78,6 @@ export class TimelineView extends MermaidBasesView {
 
 		if (sortedGroups.length === 0) {
 			this.containerEl.createDiv({text: "No valid time values found for the selected property."});
-			return;
-		}
-
-		if (sortedGroups.length > this.plugin.settings.timelineResultLimit) {
-			this.containerEl.createDiv({text: `Exceeded result limit (${this.plugin.settings.timelineResultLimit}). This can be increased in the settings, but may impact performance.`});
 			return;
 		}
 

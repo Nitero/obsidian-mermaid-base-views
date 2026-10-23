@@ -1,9 +1,7 @@
 export function createNoteFileNameLinks(node: Element, fileNames: readonly string[], path: string, styled: boolean): number {
 	let linkCount = 0;
 	const document = node.ownerDocument;
-	for (const label of Array.from(node.querySelectorAll("text, .nodeLabel"))) {
-		if (label.querySelector("text, .nodeLabel"))
-			continue;
+	for (const label of Array.from(node.querySelectorAll("text"))) {
 		const content = label.textContent ?? "";
 		const ranges = fileNames.flatMap((fileName) => {
 			const start = content.indexOf(fileName);
@@ -26,9 +24,7 @@ export function createNoteFileNameLinks(node: Element, fileNames: readonly strin
 					continue;
 				const matchedText = textNode.splitText(segment.start);
 				matchedText.splitText(segment.end - segment.start);
-				const span = label.namespaceURI === "http://www.w3.org/2000/svg"
-					? createSvg("a")
-					: createEl("a");
+				const span = createSvg("a");
 				span.classList.add("bases-mermaid-note-link");
 				if (styled)
 					span.classList.add("bases-mermaid-file-name-link");

@@ -45,7 +45,7 @@ export abstract class MermaidBasesView extends BasesView {
 		noteNodes?: ReadonlyMap<string, string>,
 	): Promise<void> {
 		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
-		const configBlock = `---\nconfig:\n${this.trimConfig(this.plugin.settings.generalMermaidConfig)}\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
+		const configBlock = `---\nconfig:\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
 
 		mermaidCode = mermaidCode.trim();
 		if (configBlock.length > 0)

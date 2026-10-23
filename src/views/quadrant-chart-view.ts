@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
@@ -9,7 +10,7 @@ type Point = {
 	label: string;
 	x: number;
 	y: number;
-	color: string;
+	series: number | null;
 };
 
 export class QuadrantChartView extends MermaidBasesView {
@@ -135,15 +136,10 @@ export class QuadrantChartView extends MermaidBasesView {
 				default: COMMON_VIEW_OPTIONS.showPropertyNames.default,
 			},
 			{
-				type: "multitext",
-				displayName: `Grouping palette (hex colors e.g. "#ff0000")`,
-				key: "groupingPalette",
-			},
-			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
 				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
-				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
+				placeholder: MERMAID_CONFIG_EXAMPLES.quadrantChart.directive,
 			},
 		],
 	};
@@ -160,18 +156,6 @@ export class QuadrantChartView extends MermaidBasesView {
 			return;
 		}
 
-		const rawPalette = this.getConfigValue<string[]>("groupingPalette", this.plugin.settings.defaultGroupingPalette);
-
-		const palette =
-			Array.isArray(rawPalette)
-				? rawPalette
-					.map((v) => v?.toString().trim())
-					.filter((v) => v && v.length > 0)
-				: this.plugin.settings.defaultGroupingPalette;
-
-		if (!Array.isArray(rawPalette) || palette.length === 0)
-			palette.splice(0, palette.length, ...this.plugin.settings.defaultGroupingPalette);
-
 		const groups = this.data.groupedData;
 		const groupingEnabled = groups.length > 1 || (groups.length === 1 && groups[0]!.key !== undefined);
 
@@ -181,7 +165,7 @@ export class QuadrantChartView extends MermaidBasesView {
 			maxX: dataMaxX,
 			minY: dataMinY,
 			maxY: dataMaxY,
-		} = this.collectPointsFromGroups(groups, xPropertyId, yPropertyId, showPropertyNames, palette, groupingEnabled);
+		} = this.collectPointsFromGroups(groups, xPropertyId, yPropertyId, showPropertyNames, groupingEnabled);
 
 		if (points.length === 0) {
 			this.containerEl.createDiv({text: "No numeric data found for the selected X/Y properties."});
@@ -212,7 +196,6 @@ export class QuadrantChartView extends MermaidBasesView {
 		xPropertyId: BasesPropertyId,
 		yPropertyId: BasesPropertyId,
 		showPropertyNames: boolean,
-		palette: string[],
 		groupingEnabled: boolean,
 	): {
 		points: Point[];
@@ -230,10 +213,7 @@ export class QuadrantChartView extends MermaidBasesView {
 
 		for (let gi = 0; gi < groups.length; gi++) {
 			const group = groups[gi];
-			const groupColor =
-				groupingEnabled && palette.length > 0
-					? palette[gi % palette.length] ?? ""
-					: "";
+			const series = groupingEnabled ? gi % 8 + 1 : null;
 
 			if (!group)
 				continue;
@@ -252,7 +232,7 @@ export class QuadrantChartView extends MermaidBasesView {
 
 				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː");
 
-				points.push({label, x: xNumber, y: yNumber, color: groupColor});
+				points.push({label, x: xNumber, y: yNumber, series});
 
 				if (xNumber < minX)
 					minX = xNumber;
@@ -318,7 +298,7 @@ export class QuadrantChartView extends MermaidBasesView {
 				label: point.label,
 				x: clampedX,
 				y: clampedY,
-				color: point.color,
+				series: point.series,
 			};
 		});
 	}
@@ -365,8 +345,8 @@ export class QuadrantChartView extends MermaidBasesView {
 			lines.push(`    quadrant-4 "${quadrantLabelBottomRight}"`);
 
 		for (const point of normalizedPoints) {
-			if (point.color)
-				lines.push(`    "${point.label}": [${point.x}, ${point.y}] color: ${point.color}`);
+			if (point.series !== null)
+				lines.push(`    "${point.label}":::basesMermaidSeries${point.series}: [${point.x}, ${point.y}]`);
 			else
 				lines.push(`    "${point.label}": [${point.x}, ${point.y}]`);
 		}

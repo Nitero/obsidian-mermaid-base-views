@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
 import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {
@@ -82,7 +83,7 @@ export class MindmapView extends MermaidBasesView {
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
 				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
-				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
+				placeholder: MERMAID_CONFIG_EXAMPLES.mindmap.directive,
 			},
 		],
 	};
@@ -114,11 +115,6 @@ export class MindmapView extends MermaidBasesView {
 		}
 
 		this.collectOutgoingLinks(filesByPath, ctx);
-
-		if (ctx.filesByPath.size > this.plugin.settings.mindmapResultLimit) {
-			this.containerEl.createDiv({text: `Exceeded result limit (${this.plugin.settings.mindmapResultLimit}). This can be increased in the settings, but may impact performance.`});
-			return;
-		}
 
 		const mermaidCode = this.buildMermaidCode(rootLabel, ctx);
 		await this.renderMermaid(

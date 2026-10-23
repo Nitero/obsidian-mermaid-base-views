@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
@@ -62,7 +63,7 @@ export class XYChartView extends MermaidBasesView {
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
 				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
-				placeholder: COMMON_VIEW_OPTIONS.mermaidConfigOverride.placeholder,
+				placeholder: MERMAID_CONFIG_EXAMPLES.xyChart.directive,
 			},
 		],
 	};

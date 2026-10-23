@@ -17,7 +17,6 @@ export const COMMON_VIEW_OPTIONS = {
 	mermaidConfigOverride: {
 		displayName: "Mermaid Config Override Directive (optional)",
 		key: "mermaidConfigOverrideDirective",
-		placeholder: `%%{init: { "look": "handDrawn", "theme": "neutral" }}%%`,
 	},
 	showDataLabel: {
 		displayName: "Show values on labels",
