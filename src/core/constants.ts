@@ -36,6 +36,12 @@ export const NODE_LABEL_CONTENT_VALUES = {
 } as const;
 
 export const SELECTED_PROPERTIES_LABEL = "Selected Properties";
+export const NOTE_NAMES_LINKS_LABEL = "Note names (clickable links)";
+
+export const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
+	[NODE_LABEL_CONTENT_VALUES.namedLinks]: NOTE_NAMES_LINKS_LABEL,
+	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
+};
 
 export const NUMBER_RANGE_PLACEHOLDER = "number (defaults to automatic from data)";
 export const FILE_SIZE_PLACEHOLDER = "e.g. file size";

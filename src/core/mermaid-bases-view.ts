@@ -34,7 +34,11 @@ export abstract class MermaidBasesView extends BasesView {
 
 	protected abstract render(): Promise<void>;
 
-	protected async renderMermaid(mermaidCode: string, viewTypeMermaidConfig: string): Promise<void> {
+	protected async renderMermaid(
+		mermaidCode: string,
+		viewTypeMermaidConfig: string,
+		noteNodes?: ReadonlyMap<string, string>,
+	): Promise<void> {
 		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
 		const configBlock = `---\nconfig:\n${this.trimConfig(this.plugin.settings.generalMermaidConfig)}\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
 
@@ -54,6 +58,15 @@ export abstract class MermaidBasesView extends BasesView {
 			this
 		);
 
+		if (noteNodes) {
+			for (const [path, nodeId] of noteNodes) {
+				this.containerEl.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
+					node.classList.add("bases-mermaid-note-link");
+					node.setAttribute("data-href", path);
+				});
+			}
+		}
+
 		this.hookUpInternalLinks(this.containerEl, sourcePath);
 	}
 
@@ -65,7 +78,7 @@ export abstract class MermaidBasesView extends BasesView {
 	protected hookUpInternalLinks(containerEl: HTMLElement, sourcePath: string) {
 
 		containerEl
-			.querySelectorAll<HTMLAnchorElement>("a.internal-link")
+			.querySelectorAll<HTMLElement>("a.internal-link, .bases-mermaid-note-link[data-href]")
 			.forEach((el) => {
 				const getLinkText = () => el.getAttribute("data-href") || el.getAttribute("href");
 

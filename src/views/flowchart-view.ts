@@ -8,7 +8,7 @@ import {
 	COMMON_VIEW_OPTIONS,
 	LINK_OPTIONS,
 	NODE_LABEL_CONTENT_VALUES,
-	SELECTED_PROPERTIES_LABEL
+	NODE_LABEL_CONTENT_OPTIONS
 } from "../core/constants";
 import {
 	getBodyLinksForSource,
@@ -45,11 +45,6 @@ const FLOWCHART_DIRECTION_OPTIONS: Record<string, string> = {
 	"BT": "Bottom to top",
 	"LR": "Left to right",
 	"RL": "Right to left",
-};
-
-const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
-	[NODE_LABEL_CONTENT_VALUES.namedLinks]: "Note Names (Clickable Links)",
-	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
 };
 
 export class FlowchartView extends MermaidBasesView {
@@ -180,7 +175,11 @@ export class FlowchartView extends MermaidBasesView {
 		const hasGroupingConfigured = this.data.groupedData.length !== 1;
 		const mermaidCode = this.buildMermaidCode(direction, title, ctx, hasGroupingConfigured);
 
-		await this.renderMermaid(mermaidCode, this.plugin.settings.flowchartMermaidConfig);
+		await this.renderMermaid(
+			mermaidCode,
+			this.plugin.settings.flowchartMermaidConfig,
+			nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks ? ctx.fileToNodeId : undefined,
+		);
 	}
 
 	private collectNodesAndEdges(
@@ -347,9 +346,8 @@ export class FlowchartView extends MermaidBasesView {
 			lines.push(`    ${this.formatEdgeForMermaid(edge)}`);
 
 		if (ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks) {
-			const allIds = Array.from(ctx.fileToNodeId.values());
-			if (allIds.length > 0)
-				lines.push(`    class ${allIds.join(",")} internal-link;`);
+			for (const nodeId of ctx.fileToNodeId.values())
+				lines.push(`    class ${nodeId} bases-mermaid-note-${nodeId};`);
 		}
 
 		return lines.join("\n");

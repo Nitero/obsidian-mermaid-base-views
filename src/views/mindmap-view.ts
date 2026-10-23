@@ -14,7 +14,7 @@ import {
 	COMMON_VIEW_OPTIONS,
 	LINK_OPTIONS,
 	NODE_LABEL_CONTENT_VALUES,
-	SELECTED_PROPERTIES_LABEL
+	NODE_LABEL_CONTENT_OPTIONS
 } from "../core/constants";
 import {shouldHideShowPropertyNames} from "../core/view-option-visibility";
 
@@ -31,11 +31,6 @@ interface MindmapRenderContext {
 	showLinksToFilteredOutNotes: boolean;
 	linkPropertyName: string | null;
 }
-
-const NODE_LABEL_CONTENT_OPTIONS: Record<string, string> = {
-	[NODE_LABEL_CONTENT_VALUES.namedLinks]: "Note Names",
-	[NODE_LABEL_CONTENT_VALUES.properties]: SELECTED_PROPERTIES_LABEL,
-};
 
 export class MindmapView extends MermaidBasesView {
 	readonly type = MindmapView.RegistrationData.id;
@@ -144,7 +139,11 @@ export class MindmapView extends MermaidBasesView {
 		}
 
 		const mermaidCode = this.buildMermaidCode(rootLabel, ctx);
-		await this.renderMermaid(mermaidCode, this.plugin.settings.mindmapMermaidConfig);
+		await this.renderMermaid(
+			mermaidCode,
+			this.plugin.settings.mindmapMermaidConfig,
+			nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks ? ctx.fileToNodeIdsToLabels : undefined,
+		);
 	}
 
 	private buildMermaidCode(
@@ -195,6 +194,8 @@ export class MindmapView extends MermaidBasesView {
 			: this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
 
 		ctx.lines.push(`${indent(level)}${nodeId}["${label}"]`);
+		if (ctx.nodeLabelContent === NODE_LABEL_CONTENT_VALUES.namedLinks)
+			ctx.lines.push(`${indent(level + 1)}:::bases-mermaid-note-${nodeId}`);
 
 		const children = ctx.pathToOutgoingLinks.get(path);
 		if (!children)

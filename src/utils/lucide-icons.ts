@@ -26,10 +26,10 @@ export class CustomLucideIcons {
 		addIcon(
 			"custom-radar-chart",
 			lucideIcon(`
-			  <path d="M12 2v10l5.75 8.75" />
-			  <path d="M22 9.25 12 12 2 9.25" />
-			  <path d="m5 10 7-6 9 5.5-5 8.5-9 1.5z" />
-			  <path d="M6.25 20.75 12 12" />
+			  <path d="M12 2v10" />
+			  <path d="M12 4.103 3.473 9.442l3.196 10.554 8.666-2.994 3.75-7.127z" />
+			  <path d="m2 9 10 3 6 9" />
+			  <path d="m6 21 6-9 10-3" />
 			`),
 		);
 		addIcon(

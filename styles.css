@@ -1,0 +1,20 @@
+.bases-mermaid-view-container .bases-mermaid-note-link,
+.bases-mermaid-view-container .bases-mermaid-note-link * {
+	cursor: pointer;
+}
+
+.bases-mermaid-view-container .bases-mermaid-note-link text,
+.bases-mermaid-view-container .bases-mermaid-note-link tspan,
+.bases-mermaid-view-container .bases-mermaid-note-link .nodeLabel {
+	fill: var(--link-color);
+	color: var(--link-color);
+	text-decoration: var(--link-decoration, underline);
+}
+
+.bases-mermaid-view-container .bases-mermaid-note-link:hover text,
+.bases-mermaid-view-container .bases-mermaid-note-link:hover tspan,
+.bases-mermaid-view-container .bases-mermaid-note-link:hover .nodeLabel {
+	fill: var(--link-color-hover);
+	color: var(--link-color-hover);
+	text-decoration: var(--link-decoration-hover, underline);
+}
