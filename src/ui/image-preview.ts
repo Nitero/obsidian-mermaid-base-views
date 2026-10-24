@@ -1,4 +1,5 @@
 import {App, Component, MarkdownPreviewRenderer} from "obsidian";
+import {registerDiagramClick} from "../utils/diagram-click";
 
 type MediaClickHandler = (
 	this: {sections: {el: HTMLElement}[]},
@@ -9,8 +10,8 @@ type MediaClickHandler = (
 type NativeMediaPreview = {handleMediaClick?: MediaClickHandler};
 
 export function registerImagePreviewInteractions(component: Component, app: App, container: HTMLElement): void {
-	const openPreview = (event: MouseEvent | KeyboardEvent): void => {
-		const target = event.target as Element | null;
+	const openPreview = (event: MouseEvent | KeyboardEvent, originalTarget: EventTarget | null = event.target): void => {
+		const target = originalTarget as Element | null;
 		if (target?.nodeType !== 1)
 			return;
 		const image = target.closest(".bases-mermaid-property-image[data-image-path]");
@@ -36,10 +37,7 @@ export function registerImagePreviewInteractions(component: Component, app: App,
 		thumbnail.focus = () => (image as SVGElement).focus();
 		handler.call({sections: [{el: gallery}]}, event, thumbnail);
 	};
-	component.registerDomEvent(container, "click", (event) => {
-		if (event.button === 0)
-			openPreview(event);
-	}, {capture: true});
+	registerDiagramClick(component, container, openPreview);
 	component.registerDomEvent(container, "keydown", (event) => {
 		if (!event.repeat && (event.key === "Enter" || event.key === " "))
 			openPreview(event);

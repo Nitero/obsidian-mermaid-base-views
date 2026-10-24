@@ -1,4 +1,5 @@
 import {type App, type Component, type HoverParent, Keymap, Menu, type Workspace} from "obsidian";
+import {registerDiagramClick} from "../utils/diagram-click";
 
 type LinkMenuWorkspace = Workspace & {
 	handleLinkContextMenu?: (menu: Menu, linktext: string, sourcePath: string) => boolean;
@@ -24,17 +25,17 @@ export function registerNoteLinkInteractions(
 	};
 	const getPath = (link: Element) => link.getAttribute("data-href") || link.getAttribute("href") || "";
 
-	const openLink = (event: MouseEvent) => {
+	const openLink = (event: MouseEvent, target: EventTarget | null = event.target) => {
 		if (event.button !== 0 && event.button !== 1)
 			return;
-		const link = getTarget(event.target);
+		const link = getTarget(target);
 		if (!link)
 			return;
 		event.preventDefault();
 		event.stopPropagation();
 		void app.workspace.openLinkText(getPath(link), getSourcePath(), event.button === 1 ? "tab" : Keymap.isModEvent(event));
 	};
-	component.registerDomEvent(container, "click", openLink);
+	registerDiagramClick(component, container, openLink);
 	component.registerDomEvent(container, "auxclick", openLink);
 	component.registerDomEvent(container, "keydown", (event) => {
 		const link = getTarget(event.target);
