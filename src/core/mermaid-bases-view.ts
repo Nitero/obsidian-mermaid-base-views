@@ -10,6 +10,7 @@ import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS} from "./constants";
 import {createNoteFileNameLinks} from "../utils/note-link-label";
 import {registerNoteLinkInteractions} from "./note-link-interactions";
+import {createFilteredNoteEntry} from "../utils/filtered-note-properties";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
@@ -74,9 +75,17 @@ export abstract class MermaidBasesView extends BasesView {
 	}
 
 	protected markNoteLink(node: Element, path: string, fileNames = this.noteFileNames.get(path) ?? []): void {
-		const linkCount = createNoteFileNameLinks(node, fileNames, path);
-		if (linkCount > 0)
+		if (fileNames.length > 0) {
+			let labelNode = node;
+			while (!labelNode.matches("text, foreignObject") && !labelNode.querySelector("text, foreignObject")) {
+				const parent = labelNode.parentElement;
+				if (!parent || parent === this.containerEl || parent.localName === "svg")
+					break;
+				labelNode = parent;
+			}
+			createNoteFileNameLinks(labelNode, fileNames, path);
 			return;
+		}
 		node.classList.add("bases-mermaid-note-link");
 		node.setAttribute("data-href", path);
 		node.setAttribute("role", "link");
@@ -105,39 +114,24 @@ export abstract class MermaidBasesView extends BasesView {
 	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string): string {
 		const fileNames: string[] = [];
 		this.noteFileNames.set(file.path, fileNames);
-		for (const group of this.data.groupedData) {
-			for (const entry of group.entries) {
-
-				if (entry.file != file)
-					continue;
-
-				let label = "";
-				let isFirst = true;
-
-				for (const property of this.data.properties) {
-					const value = entry.getValue(property);
-					if (!value)
-						continue;
-
-					if (isFirst)
-						isFirst = false;
-					else
-						label += newLine;
-
-					if (showPropertyNames && property != "file.name" && property != "file.basename")
-						label += `${this.config.getDisplayName(property)}${colon} `;
-					label += value.toString();
-					if (property === "file.name" || property === "file.basename")
-						fileNames.push(value.toString());
-				}
-
-				if (label == "") {
-					fileNames.push(file.basename);
-					return file.basename;
-				} else
-					return label;
-			}
+		const lines: string[] = [];
+		const entry = this.data.data.find((entry) => entry.file.path === file.path)
+			?? createFilteredNoteEntry(file, this.data.data[0]);
+		for (const property of this.data.properties) {
+			const propertyValue = entry?.getValue(property);
+			if (!propertyValue)
+				continue;
+			const value = propertyValue.toString();
+			const isFileName = property === "file.name" || property === "file.basename";
+			if (isFileName)
+				fileNames.push(value);
+			lines.push(showPropertyNames && !isFileName
+				? `${this.config.getDisplayName(property)}${colon} ${value}`
+				: value);
 		}
+		const label = lines.join(newLine);
+		if (label !== "")
+			return label;
 		fileNames.push(file.basename);
 		return file.basename;
 	};
