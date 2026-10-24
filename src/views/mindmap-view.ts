@@ -147,8 +147,26 @@ export class MindmapView extends MermaidBasesView {
 		else
 			ctx.lines.push(`  ${rootId}["${rootLabel}"]`);
 
-		for (const rootPath of roots)
-			this.renderNode(rootPath, 2, ctx);
+		const groups = this.data.groupedData;
+		const hasGroupingConfigured = this.config.get("groupBy") != null
+			|| groups.length > 1
+			|| groups.some((group) => group.hasKey());
+		if (hasGroupingConfigured) {
+			const groupedPaths = new Set(groups.flatMap((group) => group.entries.map((entry) => entry.file.path)));
+			for (const [groupIndex, group] of groups.entries()) {
+				if (group.entries.length === 0)
+					continue;
+
+				const groupLabel = (group.hasKey() ? group.key?.toString().trim() : "") || `No value (${groupIndex + 1})`;
+				const safeLabel = groupLabel.replaceAll("&", "#38;").replaceAll('"', "#quot;").replaceAll("\n", " ").replaceAll("\r", " ");
+				ctx.lines.push(`${indent(2)}g${groupIndex}["${safeLabel}"]`);
+				for (const entry of group.entries)
+					this.renderNode(entry.file.path, 3, ctx, groupedPaths);
+			}
+		} else {
+			for (const rootPath of roots)
+				this.renderNode(rootPath, 2, ctx);
+		}
 
 		return ctx.lines.join("\n");
 	}
@@ -157,6 +175,7 @@ export class MindmapView extends MermaidBasesView {
 		path: string,
 		level: number,
 		ctx: MindmapRenderContext,
+		groupedPaths?: Set<string>,
 	): void {
 		if (ctx.visited.has(path))
 			return;
@@ -176,8 +195,10 @@ export class MindmapView extends MermaidBasesView {
 		if (!children)
 			return;
 
-		for (const childPath of children)
-			this.renderNode(childPath, level + 1, ctx);
+		for (const childPath of children) {
+			if (!groupedPaths?.has(childPath))
+				this.renderNode(childPath, level + 1, ctx, groupedPaths);
+		}
 	}
 
 	private collectOutgoingLinks(
