@@ -126,7 +126,7 @@ export class TimelineView extends MermaidBasesView {
 
 				const {label, truncatedDate} = this.truncateAndFormatDate(date, granularity);
 
-				const eventLabel = this.getLabelWithProperties(entry.file, showPropertyNames, "<br>", "ː");
+				const eventLabel = this.getLabelWithProperties(entry.file, showPropertyNames, "<br>", "ː", true);
 
 				let g = groups.get(label);
 				if (!g) {

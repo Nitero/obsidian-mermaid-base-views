@@ -167,7 +167,7 @@ export class MindmapView extends MermaidBasesView {
 			return;
 
 		const nodeId = ctx.fileToNodeIdsToLabels.get(path)!;
-		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":");
+		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":", true);
 
 		ctx.lines.push(`${indent(level)}${nodeId}["${label}"]`);
 		ctx.lines.push(`${indent(level + 1)}:::bases-mermaid-note-${nodeId}`);

@@ -200,7 +200,7 @@ export class FlowchartView extends MermaidBasesView {
 		id = `n${ctx.fileToNodeId.size}`;
 		ctx.fileToNodeId.set(file.path, id);
 
-		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "<br>", ":");
+		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "<br>", ":", true);
 
 		ctx.nodeIdToLabel.set(id, label);
 		return id;

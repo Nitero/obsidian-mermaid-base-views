@@ -234,7 +234,7 @@ export class QuadrantChartView extends MermaidBasesView {
 				if (!Number.isFinite(xNumber) || !Number.isFinite(yNumber))
 					continue;
 
-				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː");
+				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː", true);
 
 				points.push({label, path: entry.file.path, x: xNumber, y: yNumber, series});
 

@@ -92,7 +92,7 @@ export class XYChartView extends MermaidBasesView {
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
 
-				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː");
+				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː", true);
 
 				const yValue = entry.getValue(yValuePropertyId);
 				if (yValue == null)

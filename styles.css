@@ -51,3 +51,6 @@
 .bases-mermaid-view-container .pele-point.basesMermaidSeries8 {
 	fill: var(--pele-series-8);
 }
+.bases-mermaid-view-container .bases-mermaid-property-media {
+	pointer-events: none;
+}

@@ -11,11 +11,13 @@ import {COMMON_VIEW_OPTIONS} from "./constants";
 import {createNoteFileNameLinks} from "../utils/note-link-label";
 import {registerNoteLinkInteractions} from "./note-link-interactions";
 import {createFilteredNoteEntry} from "../utils/filtered-note-properties";
+import {NotePropertyMedia} from "../utils/note-property-media";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
 	protected containerEl: HTMLElement;
 	private readonly noteFileNames = new Map<string, string[]>();
+	private propertyMedia?: NotePropertyMedia;
 
 	abstract registrationData: MermaidViewRegistrationData;
 
@@ -30,6 +32,7 @@ export abstract class MermaidBasesView extends BasesView {
 
 	public onDataUpdated(): void {
 		this.noteFileNames.clear();
+		this.propertyMedia?.clear();
 		this.containerEl.empty();
 		void this.render().catch((error) => {
 			console.error("Failed to render Mermaid", error);
@@ -64,6 +67,7 @@ export abstract class MermaidBasesView extends BasesView {
 			this
 		);
 
+		this.propertyMedia?.render(this.containerEl);
 		if (noteNodes) {
 			for (const [path, nodeId] of noteNodes) {
 				this.containerEl.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
@@ -111,7 +115,9 @@ export abstract class MermaidBasesView extends BasesView {
 	}
 
 
-	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string): string {
+	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string, renderMedia = false): string {
+		if (renderMedia)
+			this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl);
 		const fileNames: string[] = [];
 		this.noteFileNames.set(file.path, fileNames);
 		const lines: string[] = [];
@@ -121,12 +127,15 @@ export abstract class MermaidBasesView extends BasesView {
 			const propertyValue = entry?.getValue(property);
 			if (!propertyValue)
 				continue;
-			const value = propertyValue.toString();
+			const formatted = renderMedia && this.propertyMedia
+				? this.propertyMedia.format(propertyValue, file, newLine)
+				: {text: propertyValue.toString(), block: false};
+			const value = formatted.text;
 			const isFileName = property === "file.name" || property === "file.basename";
 			if (isFileName)
 				fileNames.push(value);
 			lines.push(showPropertyNames && !isFileName
-				? `${this.config.getDisplayName(property)}${colon} ${value}`
+				? `${this.config.getDisplayName(property)}${colon}${formatted.block ? newLine : " "}${value}`
 				: value);
 		}
 		const label = lines.join(newLine);
