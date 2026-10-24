@@ -54,3 +54,13 @@
 .bases-mermaid-view-container .bases-mermaid-property-media {
 	pointer-events: none;
 }
+
+.bases-mermaid-view-container image.bases-mermaid-property-image {
+	pointer-events: auto;
+	cursor: zoom-in;
+}
+
+.bases-mermaid-view-container image.bases-mermaid-property-image:focus-visible {
+	outline: 2px solid var(--interactive-accent);
+	outline-offset: 2px;
+}

@@ -17,6 +17,8 @@ export function registerNoteLinkInteractions(
 		const element = target as Element | null;
 		if (element?.nodeType !== 1)
 			return null;
+		if (element.closest(".bases-mermaid-property-image"))
+			return null;
 		const link = element.closest<HTMLElement>(selector);
 		return link && container.contains(link) ? link : null;
 	};

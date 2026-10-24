@@ -1,4 +1,5 @@
 import {App, Component, IconValue, ImageValue, TFile, Value, getIcon} from "obsidian";
+import {registerImagePreviewInteractions} from "../ui/image-preview";
 
 const MEDIA_MARKER_START = 0xe000;
 const MEDIA_MARKER_COUNT = 6400;
@@ -9,6 +10,7 @@ export class NotePropertyMedia {
 	private readonly media = new Map<string, SVGElement>();
 
 	constructor(private readonly app: App, component: Component, container: HTMLElement) {
+		registerImagePreviewInteractions(component, app, container);
 		const observer = new MutationObserver(() => this.render(container));
 		const resizeObserver = new ResizeObserver(() => this.render(container));
 		observer.observe(container, {childList: true, subtree: true});
@@ -68,11 +70,13 @@ export class NotePropertyMedia {
 		const imageFile = this.app.metadataCache.getFirstLinkpathDest(path, file.path);
 		if (!imageFile || !/^(png|jpe?g|gif|webp|svg|avif|bmp|ico|apng)$/i.test(imageFile.extension))
 			return null;
-		return createSvg("image", {attr: {
+		return createSvg("image", {cls: "bases-mermaid-property-image", attr: {
 			href: this.app.vault.getResourcePath(imageFile),
 			"preserveAspectRatio": "xMidYMid meet",
-			"aria-label": imageFile.basename,
-			role: "img",
+			"aria-label": `Open image: ${imageFile.basename}`,
+			"data-image-path": imageFile.path,
+			tabindex: "0",
+			role: "button",
 		}});
 	}
 
