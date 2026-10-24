@@ -15,8 +15,7 @@
 	text-decoration: var(--link-decoration, underline);
 }
 
-.bases-mermaid-view-container .bases-mermaid-file-name-link:hover,
-.bases-mermaid-view-container .bases-mermaid-file-name-link:focus-visible {
+.bases-mermaid-view-container :is(text, foreignObject):has(.bases-mermaid-file-name-link:is(:hover, :focus-visible)) .bases-mermaid-file-name-link {
 	fill: var(--link-color-hover);
 	color: var(--link-color-hover);
 	text-decoration: var(--link-decoration-hover, underline);
