@@ -1,5 +1,7 @@
-import {App, Component, IconValue, ImageValue, TFile, Value, getIcon} from "obsidian";
+import {App, Component, ImageValue, TFile, Value} from "obsidian";
 import {registerImagePreviewInteractions} from "../ui/image-preview";
+import {createNoteMedia, getNotePropertyMedia} from "./note-media";
+import {registerRenderObservers} from "./render-observers";
 
 const MEDIA_MARKER_START = 0xe000;
 const MEDIA_MARKER_COUNT = 6400;
@@ -11,12 +13,7 @@ export class NotePropertyMedia {
 
 	constructor(private readonly app: App, component: Component, container: HTMLElement) {
 		registerImagePreviewInteractions(component, app, container);
-		const observer = new MutationObserver(() => this.render(container));
-		const resizeObserver = new ResizeObserver(() => this.render(container));
-		observer.observe(container, {childList: true, subtree: true});
-		resizeObserver.observe(container);
-		component.register(() => observer.disconnect());
-		component.register(() => resizeObserver.disconnect());
+		registerRenderObservers(component, container, () => this.render(container));
 	}
 
 	clear(): void {
@@ -24,7 +21,8 @@ export class NotePropertyMedia {
 	}
 
 	format(value: Value, file: TFile, newLine: string): {text: string; block: boolean} {
-		const element = this.createMedia(value, file);
+		const media = getNotePropertyMedia(value);
+		const element = media ? createNoteMedia(this.app, media, file.path) : null;
 		if (!element || this.media.size >= MEDIA_MARKER_COUNT)
 			return {text: value.toString(), block: false};
 		const marker = String.fromCharCode(MEDIA_MARKER_START + this.media.size);
@@ -52,32 +50,6 @@ export class NotePropertyMedia {
 				this.renderMedia(text, content, marker);
 			this.hideMarkers(text);
 		}
-	}
-
-	private createMedia(value: Value, file: TFile): SVGElement | null {
-		if (value instanceof IconValue) {
-			const icon = getIcon(value.toString());
-			icon?.setAttribute("aria-label", value.toString());
-			icon?.setAttribute("role", "img");
-			return icon ?? null;
-		}
-		if (!(value instanceof ImageValue))
-			return null;
-		const match = /^!\[\[([^\]]+)\]\]$/.exec(value.toString());
-		if (!match)
-			return null;
-		const path = match[1]!.split("|")[0]!;
-		const imageFile = this.app.metadataCache.getFirstLinkpathDest(path, file.path);
-		if (!imageFile || !/^(png|jpe?g|gif|webp|svg|avif|bmp|ico|apng)$/i.test(imageFile.extension))
-			return null;
-		return createSvg("image", {cls: "bases-mermaid-property-image", attr: {
-			href: this.app.vault.getResourcePath(imageFile),
-			"preserveAspectRatio": "xMidYMid meet",
-			"aria-label": `Open image: ${imageFile.basename}`,
-			"data-image-path": imageFile.path,
-			tabindex: "0",
-			role: "button",
-		}});
 	}
 
 	private renderMedia(text: SVGTextElement, content: string, marker: string): void {

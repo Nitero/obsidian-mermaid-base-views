@@ -6,6 +6,7 @@ export interface MermaidBaseViewsSettings {
 	radarChartMermaidConfig: string;
 	sankeyMermaidConfig: string;
 	timelineMermaidConfig: string;
+	ganttMermaidConfig: string;
 	XYChartMermaidConfig: string;
 
 
@@ -19,6 +20,7 @@ export const DEFAULT_SETTINGS: MermaidBaseViewsSettings = {
 	radarChartMermaidConfig: "",
 	sankeyMermaidConfig: "",
 	timelineMermaidConfig: "",
+	ganttMermaidConfig: "",
 	XYChartMermaidConfig: "",
 
 

@@ -15,6 +15,7 @@ export const MERMAID_CONFIG_EXAMPLES = {
 	flowchart: createExample({flowchart: {curve: "linear"}}),
 	mindmap: createExample({mindmap: {maxNodeWidth: 240}}),
 	timeline: createExample({timeline: {disableMulticolor: true}}),
+	gantt: createExample({gantt: {topAxis: true}}),
 	sankey: createExample({sankey: {showValues: false}}),
 	pie: createExample({pie: {textPosition: 0.6}}),
 	xyChart: createExample({xyChart: {showDataLabel: true}}),

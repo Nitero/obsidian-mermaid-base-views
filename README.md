@@ -1,31 +1,63 @@
 # Mermaid Base Views
 
-Create dynamic mermaid diagrams and charts in bases.
+> Create dynamic mermaid diagrams and charts in Bases.
 
-Now requires Obsidian 1.15.0 or newer. Diagrams use Obsidian's built-in [Pele](https://pele.run/) renderer with [Mermaid](https://mermaid.js.org/) syntax.
+> [!WARNING]
+> Now requires Obsidian 1.15.0 or newer.
+>
+> Uses Obsidian's built-in [Pele](https://pele.run/) renderer with [Mermaid](https://mermaid.js.org/) syntax.
 
-## Usage
+# Table of Contents
+- [📌 Usage](#-usage)
+- [⚙ Settings](#-settings)
+- [🗃 View Types](#-view-types)
+	- [Layout Views](#layout-views)
+		- [Flowchart](#flowchart)
+		- [Mindmap](#mindmap)
+	- [Time Views](#time-views)
+		- [Timeline](#timeline)
+		- [Gantt](#gantt)
+	- [Numeric Views](#numeric-views)
+		- [XY Chart](#xy-chart)
+		- [Quadrant Chart](#quadrant-chart)
+		- [Radar Chart](#radar-chart)
+	- [Aggregate Views](#aggregate-views)
+		- [Pie Chart](#pie-chart)
+		- [Sankey](#sankey)
+- [🚧 Roadmap](#-roadmap)
 
-- Go to a base
-- Add one of the new [View Types](#view-types)
-- Configure the view options: e.g. the title, the [mermaid config](#mermaid-config) and any view specific settings
-- (Configure the sorting, grouping, filtering and properties as usual if they are supported for this view)
+# 📌 Usage
+
+- Go to a Base
+- Add one of the mermaid [view types](#-view-types)
+- Configure the [view settings](#base-view-settings)
+	- Most views need a main property configured to work (e.g. a numeric `Y-axis property` in the [XY chart](#xy-chart))
+- Use [native Base features](#base-features) for filtering, sorting, grouping, searching and properties where supported
 
 ![Recording2025-12-02002507-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/b65977f0-e17f-45f9-b1c1-4756081e2de3)
 
-### Styling
+# ⚙ Settings
 
-Pele adapts to your Obsidian theme. For further styling use [CSS variables](https://pele.run/theming) in [CSS snippets](https://obsidian.md/help/snippets). Use `--mermaid-*` CSS variables for colors, corner radius, and font weights and `.pele-*` classes for Elements inside a diagram.
+Start with the view settings, then use Mermaid configuration or CSS for further customization:
 
-### Mermaid Config
+- [Base view settings](#base-view-settings): Configure each Base view using controls such as property dropdowns.
+- [Mermaid configuration](#mermaid-config): Set additional options globally in the plugin settings or override them per Base view.
+- [Styling](#styling): Customize the appearance with CSS snippets.
+
+## Base view settings
+
+Configure each diagram through its [Base view settings](https://obsidian.md/help/bases/views#View+settings). These controls let you select the note properties used by the diagram and adjust its behavior and appearance without writing Mermaid configuration.
+
+Settings apply to the individual view, and the available options depend on its type. See the [common view settings](#common-view-settings) and the individual [view types](#-view-types) for details and required properties.
+
+## Mermaid Config
 
 In some cases [Mermaid configuration](https://mermaid.js.org/config/configuration.html) can be used to change the behavior of certain diagrams when this plugin doesn't explicitly expose the setting (yet).
 
-Mermaid configuration can be defined for the different diagram types in the plugin settings and each individual base view can override it.
+Mermaid configs can be defined for the different view types in the plugin settings and each individual base view can override it.
 
-#### Global Mermaid Config
-In the plugin settings the syntax used is [frontmatter config](https://mermaid.js.org/config/configuration.html#frontmatter-config).
-
+### Global Mermaid Config
+In the plugin settings the syntax used is [frontmatter config](https://mermaid.js.org/config/configuration.html#frontmatter-config).\
 For example to show values on all XY charts and set a width use this in the plugin settings:
 ```
 config:
@@ -34,100 +66,216 @@ config:
     width: 1000
 ```
 
-#### Per View Mermaid Config
-In the base view settings the syntax used is [directives](https://mermaid.js.org/config/directives.html).
-
+### Per View Mermaid Config
+In the base view settings the syntax used is [directives](https://mermaid.js.org/config/directives.html).\
 For example to do the same as above, but for one specific XY Chart use this directive in the base:
 ```
 %%{init: { "xyChart": { "showDataLabel": true, "width": "1000" } }}%%
 ```
 
-## View Types
+## Styling
 
-Currently supported are:
-- [Flowchart](#flowchart)
-- [Mindmap](#mindmap)
-- [Timeline](#flowchart)
-- [Sankey](#sankey)
-- [Radar Chart](#radar-chart)
-- [Pie Chart](#pie-chart)
-- [XY Chart](#xy-chart)
-- [Quadrant Chart](#quadrant-chart)
+Pele adapts to your Obsidian theme. For further styling, use [CSS snippets](https://obsidian.md/help/snippets). Obsidian exposes `--mermaid-*` CSS variables for colors, corner radius, and font weights. Use [Pele's `.pele-*` classes](https://pele.run/theming#classes) to target the diagram and elements inside it.
+
+For example, change node fills, connecting lines and the first three chart series or Sankey flow colors:
+
+```css
+.mermaid {
+	--mermaid-surface: color-mix(in srgb, var(--color-orange) 20%, var(--background-primary));
+	--mermaid-line-color: var(--color-orange);
+	--mermaid-accent: var(--color-orange);
+
+	/* Different views use different parts of this palette. */
+	--mermaid-color-1: var(--color-orange);
+	--mermaid-color-2: var(--color-purple);
+	--mermaid-color-3: var(--color-cyan);
+}
+```
+
+To make text italic across view types:
+
+```css
+.pele :is(text, .pele-label) {
+	font-style: italic;
+}
+```
+
+# 🗃 View Types
+
+Choose a view for what you want to show: links between notes, dates and durations, numeric comparisons or totals.
+
+Currently this plugins only supports a subset of all mermaid diagrams and charts. This is because many might not make sense as a base, or bases don't support certain features yet making it difficult to implement some mermaid diagrams.
+
+## Base features
+
+All view types support native Base filtering and searching. You can configure them without writing Mermaid syntax.
+
+Search applies to the underlying notes and selected properties. In [aggregate views](#aggregate-views), searching changes which notes contribute to the totals; it does not search the displayed categories or flow names.
+
+Here is an overview for what other native base features are supported by each view type:
+
+| View Category                       | View Type                             |      Sorting      |   Grouping    | Selected properties | Property images & Icons |
+|-------------------------------------|---------------------------------------|:-----------------:|:-------------:|:-------------------:|:-----------------------:|
+| [Layout Views](#layout-views)       | **[Flowchart](#flowchart)**           | Automatic layout  |     Boxes     |     Note labels     |           Yes           |
+|                                     | **[Mindmap](#mindmap)**               | Automatic layout  |   Branches    |     Note labels     |           Yes           |
+| [Time Views](#time-views)           | **[Timeline](#timeline)**             |  Within periods   |   Sections    |     Note labels     |           Yes           |
+|                                     | **[Gantt](#gantt)**                   |     Row order     |   Sections    |     Note labels     |           Yes           |
+| [Numeric Views](#numeric-views)     | **[XY Chart](#xy-chart)**             |    Note order     |       -       |     Note labels     |           Yes           |
+|                                     | **[Quadrant Chart](#quadrant-chart)** |         -         | Point colors  |     Note labels     |           Yes           |
+|                                     | **[Radar Chart](#radar-chart)**       |   Legend order    |       -       |     Chart axes      |            -            |
+| [Aggregate Views](#aggregate-views) | **[Pie Chart](#pie-chart)**           |   Legend order    |       -       |          -          |            -            |
+|                                     | **[Sankey](#sankey)**                 |         -         |       -       |          -          |            -            |
+
+### Common view settings
+
+- Most views offer an optional **Title** that defaults to the view name if kept empty.
+- Where supported, selected Base **Properties** form note labels; **Show property names** controls whether their names are included.
+- The `file.name` property which is part of any view by default is turned into a note link; When it isn't available the whole element is clickable.
+- Views that show individual notes and their properties support images and icons. Select a Base formula such as `image("cover.png")` or [Lucide](https://lucide.dev/) icons like `icon("flag")`.
+- Use [Per View Mermaid Config](#per-view-mermaid-config) for additional options such as showing the number above bars in the XY Chart.
+
+## Layout Views
 
 ### Flowchart
 
-Can be used to show the links between notes. Good for small amounts of results.
+<img align="right" width="400" alt="Flowchart example" src="https://github.com/user-attachments/assets/51aa3edd-2ca3-470e-98f4-7ab96d5218b2" />
 
-Supports grouping, by adding boxes around each group.
+Shows links between notes, useful for exploring relationships and dependencies.
 
-<img width="939" height="579" alt="image" src="https://github.com/user-attachments/assets/51aa3edd-2ca3-470e-98f4-7ab96d5218b2" />
+By default, links come from both note bodies and properties. **Link property** limits property links to one property, such as `depends_on`; body links are still included unless **Link source** is set to **Properties**.
+
+Linked notes outside the Base's results are hidden unless **Show links to filtered-out notes** is enabled.
+
+<br clear="both" />
+
+---
 
 ### Mindmap
 
-Works similar to flowcharts. A bit better for bigger amounts of results.
+<img align="right" width="400" alt="Mindmap example" src="https://github.com/user-attachments/assets/1dba6a2a-cb2f-4d8e-ac7b-619cdf778bed" />
 
-<img width="939" height="579" alt="image" src="https://github.com/user-attachments/assets/1dba6a2a-cb2f-4d8e-ac7b-619cdf778bed" />
+Arranges linked notes into branches, useful for topic outlines and hierarchical collections.
+
+Uses the same link options as [Flowchart](#flowchart).
+
+Each note appears at most once. When several notes link to the same target, it appears under the first branch that reaches it.
+
+<br clear="both" />
+
+## Time Views
 
 ### Timeline
 
-Shows your notes in chronological order.
+<img align="right" width="400" alt="Timeline example" src="https://github.com/user-attachments/assets/0bfa99ab-5c95-4f87-bac0-66b8896690b6" />
 
-Select a time property in the view settings to order by this. If notes share the same date they will be shown vertically below eachother.
-You can also choose a cutoff to group by year, month, day, hour, etc.
+Places notes in chronological periods, useful for journals, release histories, and milestones.
 
-<img width="939" height="579" alt="image" src="https://github.com/user-attachments/assets/0bfa99ab-5c95-4f87-bac0-66b8896690b6" />
+Requires a date or date & time **Date / Time property**, such as `file.ctime`.
 
-### Sankey
+**Cutoff** combines events into periods, such as months or days. Periods stay chronological; Base sorting only affects notes within the same period.
 
-Can be used to show the flow of data
+When grouped, each section has its own chronological periods and sections follow the Base group order.
 
-Configuring this is a bit experimental, as there is no support for a list of properties. Instead write triplets of "Source Name", "Target Name" and "Value Property" into the multitext field. The first 2 can be any string, but the latter should be the name of a property or formula. If the value is numeric, it will be added up across the whole view. If the value is a boolean, it will add up all positive ones.
+<br clear="both" />
 
-<img width="939" height="579" alt="image" src="https://github.com/user-attachments/assets/8711fa5f-47e0-49d5-8025-dc9af9c23e4c" />
+---
 
-### Radar Chart
+### Gantt
 
-Can show 2D data in a circular format. Useful for habit tracking or character attributes.
+Shows time spans and date markers, useful for project schedules and daily plans.
 
-Select at least 3 properties to show, otherwise you will just get flat (1 dimensional) data.
+Requires a **Start property** for time spans and point events, a **Vertical marker property** for date markers, or both. These accept date, date & time, or text properties.
 
-<img width="730" height="588" alt="image" src="https://github.com/user-attachments/assets/e2403f97-0745-4222-9017-83661b7d27b5" />
+Optionally set an **End property** accepting date, date & time, or text values, or a text **Duration property**, such as `30m` or `1.5d` (see [full list](https://mermaid.js.org/syntax/gantt.html#duration-format)). A populated end takes precedence over duration.
 
-### Pie Chart
+For point events, leave both end and duration empty, set the end equal to the start, or use a zero duration.
 
-Can show a property as a pie chart.
+Text dates accept ISO dates or times such as `09:30`. Time-only starts use today's date; time-only ends use the start's date. For other formats, set **Input date text property format**, for example `DD/MM/YYYY` (see [syntax](https://mermaid.js.org/syntax/gantt.html#setting-dates)). **Axis label format** uses different tokens, such as `%d %b` or `%H:%M` (see [full list](https://mermaid.js.org/syntax/gantt.html#output-date-format-on-the-axis)). Use **Excludes** to [exclude days](https://mermaid.js.org/syntax/gantt.html#excludes), such as weekends.
 
-This will show how often a property is used across all files specified by the filters.
-Optionally a second numeric property can be set to aggregate that property instead of counting 1 for each file.
+The **Appearance property** changes the color of time spans via `active`, `done`, or `crit`. For point events, use `milestone` to get a diamond, or use Lucide icons or images as markers. To use a formula such as `icon("flag")` or `image("cover.png")`, select it as the **Appearance property**.
 
-<img width="939" height="579" alt="image" src="https://github.com/user-attachments/assets/7cc1ee27-8c07-4286-b67b-52a71fa98606" />
+## Numeric Views
 
 ### XY Chart
 
-Can show 1 dimensional data as bar or line chart.
+<img align="right" width="400" alt="XY chart example" src="https://github.com/user-attachments/assets/64ad64ea-a308-4649-8e56-c702b6f8c590" />
 
-Requires setting 1 numeric property, for example "file.size".
-Will use all files specified by the filters.
-Supports sorting.
+Compares one numeric value per note using bars, a line, or both.
+                 
+Requires a numeric **Y-axis property**, such as `file.size`.
 
-<img width="961" height="412" alt="image" src="https://github.com/user-attachments/assets/64ad64ea-a308-4649-8e56-c702b6f8c590" />
+The X-axis uses note labels in Base sort order. Dates are treated as equally spaced labels rather than a continuous time scale. Y-axis limits follow the data unless set manually; set the minimum to `0` if you want a zero baseline.
+
+<br clear="both" />
+
+---
 
 ### Quadrant Chart
 
-Can show 2 dimensional data as points on a plane.
+<img align="right" width="400" alt="Quadrant chart example" src="https://github.com/user-attachments/assets/1510fdc7-c243-4c29-a72a-ecc024f7c0d7" />
 
-Requires setting 2 numeric properties, for example "x" and "y". By default the smallest and biggest valeus are used for the range, but you can specify minimum and maximum manually.
-The axes and quadrants can all be labeled.
-Supports grouping, by coloring nodes by their group.
+Plots notes on 4 areas using two numeric properties, such as importance and urgency. Requires **X coordinate property** and **Y coordinate property**.
 
-<img width="939" height="579" alt="image" src="https://github.com/user-attachments/assets/1510fdc7-c243-4c29-a72a-ecc024f7c0d7" />
+Axis ranges follow the smallest and largest values in the results. Set them manually to keep positions comparable when filters change. Values outside a manual range are placed at its edge.
 
-## Roadmap
+Right and top axis labels require a left and bottom label respectively.
 
-- [ ] Add gantt view type
-- [x] Add radar chart view type (waiting for mermaid v11.6.0)
+<br clear="both" />
+
+---
+
+### Radar Chart
+
+<img align="right" width="400" alt="Radar chart example" src="https://github.com/user-attachments/assets/e2403f97-0745-4222-9017-83661b7d27b5" />
+
+Compares several properties across notes on radial axes, useful for habit tracking or character attributes.
+
+Select number or boolean properties in the Base's **Properties** menu to use as axes; at least three are recommended. Deselect unrelated properties such as `file.name`.
+
+All axes share one scale, so use comparable units or formulas that convert values to a shared scale. Boolean values use `1` for true and `0` for false; missing values use the chart minimum.
+
+<br clear="both" />
+
+## Aggregate Views
+
+### Pie Chart
+
+<img align="right" width="400" alt="Pie chart example" src="https://github.com/user-attachments/assets/7cc1ee27-8c07-4286-b67b-52a71fa98606" />
+
+Shows proportions across categories, useful for task counts by status or spending by category.
+
+Requires a **Category property**, such as `status` or `file.folder`. Each slice counts notes with the same property value. Optionally select a numeric **Value property** to sum values instead.
+
+List properties form a single combined category rather than separate slices. When summing a value property, missing or nonnumeric values contribute `1`; filter those notes out if you only want numeric totals.
+
+<br clear="both" />
+
+---
+
+### Sankey
+
+<img align="right" width="400" alt="Sankey diagram example" src="https://github.com/user-attachments/assets/8711fa5f-47e0-49d5-8025-dc9af9c23e4c" />
+
+Shows the relative size of flows between named sources and targets, useful for budgets or resource allocation.
+
+In **Flows (source name, target name, value property)**, enter three separate text items per flow, for example:
+
+1. `Income` - source label (any text)
+2. `Savings` - target label (any text)
+3. `saved` - value property (exact property name)
+
+Repeat for additional flows. The value property is summed across the filtered notes; booleans count as `1` or `0`.
+
+For formulas, use `formula.` before the name, such as `formula.price`.
+
+<br clear="both" />
+
+# 🚧 Roadmap
+
+- [x] Add gantt view type
+- [x] Add radar chart view type
 - [ ] ~~Add labels on XY chart (waiting for mermaid v11.7.0)~~ -> you can use [Mermaid Config](#mermaid-config) instead
 - [ ] More styling options in the view settings instead of relying on the mermaid config
 - [ ] Support multiple lines in the XY chart
-- [ ] Support grouping in more view types (eg. for timeline sections)
+- [x] Support Timeline grouping through sections
 - [ ] Property dropdown options to only show appropriate types

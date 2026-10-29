@@ -27,7 +27,7 @@ export class CustomLucideIcons {
 			"custom-radar-chart",
 			lucideIcon(`
 			  <path d="M12 2v10" />
-			  <path d="M12 4.103 3.473 9.442l3.196 10.554 8.666-2.994 3.75-7.127z" />
+			  <path d="m16 18 3.085-8.125L12 4.103 3.473 9.442l3.196 10.554z" />
 			  <path d="m2 9 10 3 6 9" />
 			  <path d="m6 21 6-9 10-3" />
 			`),
@@ -59,13 +59,13 @@ export class CustomLucideIcons {
 		addIcon(
 			"custom-quadrant-chart-2",
 			lucideIcon(`
-			  <path d="M12 3v18" />
+			  <path d="M13 3v18" />
 			  <path d="M3 12h18" />
-			  <circle cx="16.5" cy="16.5" r=".5" fill="currentColor" />
-			  <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
-			  <circle cx="7.5" cy="16.5" r=".5" fill="currentColor" />
-			  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
-			  <rect x="3" y="3" width="18" height="18" rx="2" />
+			  <path d="M3 3v16a2 2 0 002 2h16" />
+			  <circle cx="18.5" cy="5.5" r="0.5" fill="currentColor" />
+			  <circle cx="20.5" cy="16.5" r="0.5" fill="currentColor" />
+			  <circle cx="7.5" cy="16.5" r="0.5" fill="currentColor" />
+			  <circle cx="7.5" cy="7.5" r="0.5" fill="currentColor" />
 			`),
 		);
 		addIcon(

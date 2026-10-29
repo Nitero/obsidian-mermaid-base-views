@@ -20,6 +20,15 @@
 	color: var(--link-color-hover);
 	text-decoration: var(--link-decoration-hover, underline);
 }
+
+.bases-mermaid-view-container .pele-task .pele-label[fill="var(--_bg)"] {
+	--link-color: var(--_bg);
+}
+
+.bases-mermaid-view-container :is(.pele-vert, .pele-vert-label)[data-id^="bases-mermaid-today-range-"] {
+	display: none;
+}
+
 .bases-mermaid-view-container .pele-point.basesMermaidSeries1 {
 	fill: var(--pele-series-1);
 }
