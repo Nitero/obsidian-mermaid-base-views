@@ -8,10 +8,15 @@ import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../core/constants";
 
 type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
 
-type Group = {
+type Period = {
 	label: string;
 	date: Date;
 	events: {label: string; path: string}[];
+};
+
+type Section = {
+	label: string | null;
+	periods: Period[];
 };
 
 export class TimelineView extends MermaidBasesView {
@@ -74,43 +79,36 @@ export class TimelineView extends MermaidBasesView {
 
 		const granularity = this.getConfigValue<TimeGranularity>("cutoff");
 
-		const sortedGroups = this.generateGroups(timePropertyId, showPropertyNames, granularity);
+		const sections = this.generateSections(timePropertyId, showPropertyNames, granularity);
 
-		if (sortedGroups.length === 0) {
+		if (sections.length === 0) {
 			this.containerEl.createDiv({text: "No valid time values found for the selected property."});
 			return;
 		}
 
-		const mermaidCode = this.buildMermaidCode(title, sortedGroups);
+		const mermaidCode = this.buildMermaidCode(title, sections);
 		await this.renderMermaid(mermaidCode, this.plugin.settings.timelineMermaidConfig);
-		this.hookUpEventLinks(sortedGroups);
+		this.hookUpEventLinks(sections);
 	}
 
-	private hookUpEventLinks(groups: Group[]): void {
-		const groupsByLabel = new Map(groups.map((group) => [group.label, group]));
-		this.containerEl.querySelectorAll(".pele-period[data-id]").forEach((period) => {
-			const group = groupsByLabel.get(period.getAttribute("data-id") ?? "");
-			if (!group)
-				return;
-			const events = period.querySelectorAll(".pele-event");
-			if (events.length !== group.events.length)
-				return;
-			events.forEach((node, index) => {
-				const event = group.events[index];
-				if (event)
-					this.markNoteLink(node, event.path);
-			});
-		});
+	private hookUpEventLinks(sections: Section[]): void {
+		const paths = sections.flatMap((section) =>
+			section.periods.flatMap((period) => period.events.map((event) => event.path)));
+		this.markOrderedNoteLinks(".pele-period .pele-event", paths);
 	}
 
-	private generateGroups(
+	private generateSections(
 		timePropertyId: BasesPropertyId,
 		showPropertyNames: boolean,
 		granularity: TimeGranularity,
-	): Group[] {
-		const groups = new Map<string, Group>();
+	): Section[] {
+		const groups = this.data.groupedData;
+		const hasGrouping = this.config.get("groupBy") != null
+			|| groups.length > 1 || groups.some((group) => group.hasKey());
+		const sections: Section[] = [];
 
-		for (const group of this.data.groupedData) {
+		for (const group of groups) {
+			const periods = new Map<string, Period>();
 			for (const entry of group.entries) {
 				const timeValue = entry.getValue(timePropertyId);
 				if (!timeValue)
@@ -128,37 +126,40 @@ export class TimelineView extends MermaidBasesView {
 
 				const eventLabel = this.getLabelWithProperties(entry.file, showPropertyNames, "<br>", "ː", true);
 
-				let g = groups.get(label);
-				if (!g) {
-					g = {label, date: truncatedDate, events: []};
-					groups.set(label, g);
+				let period = periods.get(label);
+				if (!period) {
+					period = {label, date: truncatedDate, events: []};
+					periods.set(label, period);
 				}
-				g.events.push({
+				period.events.push({
 					label: eventLabel,
 					path: entry.file.path,
 				});
 			}
+			if (periods.size > 0) {
+				sections.push({
+					label: hasGrouping ? (group.hasKey() ? group.key?.toString().trim() : "") || "No value" : null,
+					periods: Array.from(periods.values()).sort(
+						(first, second) => first.date.getTime() - second.date.getTime(),
+					),
+				});
+			}
 		}
 
-		return Array.from(groups.values()).sort(
-			(a, b) => a.date.getTime() - b.date.getTime(),
-		);
+		return sections;
 	}
 
-	private buildMermaidCode(title: string | null, groups: Group[]): string {
+	private buildMermaidCode(title: string | null, sections: Section[]): string {
 		const lines: string[] = [];
 		lines.push("timeline");
 		if (title !== null)
 			lines.push(`    title ${title}`);
 
-		for (const g of groups) {
-			if (g.events.length === 0)
-				continue;
-
-			let line = `    ${g.label} : ${g.events[0]?.label}`;
-			for (let i = 1; i < g.events.length; i++)
-				line += ` : ${g.events[i]?.label}`;
-			lines.push(line);
+		for (const section of sections) {
+			if (section.label !== null)
+				lines.push(`    section ${section.label.replace(/[\r\n]+/g, " ")}`);
+			for (const period of section.periods)
+				lines.push(`    ${period.label} : ${period.events.map((event) => event.label).join(" : ")}`);
 		}
 
 		return lines.join("\n");
