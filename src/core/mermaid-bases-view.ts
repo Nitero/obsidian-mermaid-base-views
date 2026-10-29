@@ -47,9 +47,11 @@ export abstract class MermaidBasesView extends BasesView {
 		mermaidCode: string,
 		viewTypeMermaidConfig: string,
 		noteNodes?: ReadonlyMap<string, string>,
+		title?: string | null,
 	): Promise<void> {
 		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
-		const configBlock = `---\nconfig:\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
+		const titleConfig = title == null ? "" : `title: ${JSON.stringify(title)}\n`;
+		const configBlock = `---\n${titleConfig}config:\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
 
 		mermaidCode = mermaidCode.trim();
 		if (configBlock.length > 0)

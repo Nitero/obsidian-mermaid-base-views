@@ -157,6 +157,7 @@ export class FlowchartView extends MermaidBasesView {
 			mermaidCode,
 			this.plugin.settings.flowchartMermaidConfig,
 			ctx.fileToNodeId,
+			title,
 		);
 	}
 
@@ -269,15 +270,12 @@ export class FlowchartView extends MermaidBasesView {
 
 	private buildMermaidCode(
 		direction: string,
-		title: string | null,
 		ctx: FlowchartRenderContext,
 		hasGroupingConfigured: boolean,
 	): string {
 		const lines: string[] = [];
 
 		lines.push(`flowchart ${direction}`);
-		if (title !== null)
-			lines.push(`    %% ${title}`);
 
 		if (hasGroupingConfigured) {
 			for (let groupIndex = 0; groupIndex < this.data.groupedData.length; groupIndex++) {
