@@ -48,6 +48,7 @@ export abstract class MermaidBasesView extends BasesView {
 		viewTypeMermaidConfig: string,
 		noteNodes?: ReadonlyMap<string, string>,
 		title?: string | null,
+		container: HTMLElement = this.containerEl,
 	): Promise<void> {
 		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
 		const titleConfig = title == null ? "" : `title: ${JSON.stringify(title)}\n`;
@@ -64,15 +65,15 @@ export abstract class MermaidBasesView extends BasesView {
 		await MarkdownRenderer.render(
 			this.app,
 			markdown,
-			this.containerEl,
+			container,
 			sourcePath,
 			this
 		);
 
-		this.propertyMedia?.render(this.containerEl);
+		this.propertyMedia?.render(container);
 		if (noteNodes) {
 			for (const [path, nodeId] of noteNodes) {
-				this.containerEl.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
+				container.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
 					this.markNoteLink(node, path);
 				});
 			}
@@ -118,8 +119,7 @@ export abstract class MermaidBasesView extends BasesView {
 
 
 	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string, renderMedia = false): string {
-		if (renderMedia)
-			this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl);
+		const media = renderMedia ? this.getPropertyMedia() : null;
 		const fileNames: string[] = [];
 		this.noteFileNames.set(file.path, fileNames);
 		const lines: string[] = [];
@@ -129,8 +129,8 @@ export abstract class MermaidBasesView extends BasesView {
 			const propertyValue = entry?.getValue(property);
 			if (!propertyValue)
 				continue;
-			const formatted = renderMedia && this.propertyMedia
-				? this.propertyMedia.format(propertyValue, file, newLine)
+			const formatted = media
+				? media.format(propertyValue, file, newLine)
 				: {text: propertyValue.toString(), block: false};
 			const value = formatted.text;
 			const isFileName = property === "file.name" || property === "file.basename";
@@ -146,6 +146,10 @@ export abstract class MermaidBasesView extends BasesView {
 		fileNames.push(file.basename);
 		return file.basename;
 	};
+
+	protected getPropertyMedia(): NotePropertyMedia {
+		return this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl);
+	}
 
 	protected getOptionalTitle(key: string = COMMON_VIEW_OPTIONS.title.key): string | null {
 		const rawValue = this.config.get(key);

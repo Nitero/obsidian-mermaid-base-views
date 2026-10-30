@@ -14,6 +14,7 @@ function createExample(config: Record<string, Record<string, string | number | b
 export const MERMAID_CONFIG_EXAMPLES = {
 	flowchart: createExample({flowchart: {curve: "linear"}}),
 	mindmap: createExample({mindmap: {maxNodeWidth: 240}}),
+	treeView: createExample({treeView: {rowIndent: 24}}),
 	timeline: createExample({timeline: {disableMulticolor: true}}),
 	gantt: createExample({gantt: {topAxis: true}}),
 	sankey: createExample({sankey: {showValues: false}}),

@@ -4,6 +4,7 @@ import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
 import {FlowchartView} from "../views/flowchart-view";
 import {MindmapView} from "../views/mindmap-view";
+import {TreeView} from "../views/tree-view";
 import {TimelineView} from "../views/timeline-view";
 import {GanttView} from "../views/gantt-view";
 import {SankeyView} from "../views/sankey-view";
@@ -15,6 +16,7 @@ import {QuadrantChartView} from "../views/quadrant-chart-view";
 export function registerAllMermaidViews(plugin: MermaidBaseViews): void {
 	registerMermaidView(plugin, FlowchartView, FlowchartView.RegistrationData);
 	registerMermaidView(plugin, MindmapView, MindmapView.RegistrationData);
+	registerMermaidView(plugin, TreeView, TreeView.RegistrationData);
 	registerMermaidView(plugin, TimelineView, TimelineView.RegistrationData);
 	registerMermaidView(plugin, GanttView, GanttView.RegistrationData);
 	registerMermaidView(plugin, XYChartView, XYChartView.RegistrationData);

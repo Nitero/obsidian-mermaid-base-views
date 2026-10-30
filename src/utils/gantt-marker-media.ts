@@ -20,7 +20,7 @@ export class GanttMarkerMedia {
 		for (const section of data.sections) {
 			for (const task of section.tasks) {
 				if (hasGanttMarkerMedia(task))
-					this.mediaByTaskId.set(task.id, {media: task.appearance.media, path: task.path});
+					this.mediaByTaskId.set(task.id, {media: task.icon, path: task.path});
 			}
 		}
 	}

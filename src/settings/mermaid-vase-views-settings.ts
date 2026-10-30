@@ -1,6 +1,7 @@
 export interface MermaidBaseViewsSettings {
 	flowchartMermaidConfig: string;
 	mindmapMermaidConfig: string;
+	treeViewMermaidConfig: string;
 	pieChartMermaidConfig: string;
 	quadrantChartMermaidConfig: string;
 	radarChartMermaidConfig: string;
@@ -15,6 +16,7 @@ export interface MermaidBaseViewsSettings {
 export const DEFAULT_SETTINGS: MermaidBaseViewsSettings = {
 	flowchartMermaidConfig: "",
 	mindmapMermaidConfig: "",
+	treeViewMermaidConfig: "",
 	pieChartMermaidConfig: "",
 	quadrantChartMermaidConfig: "",
 	radarChartMermaidConfig: "",

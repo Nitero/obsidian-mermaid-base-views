@@ -5,10 +5,10 @@ import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-dat
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../core/constants";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
-import {buildGanttCode, type GanttData, type GanttSection, hasGanttMarkerMedia} from "../utils/gantt";
-import {parseGanttTaskAppearance} from "../utils/gantt-appearance";
+import {buildGanttCode, type GanttData, type GanttSection, hasGanttMarkerMedia, parseGanttBarColors} from "../utils/gantt";
 import {GanttMarkerMedia} from "../utils/gantt-marker-media";
 import {isMissingGanttValue, parseGanttDate, parseGanttDuration} from "../utils/gantt-values";
+import {parseNoteIcon} from "../utils/note-media";
 
 const TICK_INTERVAL_OPTIONS: Record<string, string> = {
 	auto: "Automatic",
@@ -69,9 +69,14 @@ export class GanttView extends MermaidBasesView {
 					},
 					{
 						type: "property",
-						displayName: "Appearance property (optional)",
-						key: "taskAppearanceProperty",
-						placeholder: "e.g. appearance (crit, milestone, icon, image)",
+						displayName: "Bar color property (optional)",
+						key: "barColorProperty",
+						placeholder: "e.g. status (active, done, crit)",
+						filter: plugin.propertyTypes.createFilter(InferredPropertyType.String, InferredPropertyType.List),
+					},
+					{
+						type: "property",
+						...COMMON_VIEW_OPTIONS.iconProperty,
 						filter: plugin.propertyTypes.createFilter(InferredPropertyType.String, InferredPropertyType.List),
 					},
 					{
@@ -176,7 +181,8 @@ export class GanttView extends MermaidBasesView {
 		const hasGrouping = this.config.get("groupBy") != null
 			|| groups.length > 1 || groups.some((group) => group.hasKey());
 		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
-		const taskAppearanceProperty = this.config.getAsPropertyId("taskAppearanceProperty");
+		const barColorProperty = this.config.getAsPropertyId("barColorProperty");
+		const iconProperty = this.config.getAsPropertyId(COMMON_VIEW_OPTIONS.iconProperty.key);
 		const durationProperty = this.config.getAsPropertyId("durationProperty");
 		const textDateFormat = this.getConfigValue<string>("textDateFormat").trim();
 		const referenceDate = new Date();
@@ -208,6 +214,7 @@ export class GanttView extends MermaidBasesView {
 				const duration = hasDuration ? parseGanttDuration(durationValue) : null;
 				if (hasDuration && duration === null)
 					continue;
+				const icon = parseNoteIcon(iconProperty ? entry.getValue(iconProperty) : null);
 				section.tasks.push({
 					id: `task${taskIndex++}`,
 					label,
@@ -215,7 +222,8 @@ export class GanttView extends MermaidBasesView {
 					start,
 					end,
 					duration,
-					appearance: parseGanttTaskAppearance(taskAppearanceProperty ? entry.getValue(taskAppearanceProperty) : null),
+					colors: parseGanttBarColors(barColorProperty ? entry.getValue(barColorProperty) : null),
+					icon: icon === "none" ? null : icon,
 				});
 			}
 			if (section.tasks.length > 0)

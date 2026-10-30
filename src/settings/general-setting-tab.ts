@@ -22,6 +22,7 @@ export class GeneralSettingTab extends PluginSettingTab {
 		return [
 			this.createConfigSetting("Flowchart", "flowchartMermaidConfig", "flowchart"),
 			this.createConfigSetting("Mindmap", "mindmapMermaidConfig", "mindmap"),
+			this.createConfigSetting("Tree view", "treeViewMermaidConfig", "treeView"),
 			this.createConfigSetting("Timeline", "timelineMermaidConfig", "timeline"),
 			this.createConfigSetting("Gantt", "ganttMermaidConfig", "gantt"),
 			this.createConfigSetting("Sankey", "sankeyMermaidConfig", "sankey"),

@@ -15,10 +15,30 @@
 	text-decoration: var(--link-decoration, underline);
 }
 
-.bases-mermaid-view-container :is(text, foreignObject):has(.bases-mermaid-file-name-link:is(:hover, :focus-visible)) .bases-mermaid-file-name-link {
+.bases-mermaid-view-container :is(text, foreignObject):has(.bases-mermaid-file-name-link:is(:hover, :focus-visible)) .bases-mermaid-file-name-link,
+.bases-mermaid-view-container a.bases-mermaid-file-name-link:is(:hover, :focus-visible) {
 	fill: var(--link-color-hover);
 	color: var(--link-color-hover);
 	text-decoration: var(--link-decoration-hover, underline);
+}
+
+.bases-mermaid-view-container .bases-mermaid-tree-branch {
+	cursor: var(--cursor, pointer);
+}
+
+.bases-mermaid-view-container .bases-mermaid-tree-fold-toggle {
+	color: var(--collapse-icon-color);
+	opacity: 0;
+}
+
+.bases-mermaid-view-container .bases-mermaid-tree-branch:is(:hover, :focus-visible, .is-collapsed) > .bases-mermaid-tree-fold-toggle {
+	opacity: 1;
+}
+
+@media (hover: none) {
+	.bases-mermaid-view-container .bases-mermaid-tree-fold-toggle {
+		opacity: 1;
+	}
 }
 
 .bases-mermaid-view-container .pele-task .pele-label[fill="var(--_bg)"] {
@@ -69,7 +89,7 @@
 	cursor: zoom-in;
 }
 
-.bases-mermaid-view-container image.bases-mermaid-property-image:focus-visible {
+.bases-mermaid-view-container :is(.bases-mermaid-tree-branch, image.bases-mermaid-property-image):focus-visible {
 	outline: 2px solid var(--interactive-accent);
 	outline-offset: 2px;
 }

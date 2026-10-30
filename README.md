@@ -19,6 +19,7 @@
 	- [Layout Views](#layout-views)
 		- [Flowchart](#flowchart)
 		- [Mindmap](#mindmap)
+		- [Tree view](#tree-view)
 	- [Time Views](#time-views)
 		- [Timeline](#timeline)
 		- [Gantt](#gantt)
@@ -50,15 +51,24 @@ Start with the view settings, then use Mermaid configuration or CSS for further 
 
 ## Base view settings
 
-Configure each diagram through the [Base toolbar](https://obsidian.md/help/bases/views#Toolbar) as usual to filter, sort, etc. Additionally each view comes with [Base view settings](https://obsidian.md/help/bases/views#View+settings). Together these allow creating Mermaid diagrams without requiring syntax knowledge. Start with the common settings below, then see the individual [view types](#-view-types) for individual options.
+Configure each diagram in the Base's view settings. See the individual [view types](#-view-types) for options specific to that view.
 
-Common view settings:
+### Common settings
+
+Most view types share these controls:
+
 - **Title**: Most views default to the view name when this is empty. Enter a single space to hide the title.
-- **Properties**: In views with note labels, select and reorder properties in the Base's **Properties** menu to control their content and order.
-  - **Show property names** includes their display names alongside values, except for filenames. If no label properties are selected, labels fall back to the note's filename.
-- **Note links**: Selected `file.name` and `file.basename` values become note links. When a label has other properties but no filename, the whole element links to the note.
-- **Images and icons**: In views with note labels, create a Base formula such as `image("cover.png")` for a local vault image or `icon("flag")` for a [Lucide](https://lucide.dev/) icon, then select the formula in **Properties**. Select an image in the diagram to open its preview. See [Base features](#base-features) for supported views.
-- **Mermaid Config Override Directive**: Use [per-view Mermaid configuration](#per-view-mermaid-config) for options without a dedicated control, such as values above XY chart bars.
+- **Mermaid Config Override Directive**: Use [Mermaid config](#per-view-mermaid-config) for options without a dedicated control, such as values above XY chart bars.
+
+### Note properties and labels
+
+In supported views, select and reorder properties in the Base's **Properties** menu to control label content and order. Note labels fall back to the filename when no label properties are selected. See [Base features](#base-features) for support in each view.
+
+Use **Show property names** to include property display names alongside values, except for filenames.
+
+In note labels, selected `file.name` and `file.basename` values become note links. When a label has other properties but no filename, the whole element links to the note.
+
+To display images or icons in labels or annotations, create a Base formula such as `image("cover.png")` for a local vault image or `icon("flag")` for a [Lucide](https://lucide.dev/) icon, then select the formula in **Properties**. Click on an image in the diagram to open its preview.
 
 ## Mermaid config
 
@@ -81,7 +91,7 @@ config:
 In the Base view settings, **Mermaid Config Override Directive** uses the [directives](https://mermaid.js.org/config/directives.html) syntax.\
 To apply the same options to one XY chart, use this directive in the base view settings:
 
-```text
+```lua
 %%{init: { "xyChart": { "showDataLabel": true, "width": 1000 } }}%%
 ```
 
@@ -117,7 +127,7 @@ To make text italic across view types:
 The plugin supports the Mermaid diagrams and charts listed below. Other diagram types may not fit note-based data or may need features that Bases does not yet provide.
 
 Choose a view from a category for what you want to show:
-- [Layout views](#layout-views) - Notes and links between them
+- [Layout views](#layout-views) - Notes arranged by links, folders, or groups
 - [Time views](#time-views) - Dates and durations
 - [Numeric views](#numeric-views) - Numeric comparisons
 - [Aggregate views](#aggregate-views) - Sums across notes
@@ -134,6 +144,7 @@ Support for other native Base features varies by view type:
 |-------------------------------------|---------------------------------------|:-----------------:|:-------------:|:-------------------:|:-----------------------:|
 | [Layout Views](#layout-views)       | **[Flowchart](#flowchart)**           | Automatic layout  |     Boxes     |     Note labels     |           Yes           |
 |                                     | **[Mindmap](#mindmap)**               | Automatic layout  |   Branches    |     Note labels     |           Yes           |
+|                                     | **[Tree view](#tree-view)**           | Within branches   |   Branches    |     Annotations     |           Yes           |
 | [Time Views](#time-views)           | **[Timeline](#timeline)**             |  Within periods   |   Sections    |     Note labels     |           Yes           |
 |                                     | **[Gantt](#gantt)**                   |     Row order     |   Sections    |     Note labels     |           Yes           |
 | [Numeric Views](#numeric-views)     | **[XY Chart](#xy-chart)**             |    Note order     |       -       |     Note labels     |           Yes           |
@@ -170,6 +181,18 @@ Each note appears at most once. When several notes link to the same target, it a
 
 <br clear="both" />
 
+### Tree view
+
+Shows the Base's files in a foldable folder hierarchy using [Mermaid TreeView](https://mermaid.ai/open-source/syntax/treeView.html). Empty folders are omitted.
+
+**Root folder (optional)** sets the top-level folder; leave it empty for the vault root. Native Base grouping replaces folders with groups, while still respecting the root folder.
+
+Folders stay alphabetical; Base sorting controls files within each branch. Filenames link to notes, and other selected properties appear as annotations.
+
+**Icon property** sets each file's icon or image. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value. Use `none` to hide a file's default icon.
+
+**Show file/folder icons** toggles default icons. **Highlight property (optional)** highlights notes where a boolean property or formula is `true`.
+
 ## Time Views
 
 ### Timeline
@@ -200,7 +223,9 @@ Text dates accept ISO dates or times such as `09:30`. Time-only starts use today
 
 **Axis label format** uses different tokens, such as `%d %b` or `%H:%M` (see [full list](https://mermaid.js.org/syntax/gantt.html#output-date-format-on-the-axis)). Use **Excludes** to [exclude days](https://mermaid.js.org/syntax/gantt.html#excludes), such as weekends.
 
-The **Appearance property** changes the color of time spans via `active`, `done`, or `crit`. For point events, use `milestone` to get a diamond, or use images or [Lucide](https://lucide.dev/) icons via a formula such as `icon("flag")` or `image("cover.png")`.
+**Bar color property (optional)** styles time spans using `active`, `done`, or `crit` values from a property or formula. It does not affect point events.
+
+**Icon property** sets icons or images for point events. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value.
 
 ## Numeric Views
 
@@ -276,8 +301,9 @@ For formulas, use `formula.` before the name, such as `formula.price`.
 
 - [x] Add gantt view type
 - [x] Add radar chart view type
-- [ ] ~~Add labels on XY chart (waiting for mermaid v11.7.0)~~ -> you can use [Mermaid Config](#mermaid-config) instead
-- [ ] More styling options in the view settings instead of relying on the mermaid config
+- [ ] ~~Add labels on XY chart (waiting for mermaid v11.7.0)~~ -> use [Mermaid Config](#mermaid-config) instead
+- [ ] ~~More styling options in the view settings instead of relying on the mermaid config~~ -> use [Styling](#styling) instead 
 - [ ] Support multiple lines in the XY chart
 - [x] Support Timeline grouping through sections
 - [ ] Property dropdown options to only show appropriate types
+- [ ] Support sub-groups in mindmap, treeview, etc

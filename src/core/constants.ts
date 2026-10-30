@@ -9,6 +9,11 @@ export const COMMON_VIEW_OPTIONS = {
 		key: "showPropertyNames",
 		default: true,
 	},
+	iconProperty: {
+		displayName: "Icon property (optional)",
+		key: "iconProperty",
+		placeholder: "Icon or image property/formula",
+	},
 	mermaidConfigOverride: {
 		displayName: "Mermaid Config Override Directive (optional)",
 		key: "mermaidConfigOverrideDirective",

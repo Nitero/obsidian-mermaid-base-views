@@ -1,6 +1,9 @@
-import {moment} from "obsidian";
-import {type GanttTaskAppearance} from "./gantt-appearance";
+import {ListValue, StringValue, moment, type Value} from "obsidian";
 import {type NoteMedia} from "./note-media";
+
+const GANTT_BAR_COLORS = ["active", "done", "crit"] as const;
+
+export type GanttBarColor = typeof GANTT_BAR_COLORS[number];
 
 export type GanttTask = {
 	id: string;
@@ -9,7 +12,8 @@ export type GanttTask = {
 	start: Date;
 	end: Date | null;
 	duration: string | null;
-	appearance: GanttTaskAppearance;
+	colors: GanttBarColor[];
+	icon: NoteMedia | null;
 };
 
 export type GanttSection = {
@@ -37,6 +41,15 @@ export type GanttOptions = {
 	includeTodayInRange: boolean;
 };
 
+export function parseGanttBarColors(value: Value | null): GanttBarColor[] {
+	const values = value instanceof ListValue
+		? Array.from({length: value.length()}, (_, index) => value.get(index))
+		: [value];
+	const colors = new Set(values.flatMap((item) => item instanceof StringValue
+		? item.toString().toLowerCase().split(/[\s,]+/) : []));
+	return GANTT_BAR_COLORS.filter((color) => colors.has(color));
+}
+
 export function isZeroLengthGanttTask(task: Pick<GanttTask, "start" | "end" | "duration">): boolean {
 	return task.end !== null
 		? task.end.getTime() === task.start.getTime()
@@ -45,8 +58,8 @@ export function isZeroLengthGanttTask(task: Pick<GanttTask, "start" | "end" | "d
 
 export function hasGanttMarkerMedia(
 	task: GanttTask,
-): task is GanttTask & {appearance: GanttTaskAppearance & {media: NoteMedia}} {
-	return isZeroLengthGanttTask(task) && task.appearance.media !== null;
+): task is GanttTask & {icon: NoteMedia} {
+	return isZeroLengthGanttTask(task) && task.icon !== null;
 }
 
 export function escapeGanttLabel(label: string): string {
@@ -89,8 +102,8 @@ export function buildGanttCode(
 		if (section.label !== null)
 			lines.push(`    section ${escapeGanttLabel(section.label)}`);
 		for (const task of section.tasks) {
-			const modifiers = [...task.appearance.modifiers];
-			if (hasGanttMarkerMedia(task) && !modifiers.includes("milestone"))
+			const modifiers: string[] = isZeroLengthGanttTask(task) ? [] : [...task.colors];
+			if (hasGanttMarkerMedia(task))
 				modifiers.push("milestone");
 			const endOrDuration = task.end === null ? task.duration ?? "0d" : formatDate(task.end);
 			const fields = [...modifiers, task.id, formatDate(task.start), endOrDuration];
