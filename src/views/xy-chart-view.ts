@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {parsePropertyId} from "obsidian";
@@ -137,7 +138,7 @@ export class XYChartView extends MermaidBasesView {
 				yMax = yMaxConfigNumber;
 		}
 
-		const xAxis = `[${xLabels.map((l) => `"${l}"`).join(", ")}]`;
+		const xAxis = `[${xLabels.map((label) => `"${escapeMermaidQuotedLabel(label)}"`).join(", ")}]`;
 		const valuesArray = `[${yValues.join(", ")}]`;
 
 		const lines: string[] = [];
@@ -146,7 +147,7 @@ export class XYChartView extends MermaidBasesView {
 		if (title !== null)
 			lines.push(`    title ${title}`);
 		lines.push(`    x-axis ${xAxis}`);
-		lines.push(`    y-axis "${yAxisLabel}" ${yMin} --> ${yMax}`);
+		lines.push(`    y-axis "${escapeMermaidQuotedLabel(yAxisLabel)}" ${yMin} --> ${yMax}`);
 
 		if (chartType === "line") {
 			lines.push(`    line ${valuesArray}`);
@@ -159,7 +160,9 @@ export class XYChartView extends MermaidBasesView {
 
 		const mermaidCode = lines.join("\n");
 
-		await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);
+		const target = await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);
+		if (target?.parentElement !== this.containerEl)
+			return;
 		this.markOrderedNoteLinks(".pele-bars > rect", paths);
 		this.markOrderedNoteLinks(".pele-line > circle", paths);
 		this.markOrderedNoteLinks('.pele-axis-labels > text[text-anchor="middle"]', paths);

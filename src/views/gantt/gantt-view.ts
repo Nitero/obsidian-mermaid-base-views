@@ -173,7 +173,9 @@ export class GanttView extends MermaidBasesView {
 			this.markerMedia ??= new GanttMarkerMedia(this, this.app, this.containerEl,
 				(node, path) => this.markNoteLink(node, path, []));
 		this.markerMedia?.setData(data);
-		await this.renderMermaid(code, this.plugin.settings.ganttMermaidConfig);
+		const target = await this.renderMermaid(code, this.plugin.settings.ganttMermaidConfig);
+		if (target?.parentElement !== this.containerEl)
+			return;
 		this.markerMedia?.render();
 		this.hookUpNoteLinks(data);
 	}

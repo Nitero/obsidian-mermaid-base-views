@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
@@ -147,7 +148,7 @@ export class MindmapView extends MermaidBasesView {
 		if (rootLabel === null)
 			ctx.lines.push(`  ${rootId}`);
 		else
-			ctx.lines.push(`  ${rootId}["${rootLabel}"]`);
+			ctx.lines.push(`  ${rootId}["${escapeMermaidQuotedLabel(rootLabel)}"]`);
 
 		const groups = this.data.groupedData;
 		const hasGroupingConfigured = this.hasGrouping();
@@ -158,7 +159,7 @@ export class MindmapView extends MermaidBasesView {
 					continue;
 
 				const groupLabel = (group.hasKey() ? group.key?.toString().trim() : "") || `No value (${groupIndex + 1})`;
-				const safeLabel = groupLabel.replaceAll("&", "#38;").replaceAll('"', "#quot;").replaceAll("\n", " ").replaceAll("\r", " ");
+				const safeLabel = escapeMermaidQuotedLabel(groupLabel.replace(/[\r\n]/g, " "));
 				ctx.lines.push(`${indent(2)}g${groupIndex}["${safeLabel}"]`);
 				for (const entry of group.entries)
 					this.renderNode(entry.file.path, 3, ctx, groupedPaths);
@@ -188,7 +189,7 @@ export class MindmapView extends MermaidBasesView {
 		const nodeId = ctx.fileToNodeIdsToLabels.get(path)!;
 		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":", true);
 
-		ctx.lines.push(`${indent(level)}${nodeId}["${label}"]`);
+		ctx.lines.push(`${indent(level)}${nodeId}["${escapeMermaidQuotedLabel(label)}"]`);
 		ctx.lines.push(`${indent(level + 1)}:::bases-mermaid-note-${nodeId}`);
 
 		const children = ctx.pathToOutgoingLinks.get(path);

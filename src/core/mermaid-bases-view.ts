@@ -1,6 +1,7 @@
 import {
 	TFile,
 	BasesView,
+	Component,
 	QueryController,
 	MarkdownRenderer,
 	stringifyYaml,
@@ -23,6 +24,8 @@ export abstract class MermaidBasesView extends BasesView {
 	private readonly entriesByPath = new Map<string, BasesEntry>();
 	private readonly noteFileNames = new Map<string, string[]>();
 	private propertyMedia?: NotePropertyMedia;
+	private renderComponent?: Component;
+	private unloaded = false;
 
 	abstract registrationData: MermaidViewRegistrationData;
 
@@ -33,9 +36,19 @@ export abstract class MermaidBasesView extends BasesView {
 		plugin.registerMermaidView(this);
 		registerNoteLinkInteractions(this, this.app, this.containerEl, plugin.manifest.id,
 			() => this.app.workspace.getActiveFile()?.path ?? "");
+		this.register(() => {
+			this.unloaded = true;
+			this.clearRender();
+			this.containerEl.empty();
+		});
 	}
 
 	public onDataUpdated(): void {
+		if (this.unloaded)
+			return;
+		this.clearRender();
+		const component = this.addChild(new Component());
+		this.renderComponent = component;
 		this.entriesByPath.clear();
 		for (const entry of this.data.data) {
 			const path = entry.file.path;
@@ -46,10 +59,20 @@ export abstract class MermaidBasesView extends BasesView {
 		this.propertyMedia?.clear();
 		this.containerEl.empty();
 		void this.render().catch((error) => {
+			if (this.renderComponent !== component)
+				return;
 			console.error("Failed to render Mermaid", error);
+			this.clearRender();
 			this.containerEl.empty();
 			this.containerEl.createDiv({text: "Error rendering Mermaid. See console for details."});
 		});
+	}
+
+	private clearRender(): void {
+		const component = this.renderComponent;
+		this.renderComponent = undefined;
+		if (component)
+			this.removeChild(component);
 	}
 
 	protected abstract render(): Promise<void>;
@@ -59,8 +82,10 @@ export abstract class MermaidBasesView extends BasesView {
 		viewTypeMermaidConfig: string,
 		noteNodes?: ReadonlyMap<string, string>,
 		title?: string | null,
-		container: HTMLElement = this.containerEl,
-	): Promise<void> {
+	): Promise<HTMLElement | null> {
+		const component = this.renderComponent;
+		if (!component)
+			return null;
 		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
 		const frontmatter = stringifyYaml({
 			...(title == null ? {} : {title}),
@@ -72,15 +97,18 @@ export abstract class MermaidBasesView extends BasesView {
 		const markdown: string = `\`\`\`mermaid\n${mermaidCode}\n\`\`\``;
 
 		const sourcePath = this.app.workspace.getActiveFile()?.path ?? "";
+		const container = this.containerEl.createDiv();
 
 		await MarkdownRenderer.render(
 			this.app,
 			markdown,
 			container,
 			sourcePath,
-			this
+			component
 		);
 
+		if (this.renderComponent !== component)
+			return null;
 		this.propertyMedia?.render(container);
 		if (noteNodes) {
 			for (const [path, nodeId] of noteNodes) {
@@ -90,6 +118,7 @@ export abstract class MermaidBasesView extends BasesView {
 			}
 		}
 
+		return container;
 	}
 
 	protected markNoteLink(node: Element, path: string, fileNames = this.noteFileNames.get(path) ?? []): void {

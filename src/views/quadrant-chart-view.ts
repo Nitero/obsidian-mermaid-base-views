@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
@@ -189,7 +190,9 @@ export class QuadrantChartView extends MermaidBasesView {
 
 		const mermaidCode = this.buildMermaidCode(normalizedPoints);
 
-		await this.renderMermaid(mermaidCode, this.plugin.settings.quadrantChartMermaidConfig);
+		const target = await this.renderMermaid(mermaidCode, this.plugin.settings.quadrantChartMermaidConfig);
+		if (target?.parentElement !== this.containerEl)
+			return;
 		const paths = normalizedPoints.map((point) => point.path);
 		this.markOrderedNoteLinks(".pele-points > .pele-point", paths, true);
 		this.markOrderedNoteLinks(".pele-point-labels > text", paths);
@@ -341,19 +344,19 @@ export class QuadrantChartView extends MermaidBasesView {
 		if (yAxisLabels)
 			lines.push(`    y-axis ${yAxisLabels}`);
 		if (quadrantLabelTopRight)
-			lines.push(`    quadrant-1 "${quadrantLabelTopRight}"`);
+			lines.push(`    quadrant-1 "${escapeMermaidQuotedLabel(quadrantLabelTopRight)}"`);
 		if (quadrantLabelTopLeft)
-			lines.push(`    quadrant-2 "${quadrantLabelTopLeft}"`);
+			lines.push(`    quadrant-2 "${escapeMermaidQuotedLabel(quadrantLabelTopLeft)}"`);
 		if (quadrantLabelBottomLeft)
-			lines.push(`    quadrant-3 "${quadrantLabelBottomLeft}"`);
+			lines.push(`    quadrant-3 "${escapeMermaidQuotedLabel(quadrantLabelBottomLeft)}"`);
 		if (quadrantLabelBottomRight)
-			lines.push(`    quadrant-4 "${quadrantLabelBottomRight}"`);
+			lines.push(`    quadrant-4 "${escapeMermaidQuotedLabel(quadrantLabelBottomRight)}"`);
 
 		for (const point of normalizedPoints) {
 			if (point.series !== null)
-				lines.push(`    "${point.label}":::basesMermaidSeries${point.series}: [${point.x}, ${point.y}]`);
+				lines.push(`    "${escapeMermaidQuotedLabel(point.label)}":::basesMermaidSeries${point.series}: [${point.x}, ${point.y}]`);
 			else
-				lines.push(`    "${point.label}": [${point.x}, ${point.y}]`);
+				lines.push(`    "${escapeMermaidQuotedLabel(point.label)}": [${point.x}, ${point.y}]`);
 		}
 		return lines.join("\n");
 	}

@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesEntryGroup, TFile} from "obsidian";
@@ -289,11 +290,11 @@ export class FlowchartView extends MermaidBasesView {
 				const groupLabel = this.getGroupLabel(group, groupIndex, hasGroupingConfigured);
 				const groupId = `g${groupIndex}`;
 
-				lines.push(`    subgraph ${groupId}["${groupLabel}"]`);
+				lines.push(`    subgraph ${groupId}["${escapeMermaidQuotedLabel(groupLabel)}"]`);
 
 				for (const nodeId of nodeSet) {
 					const label = ctx.nodeIdToLabel.get(nodeId) ?? nodeId;
-					lines.push(`        ${nodeId}["${label}"]`);
+					lines.push(`        ${nodeId}["${escapeMermaidQuotedLabel(label)}"]`);
 				}
 
 				lines.push("    end");
@@ -304,12 +305,12 @@ export class FlowchartView extends MermaidBasesView {
 					continue;
 
 				const label = ctx.nodeIdToLabel.get(id) ?? path;
-				lines.push(`    ${id}["${label}"]`);
+				lines.push(`    ${id}["${escapeMermaidQuotedLabel(label)}"]`);
 			}
 		} else {
 			for (const [path, id] of ctx.fileToNodeId.entries()) {
 				const label = ctx.nodeIdToLabel.get(id) ?? path;
-				lines.push(`    ${id}["${label}"]`);
+				lines.push(`    ${id}["${escapeMermaidQuotedLabel(label)}"]`);
 			}
 		}
 

@@ -70,21 +70,17 @@ export class TreeView extends MermaidBasesView {
 			this.foldState.toggle(branch);
 			this.onDataUpdated();
 		});
-		this.register(() => {
-			this.containerEl.empty();
-		});
 		registerRenderObservers(this, this.containerEl, () => this.enhanceDiagram());
 	}
 
 	protected async render(): Promise<void> {
-		const target = this.containerEl.createDiv();
 		this.noteRows = [];
 		this.folding.setRows([]);
 		const rootPath = normalizePath(this.getConfigValue<string>("rootFolder"));
 		const root = !rootPath || rootPath === "/"
 			? this.app.vault.getRoot() : this.app.vault.getFolderByPath(rootPath);
 		if (!root) {
-			target.createDiv({text: "Root folder not found. Select an existing folder in the view settings."});
+			this.containerEl.createDiv({text: "Root folder not found. Select an existing folder in the view settings."});
 			return;
 		}
 		const groups = this.data.groupedData;
@@ -93,7 +89,7 @@ export class TreeView extends MermaidBasesView {
 			? buildGroupedTree(groups, root)
 			: [buildFolderTree(this.data.data, root, this.app.vault.getName())];
 		if (!roots.some((branch) => branch.children.length > 0)) {
-			target.createDiv({text: "No files found in this base within the root folder."});
+			this.containerEl.createDiv({text: "No files found in this base within the root folder."});
 			return;
 		}
 		const media = this.getPropertyMedia();
@@ -108,13 +104,8 @@ export class TreeView extends MermaidBasesView {
 		});
 		this.noteRows = rows;
 		this.folding.setRows(branches);
-		try {
-			await this.renderMermaid(code, this.getMermaidConfig(), undefined, this.getOptionalTitle(), target);
-		} catch (error) {
-			if (target.parentElement === this.containerEl)
-				throw error;
-		}
-		if (target.parentElement === this.containerEl)
+		const target = await this.renderMermaid(code, this.getMermaidConfig(), undefined, this.getOptionalTitle());
+		if (target?.parentElement === this.containerEl)
 			this.enhanceDiagram();
 	}
 

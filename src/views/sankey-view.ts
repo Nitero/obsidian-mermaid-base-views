@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeCsvField} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {BasesPropertyId} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
@@ -99,7 +100,7 @@ export class SankeyView extends MermaidBasesView {
 		lines.push("%% source,target,value");
 
 		for (const resolvedFlow of resolvedFlows)
-			lines.push(`${resolvedFlow.source},${resolvedFlow.target},${resolvedFlow.value}`);
+			lines.push(`${escapeCsvField(resolvedFlow.source)},${escapeCsvField(resolvedFlow.target)},${resolvedFlow.value}`);
 
 		const mermaidCode = lines.join("\n");
 		await this.renderMermaid(mermaidCode, this.plugin.settings.sankeyMermaidConfig);

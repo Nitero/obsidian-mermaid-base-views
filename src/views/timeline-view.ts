@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeTimelineLabel} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesPropertyId} from "obsidian";
@@ -87,7 +88,9 @@ export class TimelineView extends MermaidBasesView {
 		}
 
 		const mermaidCode = this.buildMermaidCode(title, sections);
-		await this.renderMermaid(mermaidCode, this.plugin.settings.timelineMermaidConfig);
+		const target = await this.renderMermaid(mermaidCode, this.plugin.settings.timelineMermaidConfig);
+		if (target?.parentElement !== this.containerEl)
+			return;
 		this.hookUpEventLinks(sections);
 	}
 
@@ -156,9 +159,9 @@ export class TimelineView extends MermaidBasesView {
 
 		for (const section of sections) {
 			if (section.label !== null)
-				lines.push(`    section ${section.label.replace(/[\r\n]+/g, " ")}`);
+				lines.push(`    section ${escapeTimelineLabel(section.label.replace(/[\r\n]+/g, " "))}`);
 			for (const period of section.periods)
-				lines.push(`    ${period.label} : ${period.events.map((event) => event.label).join(" : ")}`);
+				lines.push(`    ${period.label} : ${period.events.map((event) => escapeTimelineLabel(event.label)).join(" : ")}`);
 		}
 
 		return lines.join("\n");

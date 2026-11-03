@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
@@ -92,7 +93,7 @@ export class PieChartView extends MermaidBasesView {
 
 		const lines = [`pie${showDataLabel ? " showData" : ""}${title !== null ? ` title ${title}` : ""}`];
 		for (const [label, amount] of categoryTotals)
-			lines.push(`    "${label}" : ${amount}`);
+			lines.push(`    "${escapeMermaidQuotedLabel(label)}" : ${amount}`);
 
 		const mermaidCode = lines.join("\n");
 

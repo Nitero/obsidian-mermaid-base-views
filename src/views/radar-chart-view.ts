@@ -1,4 +1,5 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
+import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesPropertyId, type BasesViewConfig, parsePropertyId} from "obsidian";
@@ -155,7 +156,9 @@ export class RadarChartView extends MermaidBasesView {
 			showLegend
 		);
 
-		await this.renderMermaid(mermaidCode, this.plugin.settings.radarChartMermaidConfig);
+		const target = await this.renderMermaid(mermaidCode, this.plugin.settings.radarChartMermaidConfig);
+		if (target?.parentElement !== this.containerEl)
+			return;
 		const notesById = new Map(curves.map((curve, index) => [`id${index}`, curve]));
 		this.containerEl.querySelectorAll(".pele-legend-item[data-id]").forEach((legend) => {
 			const curve = notesById.get(legend.getAttribute("data-id") ?? "");
@@ -268,7 +271,7 @@ export class RadarChartView extends MermaidBasesView {
 
 		for (const chunk of axisChunks) {
 			const parts = chunk.map((axis) => {
-				return `${axis.id}["${axis.label}"]`;
+				return `${axis.id}["${escapeMermaidQuotedLabel(axis.label)}"]`;
 			});
 			lines.push(`  axis ${parts.join(", ")}`);
 		}
@@ -276,7 +279,7 @@ export class RadarChartView extends MermaidBasesView {
 		for (let i = 0; i < curves.length; i++) {
 			const curve = curves[i]!;
 			const values = curve.values.join(", ");
-			lines.push(`  curve id${i}["${curve.label}"]{${values}}`);
+			lines.push(`  curve id${i}["${escapeMermaidQuotedLabel(curve.label)}"]{${values}}`);
 		}
 
 		if (maxValue !== null)
