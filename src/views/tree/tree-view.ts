@@ -1,5 +1,5 @@
 import {
-	normalizePath, parseYaml, stringifyYaml, type BasesViewConfig, type QueryController,
+	normalizePath, parseYaml, stringifyYaml, type QueryController,
 } from "obsidian";
 import MermaidBaseViews from "../../main";
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
@@ -91,8 +91,7 @@ export class TreeView extends MermaidBasesView {
 			return;
 		}
 		const groups = this.data.groupedData;
-		const nativeConfig = this.config as BasesViewConfig & { groupBy?: unknown };
-		const hasGrouping = nativeConfig.groupBy != null;
+		const hasGrouping = this.hasGrouping();
 		const roots = hasGrouping
 			? buildGroupedTree(groups, root)
 			: [buildFolderTree(this.data.data, root, this.app.vault.getName())];

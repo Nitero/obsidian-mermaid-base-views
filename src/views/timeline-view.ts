@@ -103,8 +103,7 @@ export class TimelineView extends MermaidBasesView {
 		granularity: TimeGranularity,
 	): Section[] {
 		const groups = this.data.groupedData;
-		const hasGrouping = this.config.get("groupBy") != null
-			|| groups.length > 1 || groups.some((group) => group.hasKey());
+		const hasGrouping = this.hasGrouping();
 		const sections: Section[] = [];
 
 		for (const group of groups) {

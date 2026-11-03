@@ -184,8 +184,7 @@ export class GanttView extends MermaidBasesView {
 		verticalMarkerProperty: BasesPropertyId | null,
 	): GanttData {
 		const groups = this.data.groupedData;
-		const hasGrouping = this.config.get("groupBy") != null
-			|| groups.length > 1 || groups.some((group) => group.hasKey());
+		const hasGrouping = this.hasGrouping();
 		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 		const barColorProperty = this.config.getAsPropertyId("barColorProperty");
 		const iconProperty = this.config.getAsPropertyId(COMMON_VIEW_OPTIONS.iconProperty.key);

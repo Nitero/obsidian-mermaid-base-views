@@ -150,9 +150,7 @@ export class MindmapView extends MermaidBasesView {
 			ctx.lines.push(`  ${rootId}["${rootLabel}"]`);
 
 		const groups = this.data.groupedData;
-		const hasGroupingConfigured = this.config.get("groupBy") != null
-			|| groups.length > 1
-			|| groups.some((group) => group.hasKey());
+		const hasGroupingConfigured = this.hasGrouping();
 		if (hasGroupingConfigured) {
 			const groupedPaths = new Set(groups.flatMap((group) => group.entries.map((entry) => entry.file.path)));
 			for (const [groupIndex, group] of groups.entries()) {

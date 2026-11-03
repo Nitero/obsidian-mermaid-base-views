@@ -4,6 +4,7 @@ import {
 	QueryController,
 	MarkdownRenderer,
 	type BasesAllOptions,
+	type BasesViewConfig,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
@@ -216,6 +217,13 @@ export abstract class MermaidBasesView extends BasesView {
 		}
 
 		return undefined;
+	}
+
+	protected hasGrouping(): boolean {
+		const config = this.config as BasesViewConfig & {groupBy?: unknown};
+		const groups = this.data.groupedData;
+		return config.groupBy != null || config.get("groupBy") != null
+			|| groups.length > 1 || groups.some((group) => group.hasKey());
 	}
 
 	protected collectBaseFilesByPath(): Map<string, TFile> {

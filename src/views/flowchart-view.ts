@@ -149,7 +149,7 @@ export class FlowchartView extends MermaidBasesView {
 			return;
 		}
 
-		const hasGroupingConfigured = this.data.groupedData.length !== 1;
+		const hasGroupingConfigured = this.hasGrouping();
 		const mermaidCode = this.buildMermaidCode(direction, ctx, hasGroupingConfigured);
 
 		await this.renderMermaid(

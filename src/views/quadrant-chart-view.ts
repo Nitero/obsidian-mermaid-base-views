@@ -158,7 +158,7 @@ export class QuadrantChartView extends MermaidBasesView {
 		}
 
 		const groups = this.data.groupedData;
-		const groupingEnabled = groups.length > 1 || (groups.length === 1 && groups[0]!.key !== undefined);
+		const groupingEnabled = this.hasGrouping();
 
 		const {
 			points,
