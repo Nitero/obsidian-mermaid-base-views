@@ -4,6 +4,7 @@ import {
 	QueryController,
 	MarkdownRenderer,
 	type BasesAllOptions,
+	type BasesEntry,
 	type BasesViewConfig,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
@@ -17,6 +18,7 @@ import {NotePropertyMedia} from "../media/note-property-media";
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
 	protected containerEl: HTMLElement;
+	private readonly entriesByPath = new Map<string, BasesEntry>();
 	private readonly noteFileNames = new Map<string, string[]>();
 	private propertyMedia?: NotePropertyMedia;
 
@@ -32,6 +34,12 @@ export abstract class MermaidBasesView extends BasesView {
 	}
 
 	public onDataUpdated(): void {
+		this.entriesByPath.clear();
+		for (const entry of this.data.data) {
+			const path = entry.file.path;
+			if (!this.entriesByPath.has(path))
+				this.entriesByPath.set(path, entry);
+		}
 		this.noteFileNames.clear();
 		this.propertyMedia?.clear();
 		this.containerEl.empty();
@@ -123,7 +131,7 @@ export abstract class MermaidBasesView extends BasesView {
 		const fileNames: string[] = [];
 		this.noteFileNames.set(file.path, fileNames);
 		const lines: string[] = [];
-		const entry = this.data.data.find((entry) => entry.file.path === file.path)
+		const entry = this.entriesByPath.get(file.path)
 			?? createFilteredNoteEntry(file, this.data.data[0]);
 		for (const property of this.data.properties) {
 			const propertyValue = entry?.getValue(property);
