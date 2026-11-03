@@ -1,4 +1,14 @@
-import {type BasesAllOptions, type BasesOptions} from "obsidian";
+import {type BasesAllOptions, type BasesOptions, type BasesPropertyId, type BasesViewConfig} from "obsidian";
+
+export function readGroupingProperty(config: BasesViewConfig): BasesPropertyId | null {
+	const groupBy = (config as BasesViewConfig & {groupBy?: unknown}).groupBy ?? config.get("groupBy");
+	if (!groupBy || typeof groupBy !== "object" || !("property" in groupBy))
+		return null;
+	const property = groupBy.property;
+	if (typeof property !== "string" || property.length === 0)
+		return null;
+	return /^(note|file|formula)\./.test(property) ? property as BasesPropertyId : `note.${property}`;
+}
 
 export function findConfigOption(options: readonly BasesAllOptions[], key: string): BasesOptions | undefined {
 	for (const option of options) {

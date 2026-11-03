@@ -96,6 +96,7 @@ export class FlowchartView extends MermaidBasesView {
 		const showLinksToFilteredOutNotes = this.getBooleanConfig(LINK_OPTIONS.showFilteredOutNotes.key);
 		const filesByPath = collectBaseFilesByPath(this.data.groupedData);
 		const graph = collectFlowchartGraph(this.data.groupedData, {
+			getGroups: (files) => this.getGroupsWithFilteredNotes(files),
 			linkSource,
 			linkPropertyName: getPropertyNameFromId(this.config.getAsPropertyId(LINK_OPTIONS.property.key)),
 			showLinkPropertyNames: this.getBooleanConfig("showLinkPropertyNames"),
@@ -109,11 +110,11 @@ export class FlowchartView extends MermaidBasesView {
 			this.containerEl.createDiv({text: "No notes found for this base to build a flowchart from."});
 			return;
 		}
-		const code = buildFlowchartCode(this.data.groupedData, graph, direction, this.hasGrouping());
+		const code = buildFlowchartCode(graph.groups, graph, direction, this.hasGrouping());
 		const target = await this.renderMermaid(code, this.plugin.settings.flowchartMermaidConfig, graph.fileToNodeId, title);
 		if (target?.parentElement !== this.containerEl || !this.hasGrouping())
 			return;
-		for (const [groupIndex, group] of this.data.groupedData.entries()) {
+		for (const [groupIndex, group] of graph.groups.entries()) {
 			target.querySelectorAll(`.pele-cluster[data-id="g${groupIndex}"] > .pele-cluster-label, .pele-cluster-title[data-id="g${groupIndex}"]`).forEach((node) => {
 				this.markGroupNoteLinks(node, group);
 			});

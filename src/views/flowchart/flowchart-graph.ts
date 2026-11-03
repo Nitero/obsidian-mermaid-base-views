@@ -9,6 +9,7 @@ export interface FlowchartEdge {
 }
 
 export interface FlowchartGraph {
+	groups: readonly BasesEntryGroup[];
 	fileToNodeId: Map<string, string>;
 	nodeIdToLabel: Map<string, string>;
 	groupIndexToNodeIds: Map<number, Set<string>>;
@@ -17,6 +18,7 @@ export interface FlowchartGraph {
 }
 
 interface FlowchartGraphOptions {
+	getGroups?: (files: Iterable<TFile>) => readonly BasesEntryGroup[];
 	linkSource: string;
 	linkPropertyName: string | null;
 	showLinkPropertyNames: boolean;
@@ -30,12 +32,14 @@ export function collectFlowchartGraph(
 	options: FlowchartGraphOptions,
 ): FlowchartGraph {
 	const graph: FlowchartGraph = {
+		groups,
 		fileToNodeId: new Map(),
 		nodeIdToLabel: new Map(),
 		groupIndexToNodeIds: new Map(),
 		groupedNodeIds: new Set(),
 		edges: new Map(),
 	};
+	const filesByPath = new Map<string, TFile>();
 
 	const ensureNode = (file: TFile): string => {
 		let nodeId = graph.fileToNodeId.get(file.path);
@@ -43,6 +47,7 @@ export function collectFlowchartGraph(
 			return nodeId;
 		nodeId = `n${graph.fileToNodeId.size}`;
 		graph.fileToNodeId.set(file.path, nodeId);
+		filesByPath.set(file.path, file);
 		graph.nodeIdToLabel.set(nodeId, options.getLabel(file));
 		return nodeId;
 	};
@@ -53,17 +58,13 @@ export function collectFlowchartGraph(
 			graph.edges.set(key, edge);
 	};
 
-	for (const [groupIndex, group] of groups.entries()) {
-		const nodeIds = new Set<string>();
-		graph.groupIndexToNodeIds.set(groupIndex, nodeIds);
+	for (const group of groups) {
 		if (!group)
 			continue;
 		for (const entry of group.entries) {
 			if (!entry.file)
 				continue;
 			const sourceId = ensureNode(entry.file);
-			nodeIds.add(sourceId);
-			graph.groupedNodeIds.add(sourceId);
 
 			const bodyCache = options.getFileCache(entry.file);
 			for (const link of getBodyLinksForSource(bodyCache, options.linkSource)) {
@@ -83,6 +84,18 @@ export function collectFlowchartGraph(
 				const targetId = ensureNode(target);
 				const label = options.showLinkPropertyNames ? frontmatterLinkKeyToProperty(link.key) : undefined;
 				addEdge({from: sourceId, to: targetId, label});
+			}
+		}
+	}
+	graph.groups = options.getGroups?.(filesByPath.values()) ?? groups;
+	for (const [groupIndex, group] of graph.groups.entries()) {
+		const nodeIds = new Set<string>();
+		graph.groupIndexToNodeIds.set(groupIndex, nodeIds);
+		for (const entry of group.entries) {
+			const nodeId = graph.fileToNodeId.get(entry.file.path);
+			if (nodeId) {
+				nodeIds.add(nodeId);
+				graph.groupedNodeIds.add(nodeId);
 			}
 		}
 	}

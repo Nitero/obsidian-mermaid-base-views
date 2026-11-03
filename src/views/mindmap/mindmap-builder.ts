@@ -4,6 +4,7 @@ import {getBodyLinksForSource, getFrontmatterLinksForSource} from "../../links/n
 import {getGroupLabel} from "../../links/group-label";
 
 interface MindmapOptions {
+	getGroups?: (files: Iterable<TFile>) => readonly BasesEntryGroup[];
 	rootLabel: string | null;
 	hasGrouping: boolean;
 	linkSource: string;
@@ -17,7 +18,7 @@ export function buildMindmapCode(
 	groups: readonly BasesEntryGroup[],
 	baseFilesByPath: ReadonlyMap<string, TFile>,
 	options: MindmapOptions,
-): {code: string; noteNodes: Map<string, string>} {
+): {code: string; noteNodes: Map<string, string>; groups: readonly BasesEntryGroup[]} {
 	const filesByPath = new Map(baseFilesByPath);
 	const outgoingLinks = new Map<string, Set<string>>();
 	const indegree = new Map(Array.from(filesByPath.keys(), (path) => [path, 0]));
@@ -48,6 +49,7 @@ export function buildMindmapCode(
 		}
 	}
 
+	const renderGroups = options.getGroups?.(filesByPath.values()) ?? groups;
 	const allPaths = Array.from(filesByPath.keys());
 	let roots = allPaths.filter((path) => (indegree.get(path) ?? 0) === 0);
 	if (roots.length === 0)
@@ -75,8 +77,8 @@ export function buildMindmapCode(
 	};
 
 	if (options.hasGrouping) {
-		const groupedPaths = new Set(groups.flatMap((group) => group.entries.map((entry) => entry.file.path)));
-		for (const [groupIndex, group] of groups.entries()) {
+		const groupedPaths = new Set(renderGroups.flatMap((group) => group.entries.map((entry) => entry.file.path)));
+		for (const [groupIndex, group] of renderGroups.entries()) {
 			if (group.entries.length === 0)
 				continue;
 			const label = getGroupLabel(group, `No value (${groupIndex + 1})`);
@@ -93,5 +95,5 @@ export function buildMindmapCode(
 				renderNode(path, 2);
 		}
 	}
-	return {code: lines.join("\n"), noteNodes};
+	return {code: lines.join("\n"), noteNodes, groups: renderGroups};
 }

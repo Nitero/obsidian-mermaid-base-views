@@ -16,9 +16,10 @@ import {createNoteFileNameLinks} from "../links/note-filename-links";
 import {createGroupNoteLinks} from "../links/group-note-links";
 import {registerNoteLinkInteractions} from "../links/note-link-interactions";
 import {createFilteredNoteEntry} from "../links/filtered-note-entry";
+import {includeFilteredNoteGroups} from "../links/filtered-note-groups";
 import {NotePropertyMedia} from "../media/note-property-media";
 import {parseMermaidConfig} from "./mermaid-config";
-import {findConfigOption, readBooleanConfig, readDropdownConfig, readStringConfig, readStringListConfig} from "./view-config";
+import {findConfigOption, readBooleanConfig, readDropdownConfig, readGroupingProperty, readStringConfig, readStringListConfig} from "./view-config";
 import {parseFiniteNumber} from "../utils/numeric-values";
 
 export abstract class MermaidBasesView extends BasesView {
@@ -179,8 +180,7 @@ export abstract class MermaidBasesView extends BasesView {
 		const fileNames: string[] = [];
 		this.noteFileNames.set(file.path, fileNames);
 		const lines: string[] = [];
-		const entry = this.entriesByPath.get(file.path)
-			?? createFilteredNoteEntry(file, this.data.data[0]);
+		const entry = this.getEntry(file);
 		for (const property of this.data.properties) {
 			const propertyValue = entry?.getValue(property);
 			if (!propertyValue)
@@ -202,6 +202,20 @@ export abstract class MermaidBasesView extends BasesView {
 		fileNames.push(file.basename);
 		return file.basename;
 	};
+
+	private getEntry(file: TFile): BasesEntry | null {
+		const entry = this.entriesByPath.get(file.path)
+			?? createFilteredNoteEntry(file, this.data.data[0]);
+		if (entry)
+			this.entriesByPath.set(file.path, entry);
+		return entry;
+	}
+
+	protected getGroupsWithFilteredNotes(files: Iterable<TFile>): readonly BasesEntryGroup[] {
+		return includeFilteredNoteGroups(
+			this.data.groupedData, files, readGroupingProperty(this.config), (file) => this.getEntry(file),
+		);
+	}
 
 	protected getPropertyMedia(): NotePropertyMedia {
 		return this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl);

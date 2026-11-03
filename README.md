@@ -163,7 +163,7 @@ Shows links between notes, useful for exploring relationships and dependencies.
 
 By default, links come from both note bodies and properties. **Link property** limits property links to one property, such as `depends_on`; body links are still included unless **Link source** is set to **Properties**.
 
-Linked notes outside the Base's results are hidden unless **Show links to filtered-out notes** is enabled.
+Linked notes outside the Base's results are hidden unless **Show links to filtered-out notes** is enabled. When included, they show the selected properties and follow the Base's grouping, including groups absent from the filtered results.
 
 <br clear="both" />
 

@@ -76,7 +76,8 @@ export class MindmapView extends MermaidBasesView {
 			this.containerEl.createDiv({text: "No files found in this base."});
 			return;
 		}
-		const {code, noteNodes} = buildMindmapCode(this.data.groupedData, filesByPath, {
+		const {code, noteNodes, groups} = buildMindmapCode(this.data.groupedData, filesByPath, {
+			getGroups: (files) => this.getGroupsWithFilteredNotes(files),
 			rootLabel,
 			hasGrouping: this.hasGrouping(),
 			linkSource,
@@ -90,7 +91,7 @@ export class MindmapView extends MermaidBasesView {
 		const target = await this.renderMermaid(code, this.plugin.settings.mindmapMermaidConfig, noteNodes);
 		if (target?.parentElement !== this.containerEl || !this.hasGrouping())
 			return;
-		for (const [groupIndex, group] of this.data.groupedData.entries()) {
+		for (const [groupIndex, group] of groups.entries()) {
 			target.querySelectorAll(`.pele-node[data-id="g${groupIndex}"]`).forEach((node) => {
 				this.markGroupNoteLinks(node, group);
 			});
