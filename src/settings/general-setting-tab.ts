@@ -1,7 +1,7 @@
 import {App, PluginSettingTab, type SettingDefinition} from "obsidian";
 import MermaidBaseViews from "../main";
-import {DEFAULT_SETTINGS, MermaidBaseViewsSettings} from "./mermaid-vase-views-settings";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
+import {DEFAULT_SETTINGS, MermaidBaseViewsSettings} from "./mermaid-base-views-settings";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 
 export class GeneralSettingTab extends PluginSettingTab {
 	plugin: MermaidBaseViews;

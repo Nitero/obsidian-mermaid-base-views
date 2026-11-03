@@ -1,5 +1,5 @@
 import {BasesView, type BasesEntryGroup, type QueryController} from "obsidian";
-import {type TreeViewBranch} from "./tree-view-tree";
+import {type TreeViewBranch} from "./tree-hierarchy";
 
 type FoldingController = QueryController & {
 	getGroupFolds(): Set<string>;

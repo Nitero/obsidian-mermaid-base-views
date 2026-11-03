@@ -1,7 +1,7 @@
 import {getIcon, type Component} from "obsidian";
-import {registerDiagramClick} from "../utils/diagram-click";
-import {TREE_VIEW_FOLD_MARKER, type TreeViewBranchRow} from "../utils/tree-view-code";
-import {type TreeViewBranch} from "../utils/tree-view-tree";
+import {registerDiagramClick} from "../../ui/diagram-click";
+import {TREE_VIEW_FOLD_MARKER, type TreeViewBranchRow} from "./tree-builder";
+import {type TreeViewBranch} from "./tree-hierarchy";
 
 const FOLD_ICON_SIZE = 14;
 

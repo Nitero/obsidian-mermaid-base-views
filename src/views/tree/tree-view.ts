@@ -1,18 +1,18 @@
 import {
 	normalizePath, parseYaml, stringifyYaml, type BasesViewConfig, type QueryController,
 } from "obsidian";
-import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../core/constants";
-import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
-import {type MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
-import {buildFolderTree, buildGroupedTree} from "../utils/tree-view-tree";
-import {buildTreeViewCode, type TreeViewNoteRow} from "../utils/tree-view-code";
-import {registerRenderObservers} from "../utils/render-observers";
-import {TreeViewFoldState} from "../utils/tree-view-fold-state";
-import {TreeViewFolding} from "../ui/tree-view-folding";
-import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
-import {createNoteMedia} from "../utils/note-media";
+import MermaidBaseViews from "../../main";
+import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
+import {MermaidBasesView} from "../../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
+import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
+import {buildFolderTree, buildGroupedTree} from "./tree-hierarchy";
+import {buildTreeViewCode, type TreeViewNoteRow} from "./tree-builder";
+import {registerRenderObservers} from "../../ui/render-observers";
+import {TreeViewFoldState} from "./tree-fold-state";
+import {TreeViewFolding} from "./tree-folding";
+import {InferredPropertyType} from "../../view-options/inferred-property-type";
+import {createNoteMedia} from "../../media/note-media-renderer";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);

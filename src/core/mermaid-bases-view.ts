@@ -7,11 +7,11 @@ import {
 } from "obsidian";
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS} from "./constants";
-import {createNoteFileNameLinks} from "../utils/note-link-label";
-import {registerNoteLinkInteractions} from "./note-link-interactions";
-import {createFilteredNoteEntry} from "../utils/filtered-note-properties";
-import {NotePropertyMedia} from "../utils/note-property-media";
+import {COMMON_VIEW_OPTIONS} from "../view-options/common-options";
+import {createNoteFileNameLinks} from "../links/note-filename-links";
+import {registerNoteLinkInteractions} from "../links/note-link-interactions";
+import {createFilteredNoteEntry} from "../links/filtered-note-entry";
+import {NotePropertyMedia} from "../media/note-property-media";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;

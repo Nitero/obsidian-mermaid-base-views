@@ -1,9 +1,9 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {BasesPropertyId} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS} from "../core/constants";
+import {COMMON_VIEW_OPTIONS} from "../view-options/common-options";
 
 export class SankeyView extends MermaidBasesView {
 	readonly type = SankeyView.RegistrationData.id;

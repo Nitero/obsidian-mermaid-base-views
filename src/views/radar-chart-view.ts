@@ -1,11 +1,21 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
-import {BasesPropertyId, parsePropertyId} from "obsidian";
+import {BasesPropertyId, type BasesViewConfig, parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../core/constants";
-import {shouldHideShowDataLabel} from "../core/view-option-visibility";
+import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../view-options/common-options";
 
+
+function shouldHideShowDataLabel(key: string, defaultValue: boolean) {
+	return (config?: BasesViewConfig): boolean => {
+		const showLegendContent = config?.get(key);
+		const resolvedNodeLabelContent = typeof showLegendContent === "boolean"
+			? showLegendContent
+			: defaultValue;
+
+		return !resolvedNodeLabelContent;
+	};
+}
 
 type Curve = {
 	path: string;

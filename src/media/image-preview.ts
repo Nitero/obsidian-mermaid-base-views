@@ -1,5 +1,5 @@
 import {App, Component, MarkdownPreviewRenderer} from "obsidian";
-import {registerDiagramClick} from "../utils/diagram-click";
+import {registerDiagramClick} from "../ui/diagram-click";
 
 type MediaClickHandler = (
 	this: { sections: { el: HTMLElement }[] },

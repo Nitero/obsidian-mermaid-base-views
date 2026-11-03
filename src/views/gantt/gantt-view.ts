@@ -1,20 +1,20 @@
 import {type BasesPropertyId} from "obsidian";
-import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
-import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
-import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../core/constants";
-import MermaidBaseViews from "../main";
-import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
+import {MermaidBasesView} from "../../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
+import {MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
+import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
+import MermaidBaseViews from "../../main";
+import {InferredPropertyType} from "../../view-options/inferred-property-type";
 import {
 	buildGanttCode,
 	type GanttData,
 	type GanttSection,
 	hasGanttMarkerMedia,
 	parseGanttBarColors
-} from "../utils/gantt";
-import {GanttMarkerMedia} from "../utils/gantt-marker-media";
-import {isMissingGanttValue, parseGanttDate, parseGanttDuration} from "../utils/gantt-values";
-import {parseNoteIcon} from "../utils/note-media";
+} from "./gantt-builder";
+import {GanttMarkerMedia} from "./gantt-marker-media";
+import {isMissingGanttValue, parseGanttDate, parseGanttDuration} from "./gantt-values";
+import {parseNoteIcon} from "../../media/note-media";
 
 const TICK_INTERVAL_OPTIONS: Record<string, string> = {
 	auto: "Automatic",

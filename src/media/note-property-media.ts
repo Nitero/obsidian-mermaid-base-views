@@ -1,7 +1,8 @@
 import {App, Component, ImageValue, TFile, Value} from "obsidian";
-import {registerImagePreviewInteractions} from "../ui/image-preview";
-import {createNoteMedia, getNotePropertyMedia} from "./note-media";
-import {registerRenderObservers} from "./render-observers";
+import {registerImagePreviewInteractions} from "./image-preview";
+import {getNotePropertyMedia} from "./note-media";
+import {createNoteMedia} from "./note-media-renderer";
+import {registerRenderObservers} from "../ui/render-observers";
 
 const MEDIA_MARKER_START = 0xe000;
 const MEDIA_MARKER_COUNT = 6400;

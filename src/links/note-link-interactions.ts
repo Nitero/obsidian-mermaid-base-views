@@ -1,5 +1,5 @@
 import {type App, type Component, type HoverParent, Keymap, Menu, type Workspace} from "obsidian";
-import {registerDiagramClick} from "../utils/diagram-click";
+import {registerDiagramClick} from "../ui/diagram-click";
 
 type LinkMenuWorkspace = Workspace & {
 	handleLinkContextMenu?: (menu: Menu, linktext: string, sourcePath: string) => boolean;

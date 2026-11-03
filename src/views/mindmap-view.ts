@@ -1,21 +1,23 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {TFile} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {
 	getBodyLinksForSource,
 	getFrontmatterLinksForSource,
 	getPropertyNameFromId,
-	indent,
-	shouldHidePropertyLinkOptions
-} from "../utils/utils";
+} from "../links/note-links";
 import MermaidBaseViews from "../main";
 import {
 	COMMON_OPTION_GROUPS,
 	COMMON_VIEW_OPTIONS,
-	LINK_OPTIONS,
 	NOTE_LABEL_OPTIONS
-} from "../core/constants";
+} from "../view-options/common-options";
+import {LINK_OPTIONS, shouldHidePropertyLinkOptions} from "../view-options/link-options";
+
+function indent(level: number): string {
+	return '  '.repeat(level);
+}
 
 interface MindmapRenderContext {
 	visited: Set<string>;

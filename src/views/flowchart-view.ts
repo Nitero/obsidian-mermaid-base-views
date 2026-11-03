@@ -1,21 +1,20 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesEntryGroup, TFile} from "obsidian";
 import MermaidBaseViews from "../main";
-import {frontmatterLinkKeyToProperty} from "../utils/frontmatter-links";
+import {frontmatterLinkKeyToProperty} from "../links/frontmatter-links";
 import {
 	COMMON_OPTION_GROUPS,
 	COMMON_VIEW_OPTIONS,
-	LINK_OPTIONS,
 	NOTE_LABEL_OPTIONS
-} from "../core/constants";
+} from "../view-options/common-options";
+import {LINK_OPTIONS, shouldHidePropertyLinkOptions} from "../view-options/link-options";
 import {
 	getBodyLinksForSource,
 	getFrontmatterLinksForSource,
 	getPropertyNameFromId,
-	shouldHidePropertyLinkOptions
-} from "../utils/utils";
+} from "../links/note-links";
 
 type Edge = {
 	from: string;

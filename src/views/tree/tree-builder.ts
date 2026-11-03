@@ -1,6 +1,6 @@
 import {BooleanValue, NullValue, type BasesEntry, type BasesPropertyId, type TFile, type Value} from "obsidian";
-import {parseNoteIcon, type NoteMedia} from "./note-media";
-import {type TreeViewBranch, type TreeViewNode} from "./tree-view-tree";
+import {parseNoteIcon, type NoteMedia} from "../../media/note-media";
+import {type TreeViewBranch, type TreeViewNode} from "./tree-hierarchy";
 
 export const TREE_VIEW_FOLD_MARKER = "\u25b8";
 

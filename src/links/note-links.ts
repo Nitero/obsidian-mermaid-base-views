@@ -1,17 +1,17 @@
 import {
 	parsePropertyId,
 	type BasesPropertyId,
-	type BasesViewConfig,
 	type CachedMetadata,
 	type FrontmatterLinkCache,
 	type LinkCache
 } from "obsidian";
 import {frontmatterLinkMatchesProperty} from "./frontmatter-links";
-import {LINK_OPTIONS, LINK_SOURCE_VALUES} from "../core/constants";
 
-export function indent(level: number): string {
-	return '  '.repeat(level);
-}
+export const LINK_SOURCE_VALUES = {
+	propertiesAndBody: "properties-and-body",
+	propertiesOnly: "properties-only",
+	bodyOnly: "body-only",
+} as const;
 
 export function getBodyLinksForSource(cache: CachedMetadata | null | undefined, linkSource: string): LinkCache[] {
 	if (linkSource !== LINK_SOURCE_VALUES.propertiesAndBody && linkSource !== LINK_SOURCE_VALUES.bodyOnly)
@@ -33,15 +33,4 @@ export function getFrontmatterLinksForSource(
 
 export function getPropertyNameFromId(propertyId: BasesPropertyId | null): string | null {
 	return propertyId ? parsePropertyId(propertyId).name : null;
-}
-
-export function shouldHidePropertyLinkOptions(defaultLinkSource: string) {
-	return (config?: BasesViewConfig): boolean => {
-		const linkSource = config?.get(LINK_OPTIONS.source.key);
-		const resolvedLinkSource = typeof linkSource === "string" && linkSource.length > 0
-			? linkSource
-			: defaultLinkSource;
-
-		return resolvedLinkSource === LINK_SOURCE_VALUES.bodyOnly;
-	};
 }

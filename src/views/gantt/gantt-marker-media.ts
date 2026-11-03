@@ -1,7 +1,8 @@
 import {type App, type Component} from "obsidian";
-import {type GanttData, hasGanttMarkerMedia} from "./gantt";
-import {createNoteMedia, type NoteMedia} from "./note-media";
-import {registerRenderObservers} from "./render-observers";
+import {type GanttData, hasGanttMarkerMedia} from "./gantt-builder";
+import {type NoteMedia} from "../../media/note-media";
+import {createNoteMedia} from "../../media/note-media-renderer";
+import {registerRenderObservers} from "../../ui/render-observers";
 
 export class GanttMarkerMedia {
 	private readonly mediaByTaskId = new Map<string, { media: NoteMedia; path: string }>();
