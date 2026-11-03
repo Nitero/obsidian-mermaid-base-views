@@ -3,8 +3,7 @@ import {escapeMermaidQuotedLabel} from "../utils/mermaid-text";
 import {parseFiniteNumber} from "../utils/numeric-values";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
-import MermaidBaseViews from "../main";
-import {InferredPropertyType} from "../view-options/inferred-property-type";
+import {createPropertyTypeFilter} from "../view-options/property-filters";
 import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER} from "../view-options/common-options";
 
 export class PieChartView extends MermaidBasesView {
@@ -15,7 +14,7 @@ export class PieChartView extends MermaidBasesView {
 		id: "mermaid-pie-chart",
 		name: "Pie Chart",
 		icon: "pie-chart",
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
@@ -33,7 +32,7 @@ export class PieChartView extends MermaidBasesView {
 				displayName: "Value property (optional)",
 				key: "valueProperty",
 				placeholder: FILE_SIZE_PLACEHOLDER,
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
+				filter: createPropertyTypeFilter("number"),
 			},
 			{
 				type: "toggle",

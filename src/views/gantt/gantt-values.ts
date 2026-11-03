@@ -1,4 +1,5 @@
 import {DateValue, DurationValue, NullValue, NumberValue, StringValue, moment, type Value} from "obsidian";
+import {parseIsoDate} from "../../utils/date-values";
 
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
 const DURATION_PATTERN = /^(\d+(?:\.\d+)?)\s*(ms|[smhdwMy])$/;
@@ -26,8 +27,7 @@ export function parseGanttDate(value: Value | null, referenceDate: Date = new Da
 		const date = moment(`${referenceDay} ${text}`, ["YYYY-MM-DD HH:mm", "YYYY-MM-DD HH:mm:ss"], true);
 		return date.isValid() ? date.toDate() : null;
 	}
-	const date = moment(text, moment.ISO_8601, true);
-	return date.isValid() ? date.toDate() : null;
+	return parseIsoDate(text);
 }
 
 export function parseGanttDuration(value: Value | null): string | null {

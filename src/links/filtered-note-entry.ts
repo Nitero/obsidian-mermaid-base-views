@@ -9,5 +9,10 @@ export function createFilteredNoteEntry(file: TFile, reference: EntryWithContext
 	if (!context?.app || !context.formulas)
 		return null;
 	const Entry = BasesEntry as unknown as LinkedEntryConstructor;
-	return new Entry(context, file);
+	try {
+		return new Entry(context, file);
+	} catch {
+		// The constructor is internal; keep filename-only labels if it changes.
+		return null;
+	}
 }

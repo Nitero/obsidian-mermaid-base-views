@@ -1,6 +1,6 @@
 import {MermaidBasesView} from "../../core/mermaid-bases-view";
 import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
-import MermaidBaseViews from "../../main";
+import {createPropertySourceFilter} from "../../view-options/property-filters";
 import {COMMON_OPTION_GROUPS, COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
 import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
 import {LINK_OPTIONS, shouldHidePropertyLinkOptions} from "../../view-options/link-options";
@@ -24,7 +24,7 @@ export class FlowchartView extends MermaidBasesView {
 		id: "mermaid-flowchart",
 		name: "Flowchart",
 		icon: "network",//git-fork//waypoints//workflow//share-2
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
@@ -67,7 +67,7 @@ export class FlowchartView extends MermaidBasesView {
 						displayName: LINK_OPTIONS.property.displayName,
 						key: LINK_OPTIONS.property.key,
 						placeholder: LINK_OPTIONS.property.placeholder,
-						filter: plugin.propertyTypes.createSourceFilter("note"),
+						filter: createPropertySourceFilter("note"),
 						shouldHide: shouldHidePropertyLinkOptions(LINK_OPTIONS.source.default),
 					},
 					{

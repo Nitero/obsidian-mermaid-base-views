@@ -12,7 +12,7 @@ import {
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS} from "../view-options/common-options";
-import {createNoteFileNameLinks} from "../links/note-filename-links";
+import {createNoteFileNameLinks, type NoteLabel} from "../links/note-filename-links";
 import {createGroupNoteLinks} from "../links/group-note-links";
 import {registerNoteLinkInteractions} from "../links/note-link-interactions";
 import {createFilteredNoteEntry} from "../links/filtered-note-entry";
@@ -26,7 +26,7 @@ export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
 	protected containerEl: HTMLElement;
 	private readonly entriesByPath = new Map<string, BasesEntry>();
-	private readonly noteFileNames = new Map<string, string[]>();
+	private readonly noteLabels = new Map<string, NoteLabel>();
 	private propertyMedia?: NotePropertyMedia;
 	private renderComponent?: Component;
 	private unloaded = false;
@@ -59,7 +59,7 @@ export abstract class MermaidBasesView extends BasesView {
 			if (!this.entriesByPath.has(path))
 				this.entriesByPath.set(path, entry);
 		}
-		this.noteFileNames.clear();
+		this.noteLabels.clear();
 		this.propertyMedia?.clear();
 		this.containerEl.empty();
 		void this.render().catch((error) => {
@@ -129,8 +129,8 @@ export abstract class MermaidBasesView extends BasesView {
 		return container;
 	}
 
-	protected markNoteLink(node: Element, path: string, fileNames = this.noteFileNames.get(path) ?? []): void {
-		if (fileNames.length > 0) {
+	protected markNoteLink(node: Element, path: string, label: NoteLabel | null | undefined = this.noteLabels.get(path)): void {
+		if (label && label.fileNameRanges.length > 0) {
 			let labelNode = node;
 			while (!labelNode.matches("text, foreignObject") && !labelNode.querySelector("text, foreignObject")) {
 				const parent = labelNode.parentElement;
@@ -138,7 +138,7 @@ export abstract class MermaidBasesView extends BasesView {
 					break;
 				labelNode = parent;
 			}
-			createNoteFileNameLinks(labelNode, fileNames, path);
+			createNoteFileNameLinks(labelNode, label, path);
 			return;
 		}
 		node.classList.add("bases-mermaid-note-link");
@@ -177,9 +177,9 @@ export abstract class MermaidBasesView extends BasesView {
 
 	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string, renderMedia = false): string {
 		const media = renderMedia ? this.getPropertyMedia() : null;
-		const fileNames: string[] = [];
-		this.noteFileNames.set(file.path, fileNames);
+		const fileNameRanges: {start: number; end: number}[] = [];
 		const lines: string[] = [];
+		let labelLength = 0;
 		const entry = this.getEntry(file);
 		for (const property of this.data.properties) {
 			const propertyValue = entry?.getValue(property);
@@ -190,17 +190,21 @@ export abstract class MermaidBasesView extends BasesView {
 				: {text: propertyValue.toString(), block: false};
 			const value = formatted.text;
 			const isFileName = property === "file.name" || property === "file.basename";
-			if (isFileName)
-				fileNames.push(value);
-			lines.push(showPropertyNames && !isFileName
+			if (isFileName && value.length > 0)
+				fileNameRanges.push({start: labelLength, end: labelLength + value.length});
+			const line = showPropertyNames && !isFileName
 				? `${this.config.getDisplayName(property)}${colon}${formatted.block ? newLine : " "}${value}`
-				: value);
+				: value;
+			lines.push(line);
+			labelLength += line.length + newLine.length;
 		}
-		const label = lines.join(newLine);
-		if (label !== "")
-			return label;
-		fileNames.push(file.basename);
-		return file.basename;
+		let text = lines.join(newLine);
+		if (text === "") {
+			text = file.basename;
+			fileNameRanges.push({start: 0, end: text.length});
+		}
+		this.noteLabels.set(file.path, {text, fileNameRanges});
+		return text;
 	};
 
 	private getEntry(file: TFile): BasesEntry | null {
@@ -253,7 +257,7 @@ export abstract class MermaidBasesView extends BasesView {
 	}
 
 	private getConfigDefaultValue(key: string): unknown {
-		const option = findConfigOption(this.registrationData.getOptions(this.plugin), key);
+		const option = findConfigOption(this.registrationData.getOptions(), key);
 		if (!option || !("default" in option) || option.default === undefined)
 			throw new Error(`No default configured for key "${key}".`);
 		return option.default;

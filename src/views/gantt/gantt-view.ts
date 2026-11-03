@@ -3,8 +3,7 @@ import {MermaidBasesView} from "../../core/mermaid-bases-view";
 import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
-import MermaidBaseViews from "../../main";
-import {InferredPropertyType} from "../../view-options/inferred-property-type";
+import {createPropertyTypeFilter} from "../../view-options/property-filters";
 import {
 	buildGanttCode,
 	type GanttData,
@@ -37,7 +36,7 @@ export class GanttView extends MermaidBasesView {
 		id: "mermaid-gantt",
 		name: "Gantt",
 		icon: "square-chart-gantt",
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				...COMMON_VIEW_OPTIONS.title,
@@ -47,21 +46,21 @@ export class GanttView extends MermaidBasesView {
 				displayName: "Start property",
 				key: "startDateProperty",
 				placeholder: "e.g. start, created, or a time like 09:30",
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Date, InferredPropertyType.String),
+				filter: createPropertyTypeFilter("date", "string"),
 			},
 			{
 				type: "property",
 				displayName: "End property (optional)",
 				key: "endDateProperty",
 				placeholder: "e.g. end or due; alternative to duration",
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Date, InferredPropertyType.String),
+				filter: createPropertyTypeFilter("date", "string"),
 			},
 			{
 				type: "property",
 				displayName: "Duration property (optional)",
 				key: "durationProperty",
 				placeholder: "e.g. duration (30m, 2h); alternative to end",
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.String),
+				filter: createPropertyTypeFilter("string"),
 			},
 			{
 				type: "group",
@@ -72,19 +71,19 @@ export class GanttView extends MermaidBasesView {
 						displayName: "Vertical marker property (optional)",
 						key: "vertDateProperty",
 						placeholder: "e.g. deadline",
-						filter: plugin.propertyTypes.createFilter(InferredPropertyType.Date, InferredPropertyType.String),
+						filter: createPropertyTypeFilter("date", "string"),
 					},
 					{
 						type: "property",
 						displayName: "Bar color property (optional)",
 						key: "barColorProperty",
 						placeholder: "e.g. status (active, done, crit)",
-						filter: plugin.propertyTypes.createFilter(InferredPropertyType.String, InferredPropertyType.List),
+						filter: createPropertyTypeFilter("string", "list"),
 					},
 					{
 						type: "property",
 						...COMMON_VIEW_OPTIONS.iconProperty,
-						filter: plugin.propertyTypes.createFilter(InferredPropertyType.String, InferredPropertyType.List),
+						filter: createPropertyTypeFilter("string", "list"),
 					},
 					{
 						type: "text",
@@ -172,7 +171,7 @@ export class GanttView extends MermaidBasesView {
 		const hasMarkerMedia = data.sections.some((section) => section.tasks.some(hasGanttMarkerMedia));
 		if (hasMarkerMedia)
 			this.markerMedia ??= new GanttMarkerMedia(this, this.app, this.containerEl,
-				(node, path) => this.markNoteLink(node, path, []));
+				(node, path) => this.markNoteLink(node, path, null));
 		this.markerMedia?.setData(data);
 		const target = await this.renderMermaid(code, this.plugin.settings.ganttMermaidConfig);
 		if (target?.parentElement !== this.containerEl)

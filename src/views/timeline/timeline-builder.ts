@@ -1,6 +1,7 @@
 import {type BasesEntryGroup, type BasesPropertyId, type TFile} from "obsidian";
 import {escapeTimelineLabel} from "../../utils/mermaid-text";
 import {getGroupLabel} from "../../links/group-label";
+import {parseIsoDate} from "../../utils/date-values";
 
 export type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
 
@@ -32,12 +33,8 @@ export function collectTimelineSections(
 			if (!timeValue)
 				continue;
 
-			const timeText = timeValue.toString().trim();
-			if (!timeText)
-				continue;
-
-			const date = new Date(timeText);
-			if (Number.isNaN(date.getTime()))
+			const date = parseIsoDate(timeValue.toString());
+			if (!date)
 				continue;
 
 			const {label, truncatedDate} = truncateAndFormatDate(date, granularity);

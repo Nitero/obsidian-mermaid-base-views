@@ -1,82 +1,10 @@
-interface NoteTextLink {
-	start: number;
-	end: number;
-	path: string;
+import {createLabelTextLinks} from "./note-text-links";
+
+export interface NoteLabel {
+	text: string;
+	fileNameRanges: readonly {start: number; end: number}[];
 }
 
-export function createNoteFileNameLinks(node: Element, fileNames: readonly string[], path: string): void {
-	const labels = node.matches("text, foreignObject") ? [node] : Array.from(node.querySelectorAll("text, foreignObject"));
-	for (const label of labels) {
-		const content = label.textContent ?? "";
-		const characterOffsets: number[] = [];
-		let compactContent = "";
-		for (let index = 0; index < content.length; index++) {
-			if (/\s/.test(content[index]!))
-				continue;
-			characterOffsets.push(index);
-			compactContent += content[index];
-		}
-		const ranges = fileNames.flatMap((fileName) => {
-			const start = content.indexOf(fileName);
-			if (fileName.length === 0)
-				return [];
-			if (start >= 0)
-				return [{start, end: start + fileName.length}];
-			const compactName = fileName.replace(/\s/g, "");
-			const compactStart = compactContent.indexOf(compactName);
-			if (compactStart < 0 || compactName.length === 0)
-				return [];
-			return [{
-				start: characterOffsets[compactStart]!,
-				end: characterOffsets[compactStart + compactName.length - 1]! + 1
-			}];
-		});
-		createNoteTextLinks(label, ranges.map((range) => ({...range, path})));
-	}
-}
-
-export function createNoteTextLinks(label: Element, ranges: readonly NoteTextLink[], className?: string): void {
-	const walker = label.ownerDocument.createTreeWalker(label, 4);
-	const textNodes: Text[] = [];
-	while (walker.nextNode())
-		textNodes.push(walker.currentNode as Text);
-	let offset = 0;
-	for (const textNode of textNodes) {
-		const length = textNode.length;
-		if (textNode.parentElement?.closest(".bases-mermaid-file-name-link")) {
-			offset += length;
-			continue;
-		}
-		const segments = ranges
-			.map((range) => ({
-				start: Math.max(0, range.start - offset),
-				end: Math.min(length, range.end - offset),
-				path: range.path,
-				range: `${range.start}-${range.end}`,
-			}))
-			.filter((range) => range.start < range.end)
-			.sort((first, second) => second.start - first.start);
-		let remainingEnd = length;
-		for (const segment of segments) {
-			if (segment.end > remainingEnd)
-				continue;
-			const matchedText = textNode.splitText(segment.start);
-			matchedText.splitText(segment.end - segment.start);
-			const link = label.localName === "foreignObject"
-				? createEl("a")
-				: createSvg("a");
-			link.classList.add("bases-mermaid-note-link", "bases-mermaid-file-name", "bases-mermaid-file-name-link");
-			if (className) {
-				link.classList.add(className);
-				link.setAttribute("data-bases-link-range", segment.range);
-			}
-			link.setAttribute("href", segment.path);
-			link.setAttribute("data-href", segment.path);
-			link.setAttribute("tabindex", "0");
-			matchedText.replaceWith(link);
-			link.appendChild(matchedText);
-			remainingEnd = segment.start;
-		}
-		offset += length;
-	}
+export function createNoteFileNameLinks(node: Element, label: NoteLabel, path: string): void {
+	createLabelTextLinks(node, label.text, label.fileNameRanges.map((range) => ({...range, path})));
 }

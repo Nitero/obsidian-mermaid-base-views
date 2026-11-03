@@ -1,7 +1,6 @@
 import {MermaidBasesView} from "../../core/mermaid-bases-view";
 import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
-import MermaidBaseViews from "../../main";
-import {InferredPropertyType} from "../../view-options/inferred-property-type";
+import {createPropertyTypeFilter} from "../../view-options/property-filters";
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
 import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
 import {buildTimelineCode, collectTimelineSections, type TimeGranularity, type TimelineSection} from "./timeline-builder";
@@ -23,7 +22,7 @@ export class TimelineView extends MermaidBasesView {
 		id: "mermaid-timeline",
 		name: "Timeline",
 		icon: "custom-timeline",//timeline//chart-no-axes-gantt
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
@@ -35,7 +34,7 @@ export class TimelineView extends MermaidBasesView {
 				displayName: "Date / Time property",
 				key: "timeProperty",
 				placeholder: "e.g. created or modified",
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Date),
+				filter: createPropertyTypeFilter("date"),
 			},
 			{
 				type: "dropdown",

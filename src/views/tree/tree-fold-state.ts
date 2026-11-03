@@ -2,35 +2,44 @@ import {BasesView, type BasesEntryGroup, type QueryController} from "obsidian";
 import {type TreeViewBranch} from "./tree-hierarchy";
 
 type FoldingController = QueryController & {
-	getGroupFolds(): Set<string>;
-	saveGroupFolds(): void;
+	getGroupFolds?(): Set<string>;
+	saveGroupFolds?(): void;
 };
 
 type GroupFoldingView = typeof BasesView & {
-	getGroupId(group: BasesEntryGroup): string | null;
+	getGroupId?(group: BasesEntryGroup): string | null;
 };
 
 export class TreeViewFoldState {
 	private readonly controller: FoldingController;
+	private readonly fallbackFolds = new Set<string>();
 
 	constructor(controller: QueryController) {
-		this.controller = controller as FoldingController;
+		this.controller = controller;
 	}
 
 	isCollapsed(branch: TreeViewBranch): boolean {
-		return this.controller.getGroupFolds().has(this.getKey(branch));
+		return this.getFolds().has(this.getKey(branch));
 	}
 
 	toggle(branch: TreeViewBranch): void {
-		const folds = this.controller.getGroupFolds();
+		const folds = this.getFolds();
 		const key = this.getKey(branch);
 		if (!folds.delete(key))
 			folds.add(key);
-		this.controller.saveGroupFolds();
+		if (folds !== this.fallbackFolds)
+			this.controller.saveGroupFolds?.();
+	}
+
+	private getFolds(): Set<string> {
+		if (typeof this.controller.getGroupFolds !== "function" || typeof this.controller.saveGroupFolds !== "function")
+			return this.fallbackFolds;
+		return this.controller.getGroupFolds();
 	}
 
 	private getKey(branch: TreeViewBranch): string {
-		const key = branch.group ? (BasesView as GroupFoldingView).getGroupId(branch.group) : null;
+		const view = BasesView as GroupFoldingView;
+		const key = branch.group && typeof view.getGroupId === "function" ? view.getGroupId(branch.group) : null;
 		return key ?? `mermaid-tree:${branch.id}`;
 	}
 }

@@ -1,6 +1,7 @@
 import {type BasesEntryGroup, type BasesPropertyId, type TFile} from "obsidian";
 import {escapeMermaidQuotedLabel} from "../../utils/mermaid-text";
 import {parseFiniteNumber} from "../../utils/numeric-values";
+import {resolveNumericRange} from "../../utils/numeric-range";
 
 type Point = {
 	path: string;
@@ -81,20 +82,12 @@ export function collectQuadrantPoints(
 
 export function buildQuadrantChartCode(
 	data: QuadrantData, options: QuadrantChartOptions,
-): {code: string; points: Point[]} {
-	let minX = options.xMin ?? data.minX;
-	let maxX = options.xMax ?? data.maxX;
-	let minY = options.yMin ?? data.minY;
-	let maxY = options.yMax ?? data.maxY;
-	if (minX === maxX) {
-		minX -= 1;
-		maxX += 1;
-	}
-	if (minY === maxY) {
-		minY -= 1;
-		maxY += 1;
-	}
-	const points = normalizePoints(data.points, minX, maxX, minY, maxY);
+): {code: string; points: Point[]} | null {
+	const xRange = resolveNumericRange(data.minX, data.maxX, options.xMin, options.xMax);
+	const yRange = resolveNumericRange(data.minY, data.maxY, options.yMin, options.yMax);
+	if (!xRange || !yRange)
+		return null;
+	const points = normalizePoints(data.points, xRange.min, xRange.max, yRange.min, yRange.max);
 	return {code: formatQuadrantCode(points, options), points};
 }
 

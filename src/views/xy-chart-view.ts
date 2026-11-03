@@ -1,11 +1,11 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {escapeMermaidQuotedLabel} from "../utils/mermaid-text";
 import {parseFiniteNumber} from "../utils/numeric-values";
+import {resolveNumericRange} from "../utils/numeric-range";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {parsePropertyId} from "obsidian";
-import MermaidBaseViews from "../main";
-import {InferredPropertyType} from "../view-options/inferred-property-type";
+import {createPropertyTypeFilter} from "../view-options/property-filters";
 import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER, NUMBER_RANGE_PLACEHOLDER} from "../view-options/common-options";
 
 const CHART_TYPE_OPTIONS = {bar: "bar", line: "line", "bar-and-line": "both"};
@@ -18,7 +18,7 @@ export class XYChartView extends MermaidBasesView {
 		id: "mermaid-xy-chart",
 		name: "XY Chart",
 		icon: "line-chart",
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
@@ -30,7 +30,7 @@ export class XYChartView extends MermaidBasesView {
 				displayName: "Y-axis property",
 				key: "yValueProperty",
 				placeholder: FILE_SIZE_PLACEHOLDER,
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
+				filter: createPropertyTypeFilter("number"),
 			},
 			{
 				type: "text",
@@ -118,8 +118,11 @@ export class XYChartView extends MermaidBasesView {
 			return;
 		}
 
-		const yMin = this.getNumberConfig("yMin") ?? minValue;
-		const yMax = this.getNumberConfig("yMax") ?? maxValue;
+		const range = resolveNumericRange(minValue, maxValue, this.getNumberConfig("yMin"), this.getNumberConfig("yMax"));
+		if (!range) {
+			this.containerEl.createDiv({text: "The Y-axis minimum must be less than its maximum. Check the view settings."});
+			return;
+		}
 
 		const xAxis = `[${xLabels.map((label) => `"${escapeMermaidQuotedLabel(label)}"`).join(", ")}]`;
 		const valuesArray = `[${yValues.join(", ")}]`;
@@ -130,7 +133,7 @@ export class XYChartView extends MermaidBasesView {
 		if (title !== null)
 			lines.push(`    title ${title}`);
 		lines.push(`    x-axis ${xAxis}`);
-		lines.push(`    y-axis "${escapeMermaidQuotedLabel(yAxisLabel)}" ${yMin} --> ${yMax}`);
+		lines.push(`    y-axis "${escapeMermaidQuotedLabel(yAxisLabel)}" ${range.min} --> ${range.max}`);
 
 		if (chartType === "line") {
 			lines.push(`    line ${valuesArray}`);

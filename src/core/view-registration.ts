@@ -36,6 +36,6 @@ export function registerMermaidView(
 		icon: registrationData.icon,
 		factory: (controller, containerEl) =>
 			new View(controller, containerEl, plugin),
-		options: () => registrationData.getOptions(plugin),
+		options: registrationData.getOptions,
 	});
 }

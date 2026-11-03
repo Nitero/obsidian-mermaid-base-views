@@ -1,7 +1,6 @@
 import {type BasesViewConfig, parsePropertyId} from "obsidian";
 import {MermaidBasesView} from "../../core/mermaid-bases-view";
 import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
-import MermaidBaseViews from "../../main";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../../view-options/common-options";
 import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
 import {buildRadarChartCode, collectRadarCurves, type RadarAxis} from "./radar-chart-builder";
@@ -21,7 +20,7 @@ export class RadarChartView extends MermaidBasesView {
 		id: "mermaid-radar",
 		name: "Radar Chart",
 		icon: "custom-radar-chart",//life-buoy//ship-wheel//radar//radius
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
@@ -97,7 +96,7 @@ export class RadarChartView extends MermaidBasesView {
 			this.containerEl.createDiv({text: "No numeric/boolean values found for the selected axis properties."});
 			return;
 		}
-		const {code, curves} = buildRadarChartCode(axes, data, {
+		const chart = buildRadarChartCode(axes, data, {
 			title,
 			min: this.getNumberConfig("min"),
 			max: this.getNumberConfig("max"),
@@ -105,6 +104,11 @@ export class RadarChartView extends MermaidBasesView {
 			ticks,
 			showLegend,
 		});
+		if (!chart) {
+			this.containerEl.createDiv({text: "The minimum must be less than the maximum. Check the view settings."});
+			return;
+		}
+		const {code, curves} = chart;
 		const target = await this.renderMermaid(code, this.plugin.settings.radarChartMermaidConfig);
 		if (target?.parentElement !== this.containerEl)
 			return;
@@ -112,7 +116,9 @@ export class RadarChartView extends MermaidBasesView {
 		this.containerEl.querySelectorAll(".pele-legend-item[data-id]").forEach((legend) => {
 			const curve = notesById.get(legend.getAttribute("data-id") ?? "");
 			if (curve)
-				this.markNoteLink(legend, curve.path, [curve.fileName]);
+				this.markNoteLink(legend, curve.path, {
+					text: curve.label, fileNameRanges: [{start: 0, end: curve.fileName.length}],
+				});
 		});
 	}
 }

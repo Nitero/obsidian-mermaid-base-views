@@ -1,6 +1,7 @@
 import {type BasesEntryGroup, type BasesPropertyId, type TFile} from "obsidian";
 import {escapeMermaidQuotedLabel} from "../../utils/mermaid-text";
 import {parseFiniteNumber} from "../../utils/numeric-values";
+import {resolveNumericRange} from "../../utils/numeric-range";
 
 type Curve = {
 	path: string;
@@ -84,13 +85,11 @@ export function collectRadarCurves(
 
 export function buildRadarChartCode(
 	axes: readonly RadarAxis[], data: RadarData, options: RadarChartOptions,
-): {code: string; curves: Curve[]} {
-	let minValue = options.min ?? data.minValue;
-	let maxValue = options.max ?? data.maxValue;
-	if (minValue === maxValue) {
-		minValue -= 1;
-		maxValue += 1;
-	}
+): {code: string; curves: Curve[]} | null {
+	const range = resolveNumericRange(data.minValue, data.maxValue, options.min, options.max);
+	if (!range)
+		return null;
+	const {min: minValue, max: maxValue} = range;
 	const curves = applyRange(data.curves, minValue, maxValue);
 	const code = formatRadarCode(
 		axes, curves, options,

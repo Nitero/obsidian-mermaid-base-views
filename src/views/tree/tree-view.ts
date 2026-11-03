@@ -11,7 +11,7 @@ import {buildTreeViewCode, type TreeViewBranchRow, type TreeViewNoteRow} from ".
 import {registerRenderObservers} from "../../ui/render-observers";
 import {TreeViewFoldState} from "./tree-fold-state";
 import {TreeViewFolding} from "./tree-folding";
-import {InferredPropertyType} from "../../view-options/inferred-property-type";
+import {createPropertySourceFilter, createPropertyTypeFilter} from "../../view-options/property-filters";
 import {createNoteMedia} from "../../media/note-media-renderer";
 import {isRecord, parseMermaidConfig} from "../../core/mermaid-config";
 
@@ -27,7 +27,7 @@ export class TreeView extends MermaidBasesView {
 		id: "mermaid-tree-view",
 		name: "Tree view",
 		icon: "list-tree",
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{type: "text", ...COMMON_VIEW_OPTIONS.title},
 			{
 				type: "folder",
@@ -39,14 +39,14 @@ export class TreeView extends MermaidBasesView {
 			{
 				type: "property",
 				...COMMON_VIEW_OPTIONS.iconProperty,
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.String, InferredPropertyType.List),
+				filter: createPropertyTypeFilter("string", "list"),
 			},
 			{
 				type: "property",
 				displayName: "Highlight property (optional)",
 				key: "highlightProperty",
 				placeholder: "Boolean property or formula",
-				filter: plugin.propertyTypes.createSourceFilter("note", "formula"),
+				filter: createPropertySourceFilter("note", "formula"),
 			},
 			{
 				type: "toggle",
@@ -153,7 +153,7 @@ export class TreeView extends MermaidBasesView {
 				attr: {href: row.path, "aria-label": row.label},
 			});
 			link.classList.add("bases-mermaid-file-name", "bases-mermaid-file-name-link");
-			this.markNoteLink(link, row.path, []);
+			this.markNoteLink(link, row.path, null);
 			node.insertBefore(link, firstLabel);
 			for (const label of labels)
 				link.appendChild(label);
@@ -175,7 +175,7 @@ export class TreeView extends MermaidBasesView {
 			media.setAttribute(attribute, icon.getAttribute(attribute) ?? "0");
 		media.setAttribute("preserveAspectRatio", "xMidYMid meet");
 		if (row.media.type === "icon") {
-			this.markNoteLink(media, row.path, []);
+			this.markNoteLink(media, row.path, null);
 			media.setAttribute("aria-label", row.label);
 		}
 		icon.replaceWith(media);

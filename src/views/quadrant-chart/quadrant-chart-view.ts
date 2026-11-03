@@ -1,7 +1,6 @@
 import {MermaidBasesView} from "../../core/mermaid-bases-view";
 import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
-import MermaidBaseViews from "../../main";
-import {InferredPropertyType} from "../../view-options/inferred-property-type";
+import {createPropertyTypeFilter} from "../../view-options/property-filters";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../../view-options/common-options";
 import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
 import {buildQuadrantChartCode, collectQuadrantPoints} from "./quadrant-chart-builder";
@@ -14,7 +13,7 @@ export class QuadrantChartView extends MermaidBasesView {
 		id: "mermaid-quadrant-chart",
 		name: "Quadrant Chart",
 		icon: "custom-quadrant-chart-2",//custom-quadrant-chart//grid-2x2//square-plus//scatter-chart
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
@@ -27,14 +26,14 @@ export class QuadrantChartView extends MermaidBasesView {
 				displayName: "X coordinate property",
 				key: "xProperty",
 				placeholder: "e.g. importance",
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
+				filter: createPropertyTypeFilter("number"),
 			},
 			{
 				type: "property",
 				displayName: "Y coordinate property",
 				key: "yProperty",
 				placeholder: "e.g. urgency",
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
+				filter: createPropertyTypeFilter("number"),
 			},
 
 			{
@@ -153,7 +152,7 @@ export class QuadrantChartView extends MermaidBasesView {
 			this.containerEl.createDiv({text: "No numeric data found for the selected X/Y properties."});
 			return;
 		}
-		const {code, points} = buildQuadrantChartCode(data, {
+		const chart = buildQuadrantChartCode(data, {
 			title: this.getOptionalTitle(),
 			xMin: this.getNumberConfig("xMin"),
 			xMax: this.getNumberConfig("xMax"),
@@ -168,6 +167,11 @@ export class QuadrantChartView extends MermaidBasesView {
 			quadrantLabelBottomLeft: this.getStringConfig("quadrantLabelBottomLeft", ""),
 			quadrantLabelBottomRight: this.getStringConfig("quadrantLabelBottomRight", ""),
 		});
+		if (!chart) {
+			this.containerEl.createDiv({text: "Each axis minimum must be less than its maximum. Check the view settings."});
+			return;
+		}
+		const {code, points} = chart;
 		const target = await this.renderMermaid(code, this.plugin.settings.quadrantChartMermaidConfig);
 		if (target?.parentElement !== this.containerEl)
 			return;

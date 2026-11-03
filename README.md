@@ -36,7 +36,7 @@
 
 1. Open a Base and add one of the Mermaid [view types](#-view-types).
 2. Select the properties to display in the Base's **Properties** menu.
-3. Configure the [view settings](#base-view-settings). Most views require a main property, such as a numeric **Y-axis property** in the [XY chart](#xy-chart).
+3. Configure the [view settings](#base-view-settings). Most views require a main property, e.g. a numeric **Y-axis property** in the [XY chart](#xy-chart).
 4. Use [native Base features](#base-features) to filter, sort, group and search where supported.
 
 ![Recording2025-12-02002507-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/b65977f0-e17f-45f9-b1c1-4756081e2de3)
@@ -293,7 +293,7 @@ In **Flows (source name, target name, value property)**, enter three separate te
 
 Repeat for additional flows. The value property is summed across the filtered notes; booleans count as `1` or `0`.
 
-For formulas, use `formula.` before the name, such as `formula.price`.
+For formulas, use `formula.` before the name, such as `formula.price`. If a name matches multiple properties, use the full property ID, such as `note.size` or `file.size`.
 
 <br clear="both" />
 
