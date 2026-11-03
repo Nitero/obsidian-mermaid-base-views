@@ -39,7 +39,7 @@
 3. Configure the [view settings](#base-view-settings). Most views require a main property, e.g. a numeric **Y-axis property** in the [XY chart](#xy-chart).
 4. Use [native Base features](#base-features) to filter, sort, group and search where supported.
 
-![Recording2025-12-02002507-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/b65977f0-e17f-45f9-b1c1-4756081e2de3)
+<img width="792" height="374" alt="20261103-1628-22 4456199-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/48a62769-f90e-43e0-8df0-bdcac8f5be78" />
 
 # ⚙ Settings
 
@@ -157,7 +157,7 @@ Support for other native Base features varies by view type:
 
 ### Flowchart
 
-<img align="right" width="400" alt="Flowchart example" src="https://github.com/user-attachments/assets/51aa3edd-2ca3-470e-98f4-7ab96d5218b2" />
+<img align="right" width="400" alt="Flowchart example" src="https://github.com/user-attachments/assets/ab4c7fa0-3db0-42c1-88c0-a3eb04e4c52f" />
 
 Shows links between notes, useful for exploring relationships and dependencies.
 
@@ -169,7 +169,7 @@ Linked notes outside the Base's results are hidden unless **Show links to filter
 
 ### Mindmap
 
-<img align="right" width="400" alt="Mindmap example" src="https://github.com/user-attachments/assets/1dba6a2a-cb2f-4d8e-ac7b-619cdf778bed" />
+<img align="right" width="400" alt="Mindmap example" src="https://github.com/user-attachments/assets/ef1b6368-39cd-4ff3-8d39-2c253b6a6675" />
 
 Arranges linked notes into branches, useful for topic outlines and hierarchical collections.
 
@@ -182,6 +182,8 @@ Each note appears at most once. When several notes link to the same target, it a
 <br clear="both" />
 
 ### Tree view
+
+<img align="right" width="400" alt="Tree view example" src="https://github.com/user-attachments/assets/16adbca4-0595-4da7-9342-01dac7bf8b1e" />
 
 Shows the Base's files in a foldable folder hierarchy using [Mermaid TreeView](https://mermaid.ai/open-source/syntax/treeView.html). Empty folders are omitted.
 
@@ -197,7 +199,7 @@ Folders stay alphabetical; Base sorting controls files within each branch. Filen
 
 ### Timeline
 
-<img align="right" width="400" alt="Timeline example" src="https://github.com/user-attachments/assets/0bfa99ab-5c95-4f87-bac0-66b8896690b6" />
+<img align="right" width="400" alt="Timeline example" src="https://github.com/user-attachments/assets/fe3b210e-a883-47e9-9c98-cfa8094bc599" />
 
 Places notes in chronological periods, useful for journals, release histories, and milestones.
 
@@ -210,6 +212,8 @@ When grouped, each section has its own chronological periods and sections follow
 <br clear="both" />
 
 ### Gantt
+
+<img align="right" width="400" alt="Gantt example" src="https://github.com/user-attachments/assets/219313ef-8047-4ee8-98c9-36db900c432f" />
 
 Shows time spans and date markers, useful for project schedules and daily plans.
 
@@ -231,7 +235,7 @@ Text dates accept ISO dates or times such as `09:30`. Time-only starts use today
 
 ### XY Chart
 
-<img align="right" width="400" alt="XY chart example" src="https://github.com/user-attachments/assets/64ad64ea-a308-4649-8e56-c702b6f8c590" />
+<img align="right" width="400" alt="XY chart example" src="https://github.com/user-attachments/assets/7fb04660-2110-440f-99e2-48316fae865d" />
 
 Compares one numeric value per note using bars, a line, or both.
 
@@ -243,7 +247,7 @@ The X-axis uses note labels in Base sort order. Dates are treated as equally spa
 
 ### Quadrant Chart
 
-<img align="right" width="400" alt="Quadrant chart example" src="https://github.com/user-attachments/assets/1510fdc7-c243-4c29-a72a-ecc024f7c0d7" />
+<img align="right" width="400" alt="Quadrant chart example" src="https://github.com/user-attachments/assets/ba05b813-3826-4e59-91ef-e1a0a01390a7" />
 
 Plots notes on 4 areas using two numeric properties, such as importance and urgency. Requires **X coordinate property** and **Y coordinate property**.
 
@@ -255,7 +259,7 @@ Right and top axis labels require a left and bottom label respectively.
 
 ### Radar Chart
 
-<img align="right" width="400" alt="Radar chart example" src="https://github.com/user-attachments/assets/e2403f97-0745-4222-9017-83661b7d27b5" />
+<img align="right" width="400" alt="Radar chart example" src="https://github.com/user-attachments/assets/f25e62ae-cd25-4154-8e4c-697456bcfd19" />
 
 Compares several properties across notes on radial axes, useful for habit tracking or character attributes.
 
@@ -269,7 +273,7 @@ All axes share one scale, so use comparable units or formulas that convert value
 
 ### Pie Chart
 
-<img align="right" width="400" alt="Pie chart example" src="https://github.com/user-attachments/assets/7cc1ee27-8c07-4286-b67b-52a71fa98606" />
+<img align="right" width="400" alt="Pie chart example" src="https://github.com/user-attachments/assets/c32c0594-d5e4-4068-b3e1-22a9daa00e9f" />
 
 Shows proportions across categories, useful for task counts by status or spending by category.
 
@@ -281,7 +285,7 @@ List properties form a single combined category rather than separate slices. Whe
 
 ### Sankey
 
-<img align="right" width="400" alt="Sankey diagram example" src="https://github.com/user-attachments/assets/8711fa5f-47e0-49d5-8025-dc9af9c23e4c" />
+<img align="right" width="400" alt="Sankey diagram example" src="https://github.com/user-attachments/assets/bbfe72bb-7673-4f5b-af14-1a579962a232" />
 
 Shows the relative size of flows between named sources and targets, useful for budgets or resource allocation.
 
