@@ -1,5 +1,6 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {escapeCsvField} from "../core/mermaid-text";
+import {parseFiniteNumber} from "../core/numeric-values";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {BasesPropertyId} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
@@ -31,7 +32,7 @@ export class SankeyView extends MermaidBasesView {
 
 	protected async render(): Promise<void> {
 
-		const flowItems = this.getConfigValue<string[]>("flows", []);
+		const flowItems = this.getStringListConfig("flows", []);
 
 		if (flowItems.length < 3) {
 			this.containerEl.createDiv({text: "Add at least one flow triple (source name, target name, value property) in the view settings."});
@@ -143,23 +144,7 @@ export class SankeyView extends MermaidBasesView {
 
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
-				const value = entry.getValue(propertyId);
-				if (!value)
-					continue;
-
-				const text = value.toString().trim();
-
-				let number: number | null = null;
-
-				if (text === "true")
-					number = 1;
-				else if (text === "false")
-					number = 0;
-				else {
-					const parsed = Number(text);
-					if (Number.isFinite(parsed))
-						number = parsed;
-				}
+				const number = parseFiniteNumber(entry.getValue(propertyId), true);
 
 				if (number !== null) {
 					sum += number;

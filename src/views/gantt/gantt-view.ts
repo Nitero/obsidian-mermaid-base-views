@@ -161,11 +161,11 @@ export class GanttView extends MermaidBasesView {
 			this.getOptionalTitle(),
 			data,
 			{
-				axisFormat: this.getConfigValue<string>("axisFormat").trim(),
-				tickInterval: this.getConfigValue<string>("tickInterval"),
-				excludes: this.getConfigValue<string>("excludes"),
-				showTodayMarker: this.getConfigValue<boolean>("showTodayMarker"),
-				includeTodayInRange: this.getConfigValue<boolean>("includeTodayInRange"),
+				axisFormat: this.getStringConfig("axisFormat").trim(),
+				tickInterval: this.getDropdownConfig("tickInterval", TICK_INTERVAL_OPTIONS),
+				excludes: this.getStringConfig("excludes"),
+				showTodayMarker: this.getBooleanConfig("showTodayMarker"),
+				includeTodayInRange: this.getBooleanConfig("includeTodayInRange"),
 			},
 		);
 		const hasMarkerMedia = data.sections.some((section) => section.tasks.some(hasGanttMarkerMedia));
@@ -187,11 +187,11 @@ export class GanttView extends MermaidBasesView {
 	): GanttData {
 		const groups = this.data.groupedData;
 		const hasGrouping = this.hasGrouping();
-		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const showPropertyNames = this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 		const barColorProperty = this.config.getAsPropertyId("barColorProperty");
 		const iconProperty = this.config.getAsPropertyId(COMMON_VIEW_OPTIONS.iconProperty.key);
 		const durationProperty = this.config.getAsPropertyId("durationProperty");
-		const textDateFormat = this.getConfigValue<string>("textDateFormat").trim();
+		const textDateFormat = this.getStringConfig("textDateFormat").trim();
 		const referenceDate = new Date();
 		const data: GanttData = {sections: [], markers: []};
 		let taskIndex = 0;

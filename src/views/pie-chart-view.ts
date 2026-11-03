@@ -1,5 +1,6 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
+import {parseFiniteNumber} from "../core/numeric-values";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
@@ -53,7 +54,7 @@ export class PieChartView extends MermaidBasesView {
 		const categoryPropertyId = this.config.getAsPropertyId("categoryProperty");
 		const valuePropertyId = this.config.getAsPropertyId("valueProperty");
 		const title = this.getOptionalTitle();
-		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
+		const showDataLabel = this.getBooleanConfig("showDataLabel");
 
 		if (!categoryPropertyId) {
 			this.containerEl.createDiv({text: "Configure a category property in the view settings."});
@@ -72,15 +73,9 @@ export class PieChartView extends MermaidBasesView {
 				if (!label)
 					continue;
 
-				let amount = 1;
-				if (valuePropertyId) {
-					const value = entry.getValue(valuePropertyId);
-					if (value != null) {
-						const number = Number(value.toString());
-						if (!Number.isNaN(number))
-							amount = number;
-					}
-				}
+				const amount = valuePropertyId
+					? parseFiniteNumber(entry.getValue(valuePropertyId)) ?? 1
+					: 1;
 
 				categoryTotals.set(label, (categoryTotals.get(label) ?? 0) + amount);
 			}

@@ -1,21 +1,17 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
+import {parseFiniteNumber} from "../core/numeric-values";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesPropertyId, type BasesViewConfig, parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../view-options/common-options";
 
+const GRATICULE_OPTIONS = {circle: "Circle", polygon: "Polygon"};
 
-function shouldHideShowDataLabel(key: string, defaultValue: boolean) {
-	return (config?: BasesViewConfig): boolean => {
-		const showLegendContent = config?.get(key);
-		const resolvedNodeLabelContent = typeof showLegendContent === "boolean"
-			? showLegendContent
-			: defaultValue;
-
-		return !resolvedNodeLabelContent;
-	};
+function hideDataLabelsWithoutLegend(config?: BasesViewConfig): boolean {
+	const showLegend = config?.get("showLegend");
+	return typeof showLegend === "boolean" && !showLegend;
 }
 
 type Curve = {
@@ -70,7 +66,7 @@ export class RadarChartView extends MermaidBasesView {
 				displayName: "Graticule (Shape)",
 				key: "graticule",
 				default: "circle",
-				options: {"circle": "Circle", "polygon": "Polygon"},
+				options: GRATICULE_OPTIONS,
 			},
 			{
 				type: "text",
@@ -90,7 +86,7 @@ export class RadarChartView extends MermaidBasesView {
 				displayName: COMMON_VIEW_OPTIONS.showDataLabel.displayName,
 				key: COMMON_VIEW_OPTIONS.showDataLabel.key,
 				default: COMMON_VIEW_OPTIONS.showDataLabel.default,
-				shouldHide: shouldHideShowDataLabel("showLegend", true),
+				shouldHide: hideDataLabelsWithoutLegend,
 			},
 			{
 				type: "text",
@@ -103,10 +99,10 @@ export class RadarChartView extends MermaidBasesView {
 
 	protected async render(): Promise<void> {
 		const title = this.getOptionalTitle();
-		const graticule = this.getConfigValue<string>("graticule");
-		const ticks = this.getConfigValue<string>("ticks");
-		const showLegend = this.getConfigValue<boolean>("showLegend");
-		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
+		const graticule = this.getDropdownConfig("graticule", GRATICULE_OPTIONS);
+		const ticks = this.getStringConfig("ticks");
+		const showLegend = this.getBooleanConfig("showLegend");
+		const showDataLabel = this.getBooleanConfig("showDataLabel");
 
 		const axes: Axis[] = [];
 		let axisId = 0;
@@ -132,8 +128,8 @@ export class RadarChartView extends MermaidBasesView {
 			return;
 		}
 
-		const minOverride = this.getNumberOverride("min");
-		const maxOverride = this.getNumberOverride("max");
+		const minOverride = this.getNumberConfig("min");
+		const maxOverride = this.getNumberConfig("max");
 
 		let minValue = minOverride ?? dataMinValue;
 		let maxValue = maxOverride ?? dataMaxValue;
@@ -182,24 +178,7 @@ export class RadarChartView extends MermaidBasesView {
 				let allMissing = true;
 
 				for (const axis of axes) {
-					const value = entry.getValue(axis.propertyId);
-					if (value === null || value === undefined) {
-						values.push(null);
-						continue;
-					}
-
-					const t = value.toString().trim();
-					let number: number | null = null;
-
-					if (t === "true")
-						number = 1;
-					else if (t === "false")
-						number = 0;
-					else {
-						const parsed = Number(t);
-						if (Number.isFinite(parsed))
-							number = parsed;
-					}
+					const number = parseFiniteNumber(entry.getValue(axis.propertyId), true);
 
 					if (number === null) {
 						values.push(null);
@@ -228,18 +207,6 @@ export class RadarChartView extends MermaidBasesView {
 		}
 
 		return {curves, minValue, maxValue};
-	}
-
-	private getNumberOverride(key: string): number | null {
-		const config = this.getConfigValue<string>(key, "").trim();
-		if (config.length === 0)
-			return null;
-
-		const value = Number(config);
-		if (!Number.isFinite(value))
-			return null;
-
-		return value;
 	}
 
 	private applyRange(rawCurves: RawCurve[], minValue: number, maxValue: number): Curve[] {

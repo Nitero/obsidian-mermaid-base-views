@@ -5,7 +5,6 @@ import {
 	QueryController,
 	MarkdownRenderer,
 	stringifyYaml,
-	type BasesAllOptions,
 	type BasesEntry,
 	type BasesViewConfig,
 } from "obsidian";
@@ -17,6 +16,8 @@ import {registerNoteLinkInteractions} from "../links/note-link-interactions";
 import {createFilteredNoteEntry} from "../links/filtered-note-entry";
 import {NotePropertyMedia} from "../media/note-property-media";
 import {parseMermaidConfig} from "./mermaid-config";
+import {findConfigOption, readBooleanConfig, readDropdownConfig, readStringConfig, readStringListConfig} from "./view-config";
+import {parseFiniteNumber} from "./numeric-values";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
@@ -86,7 +87,7 @@ export abstract class MermaidBasesView extends BasesView {
 		const component = this.renderComponent;
 		if (!component)
 			return null;
-		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
+		const directive = this.getStringConfig(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
 		const frontmatter = stringifyYaml({
 			...(title == null ? {} : {title}),
 			config: parseMermaidConfig(viewTypeMermaidConfig),
@@ -94,7 +95,11 @@ export abstract class MermaidBasesView extends BasesView {
 		const configBlock = `---\n${frontmatter}---\n${directive}`;
 		mermaidCode = `${configBlock}\n${mermaidCode.trim()}`;
 
-		const markdown: string = `\`\`\`mermaid\n${mermaidCode}\n\`\`\``;
+		let fenceLength = 3;
+		for (const match of mermaidCode.matchAll(/`+/g))
+			fenceLength = Math.max(fenceLength, match[0].length + 1);
+		const fence = "`".repeat(fenceLength);
+		const markdown = `${fence}mermaid\n${mermaidCode}\n${fence}`;
 
 		const sourcePath = this.app.workspace.getActiveFile()?.path ?? "";
 		const container = this.containerEl.createDiv();
@@ -196,61 +201,31 @@ export abstract class MermaidBasesView extends BasesView {
 		return title;
 	}
 
-	protected getConfigValue<T>(key: string, defaultValue?: T): T {
-		if (defaultValue === null || defaultValue === undefined)
-			defaultValue = this.getConfigDefaultValue<T>(key);
-		const rawValue = this.config.get(key);
-
-		if (rawValue === null || rawValue === undefined)
-			return defaultValue;
-
-		if (typeof defaultValue === "string") {
-			const value = rawValue as string;
-			if (value.length > 0)
-				return rawValue as T;
-			return defaultValue;
-		}
-
-		if (typeof defaultValue === "boolean") {
-			if (typeof rawValue === "boolean")
-				return rawValue as unknown as T;
-			return defaultValue;
-		}
-
-		if (Array.isArray(defaultValue)) {
-			if (Array.isArray(rawValue))
-				return rawValue as unknown as T;
-			return defaultValue;
-		}
-
-		return rawValue as T;
+	protected getStringConfig(key: string, defaultValue?: string): string {
+		return readStringConfig(this.config.get(key), defaultValue ?? this.getConfigDefaultValue(key));
 	}
 
-	private getConfigDefaultValue<T>(key: string): T {
-		const options = this.findConfigOptionWithDefault<T>(this.registrationData.getOptions(this.plugin), key);
+	protected getBooleanConfig(key: string, defaultValue?: boolean): boolean {
+		return readBooleanConfig(this.config.get(key), defaultValue ?? this.getConfigDefaultValue(key));
+	}
 
-		if (!options || options.default === undefined)
+	protected getStringListConfig(key: string, defaultValue?: string[]): string[] {
+		return readStringListConfig(this.config.get(key), defaultValue ?? this.getConfigDefaultValue(key));
+	}
+
+	protected getDropdownConfig<Choice extends string>(key: string, choices: Record<Choice, string>): Choice {
+		return readDropdownConfig(this.config.get(key), choices, this.getConfigDefaultValue(key));
+	}
+
+	protected getNumberConfig(key: string): number | null {
+		return parseFiniteNumber(this.getStringConfig(key, ""));
+	}
+
+	private getConfigDefaultValue(key: string): unknown {
+		const option = findConfigOption(this.registrationData.getOptions(this.plugin), key);
+		if (!option || !("default" in option) || option.default === undefined)
 			throw new Error(`No default configured for key "${key}".`);
-
-		return options.default;
-	}
-
-	private findConfigOptionWithDefault<T>(
-		options: BasesAllOptions[],
-		key: string,
-	): { default?: T } | undefined {
-		for (const option of options) {
-			if ("key" in option && option.key === key)
-				return option as { default?: T };
-
-			if (option.type === "group") {
-				const nestedOption = this.findConfigOptionWithDefault<T>(option.items, key);
-				if (nestedOption)
-					return nestedOption;
-			}
-		}
-
-		return undefined;
+		return option.default;
 	}
 
 	protected hasGrouping(): boolean {

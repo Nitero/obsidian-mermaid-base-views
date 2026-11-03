@@ -1,5 +1,5 @@
 export function escapeMermaidQuotedLabel(text: string): string {
-	return text.replace(/[&#"]/g, (character) => `#${character.charCodeAt(0)};`);
+	return text.replace(/[&#"`]/g, (character) => `#${character.charCodeAt(0)};`);
 }
 
 export function escapeTimelineLabel(text: string): string {

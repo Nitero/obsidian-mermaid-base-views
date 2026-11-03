@@ -1,11 +1,14 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
+import {parseFiniteNumber} from "../core/numeric-values";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {parsePropertyId} from "obsidian";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../view-options/inferred-property-type";
 import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER, NUMBER_RANGE_PLACEHOLDER} from "../view-options/common-options";
+
+const CHART_TYPE_OPTIONS = {bar: "bar", line: "line", "bar-and-line": "both"};
 
 export class XYChartView extends MermaidBasesView {
 	readonly type = XYChartView.RegistrationData.id;
@@ -52,7 +55,7 @@ export class XYChartView extends MermaidBasesView {
 				displayName: "Chart type",
 				key: "chartType",
 				default: "bar",
-				options: {"bar": "bar", "line": "line", "bar-and-line": "both"},
+				options: CHART_TYPE_OPTIONS,
 			},
 			{
 				type: "toggle",
@@ -72,7 +75,7 @@ export class XYChartView extends MermaidBasesView {
 	protected async render(): Promise<void> {
 		const yValuePropertyId = this.config.getAsPropertyId("yValueProperty");
 
-		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const showPropertyNames = this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 
 		if (!yValuePropertyId) {
 			this.containerEl.createDiv({text: "Configure a numeric Y-axis value property in the view settings."});
@@ -80,8 +83,8 @@ export class XYChartView extends MermaidBasesView {
 		}
 
 		const title = this.getOptionalTitle();
-		const yAxisLabel = this.getConfigValue<string>("yAxisLabel", parsePropertyId(yValuePropertyId).name);
-		const chartType = this.getConfigValue<"bar" | "line" | "bar-and-line">("chartType");
+		const yAxisLabel = this.getStringConfig("yAxisLabel", parsePropertyId(yValuePropertyId).name);
+		const chartType = this.getDropdownConfig("chartType", CHART_TYPE_OPTIONS);
 
 		const xLabels: string[] = [];
 		const yValues: number[] = [];
@@ -95,12 +98,8 @@ export class XYChartView extends MermaidBasesView {
 
 				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː", true);
 
-				const yValue = entry.getValue(yValuePropertyId);
-				if (yValue == null)
-					continue;
-
-				const number = Number(yValue.toString());
-				if (!Number.isFinite(number))
+				const number = parseFiniteNumber(entry.getValue(yValuePropertyId));
+				if (number === null)
 					continue;
 
 				xLabels.push(label);
@@ -119,24 +118,8 @@ export class XYChartView extends MermaidBasesView {
 			return;
 		}
 
-		// Auto range if overrides not set
-		let yMin = minValue;
-		let yMax = maxValue;
-
-		const infinity = Infinity.toString();
-
-		const yMinConfig = this.getConfigValue<string>("yMin", infinity).trim();
-		if (yMinConfig.length > 0) {
-			const yMinConfigNumber = Number(yMinConfig);
-			if (Number.isFinite(yMinConfigNumber))
-				yMin = yMinConfigNumber;
-		}
-		const yMaxConfig = this.getConfigValue<string>("yMax", infinity).trim();
-		if (yMaxConfig.length > 0) {
-			const yMaxConfigNumber = Number(yMaxConfig);
-			if (Number.isFinite(yMaxConfigNumber))
-				yMax = yMaxConfigNumber;
-		}
+		const yMin = this.getNumberConfig("yMin") ?? minValue;
+		const yMax = this.getNumberConfig("yMax") ?? maxValue;
 
 		const xAxis = `[${xLabels.map((label) => `"${escapeMermaidQuotedLabel(label)}"`).join(", ")}]`;
 		const valuesArray = `[${yValues.join(", ")}]`;

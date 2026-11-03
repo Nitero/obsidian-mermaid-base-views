@@ -23,10 +23,6 @@ export default class MermaidBaseViews extends Plugin {
 		registerAllMermaidViews(this);
 	}
 
-	onunload() {
-
-	}
-
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<MermaidBaseViewsSettings>);
 	}

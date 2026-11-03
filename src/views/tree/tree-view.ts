@@ -76,7 +76,7 @@ export class TreeView extends MermaidBasesView {
 	protected async render(): Promise<void> {
 		this.noteRows = [];
 		this.folding.setRows([]);
-		const rootPath = normalizePath(this.getConfigValue<string>("rootFolder"));
+		const rootPath = normalizePath(this.getStringConfig("rootFolder"));
 		const root = !rootPath || rootPath === "/"
 			? this.app.vault.getRoot() : this.app.vault.getFolderByPath(rootPath);
 		if (!root) {
@@ -95,7 +95,7 @@ export class TreeView extends MermaidBasesView {
 		const media = this.getPropertyMedia();
 		const {code, rows, branches} = buildTreeViewCode(roots, {
 			properties: this.data.properties,
-			showPropertyNames: this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key),
+			showPropertyNames: this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key),
 			getDisplayName: (property) => this.config.getDisplayName(property),
 			formatValue: (value, file) => media.format(value, file, " ").text,
 			highlightProperty: this.config.getAsPropertyId("highlightProperty"),
@@ -120,7 +120,7 @@ export class TreeView extends MermaidBasesView {
 		return stringifyYaml({
 			config: {
 				...config,
-				treeView: {...treeView, showIcons: this.getConfigValue<boolean>("showIcons")},
+				treeView: {...treeView, showIcons: this.getBooleanConfig("showIcons")},
 			}
 		});
 	}

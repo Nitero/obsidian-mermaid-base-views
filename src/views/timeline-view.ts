@@ -7,7 +7,16 @@ import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../view-options/inferred-property-type";
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../view-options/common-options";
 
-type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
+const TIME_GRANULARITY_OPTIONS = {
+	year: "Year",
+	month: "Month",
+	day: "Day",
+	hour: "Hour",
+	minute: "Minute",
+	second: "Second",
+};
+
+type TimeGranularity = keyof typeof TIME_GRANULARITY_OPTIONS;
 
 type Period = {
 	label: string;
@@ -47,14 +56,7 @@ export class TimelineView extends MermaidBasesView {
 				displayName: "Cutoff",
 				key: "cutoff",
 				default: "day",
-				options: {
-					"year": "Year",
-					"month": "Month",
-					"day": "Day",
-					"hour": "Hour",
-					"minute": "Minute",
-					"second": "Second"
-				},
+				options: TIME_GRANULARITY_OPTIONS,
 			},
 			...NOTE_LABEL_OPTIONS,
 			{
@@ -69,7 +71,7 @@ export class TimelineView extends MermaidBasesView {
 	protected async render(): Promise<void> {
 		const timePropertyId = this.config.getAsPropertyId("timeProperty");
 
-		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const showPropertyNames = this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 
 		if (!timePropertyId) {
 			this.containerEl.createDiv({text: "Configure a time property in the view settings."});
@@ -78,7 +80,7 @@ export class TimelineView extends MermaidBasesView {
 
 		const title = this.getOptionalTitle();
 
-		const granularity = this.getConfigValue<TimeGranularity>("cutoff");
+		const granularity = this.getDropdownConfig("cutoff", TIME_GRANULARITY_OPTIONS);
 
 		const sections = this.generateSections(timePropertyId, showPropertyNames, granularity);
 

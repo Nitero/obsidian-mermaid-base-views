@@ -23,7 +23,7 @@ function indent(level: number): string {
 interface MindmapRenderContext {
 	visited: Set<string>;
 	filesByPath: Map<string, TFile>;
-	fileToNodeIdsToLabels: Map<string, string>;
+	nodeIdsByPath: Map<string, string>;
 	pathToOutgoingLinks: Map<string, Set<string>>;
 	indegree: Map<string, number>;
 	showPropertyNames: boolean;
@@ -93,16 +93,16 @@ export class MindmapView extends MermaidBasesView {
 
 	protected async render(): Promise<void> {
 		const rootLabel = this.getOptionalTitle("rootLabel");
-		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
-		const linkSource = this.getConfigValue<string>(LINK_OPTIONS.source.key);
-		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(LINK_OPTIONS.showFilteredOutNotes.key);
+		const showPropertyNames = this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const linkSource = this.getDropdownConfig(LINK_OPTIONS.source.key, LINK_OPTIONS.source.options);
+		const showLinksToFilteredOutNotes = this.getBooleanConfig(LINK_OPTIONS.showFilteredOutNotes.key);
 		const linkPropertyName = getPropertyNameFromId(this.config.getAsPropertyId(LINK_OPTIONS.property.key));
 
 		const filesByPath = this.collectBaseFilesByPath();
 		const ctx: MindmapRenderContext = {
 			visited: new Set<string>(),
 			filesByPath: new Map<string, TFile>(filesByPath),
-			fileToNodeIdsToLabels: new Map<string, string>(),
+			nodeIdsByPath: new Map<string, string>(),
 			pathToOutgoingLinks: new Map<string, Set<string>>(),
 			indegree: new Map<string, number>(),
 			showPropertyNames,
@@ -123,7 +123,7 @@ export class MindmapView extends MermaidBasesView {
 		await this.renderMermaid(
 			mermaidCode,
 			this.plugin.settings.mindmapMermaidConfig,
-			ctx.fileToNodeIdsToLabels,
+			ctx.nodeIdsByPath,
 		);
 	}
 
@@ -139,7 +139,7 @@ export class MindmapView extends MermaidBasesView {
 		let idx = 0;
 		for (const path of allPaths) {
 			const id = `n${idx++}`;
-			ctx.fileToNodeIdsToLabels.set(path, id);
+			ctx.nodeIdsByPath.set(path, id);
 		}
 
 		ctx.lines.push("mindmap");
@@ -167,6 +167,10 @@ export class MindmapView extends MermaidBasesView {
 		} else {
 			for (const rootPath of roots)
 				this.renderNode(rootPath, 2, ctx);
+			for (const path of allPaths) {
+				if (!ctx.visited.has(path))
+					this.renderNode(path, 2, ctx);
+			}
 		}
 
 		return ctx.lines.join("\n");
@@ -186,7 +190,7 @@ export class MindmapView extends MermaidBasesView {
 		if (!file)
 			return;
 
-		const nodeId = ctx.fileToNodeIdsToLabels.get(path)!;
+		const nodeId = ctx.nodeIdsByPath.get(path)!;
 		const label = this.getLabelWithProperties(file, ctx.showPropertyNames, "\n", ":", true);
 
 		ctx.lines.push(`${indent(level)}${nodeId}["${escapeMermaidQuotedLabel(label)}"]`);

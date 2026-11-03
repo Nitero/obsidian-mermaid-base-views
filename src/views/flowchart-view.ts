@@ -119,14 +119,14 @@ export class FlowchartView extends MermaidBasesView {
 
 	protected async render(): Promise<void> {
 		const title = this.getOptionalTitle();
-		const direction = this.getConfigValue<string>("direction");
-		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
-		const linkSource = this.getConfigValue<string>(LINK_OPTIONS.source.key);
-		const showLinksToFilteredOutNotes = this.getConfigValue<boolean>(LINK_OPTIONS.showFilteredOutNotes.key);
+		const direction = this.getDropdownConfig("direction", FLOWCHART_DIRECTION_OPTIONS);
+		const showPropertyNames = this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const linkSource = this.getDropdownConfig(LINK_OPTIONS.source.key, LINK_OPTIONS.source.options);
+		const showLinksToFilteredOutNotes = this.getBooleanConfig(LINK_OPTIONS.showFilteredOutNotes.key);
 		const linkPropertyId = this.config.getAsPropertyId(LINK_OPTIONS.property.key);
 		const filesByPath = this.collectBaseFilesByPath();
 		const linkPropertyName = getPropertyNameFromId(linkPropertyId);
-		const showLinkPropertyNames = this.getConfigValue<boolean>("showLinkPropertyNames");
+		const showLinkPropertyNames = this.getBooleanConfig("showLinkPropertyNames");
 
 		const ctx: FlowchartRenderContext = {
 			fileToNodeId: new Map<string, string>(),

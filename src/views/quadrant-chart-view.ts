@@ -1,5 +1,6 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
 import {escapeMermaidQuotedLabel} from "../core/mermaid-text";
+import {parseFiniteNumber} from "../core/numeric-values";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
 import {BasesEntryGroup, BasesPropertyId} from "obsidian";
@@ -151,7 +152,7 @@ export class QuadrantChartView extends MermaidBasesView {
 		const xPropertyId = this.config.getAsPropertyId("xProperty");
 		const yPropertyId = this.config.getAsPropertyId("yProperty");
 
-		const showPropertyNames = this.getConfigValue<boolean>(COMMON_VIEW_OPTIONS.showPropertyNames.key);
+		const showPropertyNames = this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key);
 
 		if (!xPropertyId || !yPropertyId) {
 			this.containerEl.createDiv({text: "Configure numeric X and Y properties in the view settings."});
@@ -226,15 +227,9 @@ export class QuadrantChartView extends MermaidBasesView {
 				continue;
 
 			for (const entry of group.entries) {
-				const xValue = entry.getValue(xPropertyId);
-				const yValue = entry.getValue(yPropertyId);
-
-				if (!xValue || !yValue)
-					continue;
-
-				const xNumber = Number(xValue.toString());
-				const yNumber = Number(yValue.toString());
-				if (!Number.isFinite(xNumber) || !Number.isFinite(yNumber))
+				const xNumber = parseFiniteNumber(entry.getValue(xPropertyId));
+				const yNumber = parseFiniteNumber(entry.getValue(yPropertyId));
+				if (xNumber === null || yNumber === null)
 					continue;
 
 				const label = this.getLabelWithProperties(entry.file, showPropertyNames, ", ", "ː", true);
@@ -261,36 +256,12 @@ export class QuadrantChartView extends MermaidBasesView {
 		minY: number,
 		maxY: number,
 	): { minX: number; maxX: number; minY: number; maxY: number } {
-
-		// Auto range if overrides not set
-		const infinity = Infinity.toString();
-		const minXConfigOverride = this.getConfigValue<string>("xMin", infinity).trim();
-		const maxXConfigOverride = this.getConfigValue<string>("xMax", infinity).trim();
-		const minYConfigOverride = this.getConfigValue<string>("yMin", infinity).trim();
-		const maxYConfigOverride = this.getConfigValue<string>("yMax", infinity).trim();
-
-		if (minXConfigOverride.length > 0) {
-			const value = Number(minXConfigOverride);
-			if (Number.isFinite(value))
-				minX = value;
-		}
-		if (maxXConfigOverride.length > 0) {
-			const value = Number(maxXConfigOverride);
-			if (Number.isFinite(value))
-				maxX = value;
-		}
-		if (minYConfigOverride.length > 0) {
-			const value = Number(minYConfigOverride);
-			if (Number.isFinite(value))
-				minY = value;
-		}
-		if (maxYConfigOverride.length > 0) {
-			const value = Number(maxYConfigOverride);
-			if (Number.isFinite(value))
-				maxY = value;
-		}
-
-		return {minX, maxX, minY, maxY};
+		return {
+			minX: this.getNumberConfig("xMin") ?? minX,
+			maxX: this.getNumberConfig("xMax") ?? maxX,
+			minY: this.getNumberConfig("yMin") ?? minY,
+			maxY: this.getNumberConfig("yMax") ?? maxY,
+		};
 	}
 
 	private normalizePoints(points: Point[], minX: number, maxX: number, minY: number, maxY: number): Point[] {
@@ -315,25 +286,25 @@ export class QuadrantChartView extends MermaidBasesView {
 		const title = this.getOptionalTitle();
 
 		let xAxisLabels: string = "";
-		const xAxisLabelLeft = this.getConfigValue<string>("xAxisLabelLeft", "");
-		const xAxisLabelRight = this.getConfigValue<string>("xAxisLabelRight", "");
+		const xAxisLabelLeft = this.getStringConfig("xAxisLabelLeft", "");
+		const xAxisLabelRight = this.getStringConfig("xAxisLabelRight", "");
 		if (xAxisLabelLeft)
 			xAxisLabels = xAxisLabelLeft;
 		if (xAxisLabelRight && xAxisLabels)
 			xAxisLabels += ` --> ${xAxisLabelRight}`;
 
 		let yAxisLabels: string = "";
-		const yAxisLabelBottom = this.getConfigValue<string>("yAxisLabelBottom", "");
-		const yAxisLabelTop = this.getConfigValue<string>("yAxisLabelTop", "");
+		const yAxisLabelBottom = this.getStringConfig("yAxisLabelBottom", "");
+		const yAxisLabelTop = this.getStringConfig("yAxisLabelTop", "");
 		if (yAxisLabelBottom)
 			yAxisLabels = yAxisLabelBottom;
 		if (yAxisLabelTop && yAxisLabels)
 			yAxisLabels += ` --> ${yAxisLabelTop}`;
 
-		const quadrantLabelTopLeft = this.getConfigValue<string>("quadrantLabelTopLeft", "");
-		const quadrantLabelTopRight = this.getConfigValue<string>("quadrantLabelTopRight", "");
-		const quadrantLabelBottomLeft = this.getConfigValue<string>("quadrantLabelBottomLeft", "");
-		const quadrantLabelBottomRight = this.getConfigValue<string>("quadrantLabelBottomRight", "");
+		const quadrantLabelTopLeft = this.getStringConfig("quadrantLabelTopLeft", "");
+		const quadrantLabelTopRight = this.getStringConfig("quadrantLabelTopRight", "");
+		const quadrantLabelBottomLeft = this.getStringConfig("quadrantLabelBottomLeft", "");
+		const quadrantLabelBottomRight = this.getStringConfig("quadrantLabelBottomRight", "");
 
 		const lines: string[] = [];
 		lines.push("quadrantChart");
