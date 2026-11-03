@@ -1,7 +1,7 @@
 import {App, PluginSettingTab, type SettingDefinition} from "obsidian";
 import MermaidBaseViews from "../main";
-import {DEFAULT_SETTINGS, MermaidBaseViewsSettings} from "./mermaid-vase-views-settings";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
+import {DEFAULT_SETTINGS, MermaidBaseViewsSettings} from "./mermaid-base-views-settings";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 
 export class GeneralSettingTab extends PluginSettingTab {
 	plugin: MermaidBaseViews;
@@ -22,7 +22,9 @@ export class GeneralSettingTab extends PluginSettingTab {
 		return [
 			this.createConfigSetting("Flowchart", "flowchartMermaidConfig", "flowchart"),
 			this.createConfigSetting("Mindmap", "mindmapMermaidConfig", "mindmap"),
+			this.createConfigSetting("Tree view", "treeViewMermaidConfig", "treeView"),
 			this.createConfigSetting("Timeline", "timelineMermaidConfig", "timeline"),
+			this.createConfigSetting("Gantt", "ganttMermaidConfig", "gantt"),
 			this.createConfigSetting("Sankey", "sankeyMermaidConfig", "sankey"),
 			this.createConfigSetting("Pie chart", "pieChartMermaidConfig", "pie"),
 			this.createConfigSetting("XY chart", "XYChartMermaidConfig", "xyChart"),

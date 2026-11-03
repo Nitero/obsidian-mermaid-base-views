@@ -1,23 +1,35 @@
 import {
 	TFile,
 	BasesView,
+	Component,
 	QueryController,
 	MarkdownRenderer,
-	type BasesAllOptions,
+	stringifyYaml,
+	type BasesEntry,
+	type BasesEntryGroup,
+	type BasesViewConfig,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS} from "./constants";
-import {createNoteFileNameLinks} from "../utils/note-link-label";
-import {registerNoteLinkInteractions} from "./note-link-interactions";
-import {createFilteredNoteEntry} from "../utils/filtered-note-properties";
-import {NotePropertyMedia} from "../utils/note-property-media";
+import {COMMON_VIEW_OPTIONS} from "../view-options/common-options";
+import {createNoteFileNameLinks, type NoteLabel} from "../links/note-filename-links";
+import {createGroupNoteLinks} from "../links/group-note-links";
+import {registerNoteLinkInteractions} from "../links/note-link-interactions";
+import {createFilteredNoteEntry} from "../links/filtered-note-entry";
+import {includeFilteredNoteGroups} from "../links/filtered-note-groups";
+import {NotePropertyMedia} from "../media/note-property-media";
+import {parseMermaidConfig} from "./mermaid-config";
+import {findConfigOption, readBooleanConfig, readDropdownConfig, readGroupingProperty, readStringConfig, readStringListConfig} from "./view-config";
+import {parseFiniteNumber} from "../utils/numeric-values";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
 	protected containerEl: HTMLElement;
-	private readonly noteFileNames = new Map<string, string[]>();
+	private readonly entriesByPath = new Map<string, BasesEntry>();
+	private readonly noteLabels = new Map<string, NoteLabel>();
 	private propertyMedia?: NotePropertyMedia;
+	private renderComponent?: Component;
+	private unloaded = false;
 
 	abstract registrationData: MermaidViewRegistrationData;
 
@@ -28,17 +40,43 @@ export abstract class MermaidBasesView extends BasesView {
 		plugin.registerMermaidView(this);
 		registerNoteLinkInteractions(this, this.app, this.containerEl, plugin.manifest.id,
 			() => this.app.workspace.getActiveFile()?.path ?? "");
+		this.register(() => {
+			this.unloaded = true;
+			this.clearRender();
+			this.containerEl.empty();
+		});
 	}
 
 	public onDataUpdated(): void {
-		this.noteFileNames.clear();
+		if (this.unloaded)
+			return;
+		this.clearRender();
+		const component = this.addChild(new Component());
+		this.renderComponent = component;
+		this.entriesByPath.clear();
+		for (const entry of this.data.data) {
+			const path = entry.file.path;
+			if (!this.entriesByPath.has(path))
+				this.entriesByPath.set(path, entry);
+		}
+		this.noteLabels.clear();
 		this.propertyMedia?.clear();
 		this.containerEl.empty();
 		void this.render().catch((error) => {
+			if (this.renderComponent !== component)
+				return;
 			console.error("Failed to render Mermaid", error);
+			this.clearRender();
 			this.containerEl.empty();
 			this.containerEl.createDiv({text: "Error rendering Mermaid. See console for details."});
 		});
+	}
+
+	private clearRender(): void {
+		const component = this.renderComponent;
+		this.renderComponent = undefined;
+		if (component)
+			this.removeChild(component);
 	}
 
 	protected abstract render(): Promise<void>;
@@ -48,40 +86,51 @@ export abstract class MermaidBasesView extends BasesView {
 		viewTypeMermaidConfig: string,
 		noteNodes?: ReadonlyMap<string, string>,
 		title?: string | null,
-	): Promise<void> {
-		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
-		const titleConfig = title == null ? "" : `title: ${JSON.stringify(title)}\n`;
-		const configBlock = `---\n${titleConfig}config:\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
+	): Promise<HTMLElement | null> {
+		const component = this.renderComponent;
+		if (!component)
+			return null;
+		const directive = this.getStringConfig(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
+		const frontmatter = stringifyYaml({
+			...(title == null ? {} : {title}),
+			config: parseMermaidConfig(viewTypeMermaidConfig),
+		});
+		const configBlock = `---\n${frontmatter}---\n${directive}`;
+		mermaidCode = `${configBlock}\n${mermaidCode.trim()}`;
 
-		mermaidCode = mermaidCode.trim();
-		if (configBlock.length > 0)
-			mermaidCode = `${configBlock}\n${mermaidCode}`;
-
-		const markdown: string = `\`\`\`mermaid\n${mermaidCode}\n\`\`\``;
+		let fenceLength = 3;
+		for (const match of mermaidCode.matchAll(/`+/g))
+			fenceLength = Math.max(fenceLength, match[0].length + 1);
+		const fence = "`".repeat(fenceLength);
+		const markdown = `${fence}mermaid\n${mermaidCode}\n${fence}`;
 
 		const sourcePath = this.app.workspace.getActiveFile()?.path ?? "";
+		const container = this.containerEl.createDiv();
 
 		await MarkdownRenderer.render(
 			this.app,
 			markdown,
-			this.containerEl,
+			container,
 			sourcePath,
-			this
+			component
 		);
 
-		this.propertyMedia?.render(this.containerEl);
+		if (this.renderComponent !== component)
+			return null;
+		this.propertyMedia?.render(container);
 		if (noteNodes) {
 			for (const [path, nodeId] of noteNodes) {
-				this.containerEl.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
+				container.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
 					this.markNoteLink(node, path);
 				});
 			}
 		}
 
+		return container;
 	}
 
-	protected markNoteLink(node: Element, path: string, fileNames = this.noteFileNames.get(path) ?? []): void {
-		if (fileNames.length > 0) {
+	protected markNoteLink(node: Element, path: string, label: NoteLabel | null | undefined = this.noteLabels.get(path)): void {
+		if (label && label.fileNameRanges.length > 0) {
 			let labelNode = node;
 			while (!labelNode.matches("text, foreignObject") && !labelNode.querySelector("text, foreignObject")) {
 				const parent = labelNode.parentElement;
@@ -89,7 +138,7 @@ export abstract class MermaidBasesView extends BasesView {
 					break;
 				labelNode = parent;
 			}
-			createNoteFileNameLinks(labelNode, fileNames, path);
+			createNoteFileNameLinks(labelNode, label, path);
 			return;
 		}
 		node.classList.add("bases-mermaid-note-link");
@@ -111,41 +160,70 @@ export abstract class MermaidBasesView extends BasesView {
 		});
 	}
 
-	private trimConfig(config: string): string{
-		const configRegex = new RegExp(`(^[-config:]*)|([-]*$)`, 'g');
-		return config.replaceAll(configRegex, '');
+	protected markGroupNoteLinks(node: Element, group: BasesEntryGroup): void {
+		createGroupNoteLinks(this.app, node, group);
 	}
 
+	protected markOrderedGroupNoteLinks(selector: string, groups: readonly BasesEntryGroup[]): void {
+		const nodes = this.containerEl.querySelectorAll(selector);
+		if (nodes.length !== groups.length)
+			return;
+		nodes.forEach((node, index) => {
+			const group = groups[index];
+			if (group)
+				this.markGroupNoteLinks(node, group);
+		});
+	}
 
 	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string, renderMedia = false): string {
-		if (renderMedia)
-			this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl);
-		const fileNames: string[] = [];
-		this.noteFileNames.set(file.path, fileNames);
+		const media = renderMedia ? this.getPropertyMedia() : null;
+		const fileNameRanges: {start: number; end: number}[] = [];
 		const lines: string[] = [];
-		const entry = this.data.data.find((entry) => entry.file.path === file.path)
-			?? createFilteredNoteEntry(file, this.data.data[0]);
+		let labelLength = 0;
+		const entry = this.getEntry(file);
 		for (const property of this.data.properties) {
 			const propertyValue = entry?.getValue(property);
 			if (!propertyValue)
 				continue;
-			const formatted = renderMedia && this.propertyMedia
-				? this.propertyMedia.format(propertyValue, file, newLine)
+			const formatted = media
+				? media.format(propertyValue, file, newLine)
 				: {text: propertyValue.toString(), block: false};
 			const value = formatted.text;
 			const isFileName = property === "file.name" || property === "file.basename";
-			if (isFileName)
-				fileNames.push(value);
-			lines.push(showPropertyNames && !isFileName
+			if (isFileName && value.length > 0)
+				fileNameRanges.push({start: labelLength, end: labelLength + value.length});
+			const line = showPropertyNames && !isFileName
 				? `${this.config.getDisplayName(property)}${colon}${formatted.block ? newLine : " "}${value}`
-				: value);
+				: value;
+			lines.push(line);
+			labelLength += line.length + newLine.length;
 		}
-		const label = lines.join(newLine);
-		if (label !== "")
-			return label;
-		fileNames.push(file.basename);
-		return file.basename;
+		let text = lines.join(newLine);
+		if (text === "") {
+			text = file.basename;
+			fileNameRanges.push({start: 0, end: text.length});
+		}
+		this.noteLabels.set(file.path, {text, fileNameRanges});
+		return text;
 	};
+
+	private getEntry(file: TFile): BasesEntry | null {
+		const entry = this.entriesByPath.get(file.path)
+			?? createFilteredNoteEntry(file, this.data.data[0]);
+		if (entry)
+			this.entriesByPath.set(file.path, entry);
+		return entry;
+	}
+
+	protected getGroupsWithFilteredNotes(files: Iterable<TFile>): readonly BasesEntryGroup[] {
+		return includeFilteredNoteGroups(
+			this.data.groupedData, files, readGroupingProperty(this.config), (file) => this.getEntry(file),
+		);
+	}
+
+	protected getPropertyMedia(): NotePropertyMedia {
+		return this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl);
+	}
 
 	protected getOptionalTitle(key: string = COMMON_VIEW_OPTIONS.title.key): string | null {
 		const rawValue = this.config.get(key);
@@ -158,103 +236,37 @@ export abstract class MermaidBasesView extends BasesView {
 		return title;
 	}
 
-	protected getConfigValue<T>(key: string, defaultValue?: T): T {
-		if (defaultValue === null || defaultValue === undefined)
-			defaultValue = this.getConfigDefaultValue<T>(key);
-		const rawValue = this.config.get(key);
-
-		if (rawValue === null || rawValue === undefined)
-			return defaultValue;
-
-		if (typeof defaultValue === "string") {
-			const value = rawValue as string;
-			if (value.length > 0)
-				return rawValue as T;
-			return defaultValue;
-		}
-
-		if (typeof defaultValue === "boolean") {
-			if (typeof rawValue === "boolean")
-				return rawValue as unknown as T;
-			return defaultValue;
-		}
-
-		if (Array.isArray(defaultValue)) {
-			if (Array.isArray(rawValue))
-				return rawValue as unknown as T;
-			return defaultValue;
-		}
-
-		return rawValue as T;
+	protected getStringConfig(key: string, defaultValue?: string): string {
+		return readStringConfig(this.config.get(key), defaultValue ?? this.getConfigDefaultValue(key));
 	}
 
-	private getConfigDefaultValue<T>(key: string): T {
-		const options = this.findConfigOptionWithDefault<T>(this.registrationData.getOptions(this.plugin), key);
+	protected getBooleanConfig(key: string, defaultValue?: boolean): boolean {
+		return readBooleanConfig(this.config.get(key), defaultValue ?? this.getConfigDefaultValue(key));
+	}
 
-		if (!options || options.default === undefined)
+	protected getStringListConfig(key: string, defaultValue?: string[]): string[] {
+		return readStringListConfig(this.config.get(key), defaultValue ?? this.getConfigDefaultValue(key));
+	}
+
+	protected getDropdownConfig<Choice extends string>(key: string, choices: Record<Choice, string>): Choice {
+		return readDropdownConfig(this.config.get(key), choices, this.getConfigDefaultValue(key));
+	}
+
+	protected getNumberConfig(key: string): number | null {
+		return parseFiniteNumber(this.getStringConfig(key, ""));
+	}
+
+	private getConfigDefaultValue(key: string): unknown {
+		const option = findConfigOption(this.registrationData.getOptions(), key);
+		if (!option || !("default" in option) || option.default === undefined)
 			throw new Error(`No default configured for key "${key}".`);
-
-		return options.default;
+		return option.default;
 	}
 
-	private findConfigOptionWithDefault<T>(
-		options: BasesAllOptions[],
-		key: string,
-	): { default?: T } | undefined {
-		for (const option of options) {
-			if ("key" in option && option.key === key)
-				return option as { default?: T };
-
-			if (option.type === "group") {
-				const nestedOption = this.findConfigOptionWithDefault<T>(option.items, key);
-				if (nestedOption)
-					return nestedOption;
-			}
-		}
-
-		return undefined;
-	}
-
-	protected collectBaseFilesByPath(): Map<string, TFile> {
-		const fileByPath = new Map<string, TFile>();
-
-		for (const group of this.data.groupedData) {
-			if (!group)
-				continue;
-
-			for (const entry of group.entries) {
-				if (!entry.file)
-					continue;
-
-				if (!fileByPath.has(entry.file.path))
-					fileByPath.set(entry.file.path, entry.file);
-			}
-		}
-
-		return fileByPath;
-	}
-
-	protected shouldShowLinkedTarget(
-		target: TFile,
-		baseFilesByPath: Map<string, TFile>,
-		showLinksToFilteredOutNotes: boolean,
-	): boolean {
-		return showLinksToFilteredOutNotes || baseFilesByPath.has(target.path);
-	}
-
-	protected getLinkedFileIfVisible(
-		linkpath: string,
-		sourcePath: string,
-		baseFilesByPath: Map<string, TFile>,
-		showLinksToFilteredOutNotes: boolean,
-	): TFile | null {
-		const target = this.app.metadataCache.getFirstLinkpathDest(linkpath, sourcePath);
-		if (!target)
-			return null;
-
-		if (!this.shouldShowLinkedTarget(target, baseFilesByPath, showLinksToFilteredOutNotes))
-			return null;
-
-		return target;
+	protected hasGrouping(): boolean {
+		const config = this.config as BasesViewConfig & {groupBy?: unknown};
+		const groups = this.data.groupedData;
+		return config.groupBy != null || config.get("groupBy") != null
+			|| groups.length > 1 || groups.some((group) => group.hasKey());
 	}
 }

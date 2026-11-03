@@ -1,9 +1,10 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
-import {BasesPropertyId} from "obsidian";
+import {escapeCsvField} from "../utils/mermaid-text";
+import {parseFiniteNumber} from "../utils/numeric-values";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
+import {parsePropertyId, type BasesPropertyId} from "obsidian";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
-import MermaidBaseViews from "../main";
-import {COMMON_VIEW_OPTIONS} from "../core/constants";
+import {COMMON_VIEW_OPTIONS} from "../view-options/common-options";
 
 export class SankeyView extends MermaidBasesView {
 	readonly type = SankeyView.RegistrationData.id;
@@ -13,7 +14,7 @@ export class SankeyView extends MermaidBasesView {
 		id: "mermaid-sankey",
 		name: "Sankey",
 		icon: "custom-sankey",//shuffle
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "multitext",//TODO: should use property type to select formulas more easily, but currently there is no way to make a list of them?
 				displayName: "Flows (source name, target name, value property)",
@@ -30,7 +31,7 @@ export class SankeyView extends MermaidBasesView {
 
 	protected async render(): Promise<void> {
 
-		const flowItems = this.getConfigValue<string[]>("flows", []);
+		const flowItems = this.getStringListConfig("flows", []);
 
 		if (flowItems.length < 3) {
 			this.containerEl.createDiv({text: "Add at least one flow triple (source name, target name, value property) in the view settings."});
@@ -70,9 +71,14 @@ export class SankeyView extends MermaidBasesView {
 		const resolvedFlows: ResolvedFlow[] = [];
 
 		for (const flow of flowConfigs) {
-			const propertyId = this.resolvePropertyIdFromUserInput(flow.propertyName);
+			const matches = this.findPropertyMatches(flow.propertyName);
+			const propertyId = matches[0];
 			if (!propertyId) {
 				this.containerEl.createDiv({text: `Sankey view: Could not resolve property from "${flow.propertyName}".`});
+				return;
+			}
+			if (matches.length > 1) {
+				this.containerEl.createDiv({text: `Property "${flow.propertyName}" is ambiguous. Use one of: ${matches.join(", ")}.`});
 				return;
 			}
 
@@ -99,38 +105,18 @@ export class SankeyView extends MermaidBasesView {
 		lines.push("%% source,target,value");
 
 		for (const resolvedFlow of resolvedFlows)
-			lines.push(`${resolvedFlow.source},${resolvedFlow.target},${resolvedFlow.value}`);
+			lines.push(`${escapeCsvField(resolvedFlow.source)},${escapeCsvField(resolvedFlow.target)},${resolvedFlow.value}`);
 
 		const mermaidCode = lines.join("\n");
 		await this.renderMermaid(mermaidCode, this.plugin.settings.sankeyMermaidConfig);
 	}
 
-	private resolvePropertyIdFromUserInput(input: string): BasesPropertyId | null {
-		if (!input)
-			return null;
-
-		// Direct match on full id (e.g. "formula.bar", "file.size", etc)
-		for (const id of this.allProperties) {
-			if (id === input)
-				return id;
-		}
-
-		// Match by bare name (after the first dot)
-		for (const id of this.allProperties) {
-			const dot = id.indexOf(".");
-			const bare = dot >= 0 ? id.substring(dot + 1) : id;
-			if (bare === input)
-				return id;
-		}
-
-		// Match by display name
-		for (const id of this.allProperties) {
-			const displayName = this.config.getDisplayName(id);
-			if (displayName === input)
-				return id;
-		}
-
-		return null;
+	private findPropertyMatches(input: string): BasesPropertyId[] {
+		const exact = this.allProperties.find((id) => id === input);
+		if (exact)
+			return [exact];
+		return this.allProperties.filter((id) =>
+			parsePropertyId(id).name === input || this.config.getDisplayName(id) === input);
 	}
 
 	private aggregateNumericProperty(propertyId: BasesPropertyId): number | null {
@@ -142,23 +128,7 @@ export class SankeyView extends MermaidBasesView {
 
 		for (const group of this.data.groupedData) {
 			for (const entry of group.entries) {
-				const value = entry.getValue(propertyId);
-				if (!value)
-					continue;
-
-				const text = value.toString().trim();
-
-				let number: number | null = null;
-
-				if (text === "true")
-					number = 1;
-				else if (text === "false")
-					number = 0;
-				else {
-					const parsed = Number(text);
-					if (Number.isFinite(parsed))
-						number = parsed;
-				}
+				const number = parseFiniteNumber(entry.getValue(propertyId), true);
 
 				if (number !== null) {
 					sum += number;

@@ -1,9 +1,10 @@
 import {MermaidBasesView} from "../core/mermaid-bases-view";
-import {MERMAID_CONFIG_EXAMPLES} from "../core/mermaid-config-examples";
+import {escapeMermaidQuotedLabel} from "../utils/mermaid-text";
+import {parseFiniteNumber} from "../utils/numeric-values";
+import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
-import MermaidBaseViews from "../main";
-import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
-import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER} from "../core/constants";
+import {createPropertyTypeFilter} from "../view-options/property-filters";
+import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER} from "../view-options/common-options";
 
 export class PieChartView extends MermaidBasesView {
 	readonly type = PieChartView.RegistrationData.id;
@@ -13,7 +14,7 @@ export class PieChartView extends MermaidBasesView {
 		id: "mermaid-pie-chart",
 		name: "Pie Chart",
 		icon: "pie-chart",
-		getOptions: (plugin: MermaidBaseViews) => [
+		getOptions: () => [
 			{
 				type: "text",
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
@@ -31,7 +32,7 @@ export class PieChartView extends MermaidBasesView {
 				displayName: "Value property (optional)",
 				key: "valueProperty",
 				placeholder: FILE_SIZE_PLACEHOLDER,
-				filter: plugin.propertyTypes.createFilter(InferredPropertyType.Number),
+				filter: createPropertyTypeFilter("number"),
 			},
 			{
 				type: "toggle",
@@ -52,7 +53,7 @@ export class PieChartView extends MermaidBasesView {
 		const categoryPropertyId = this.config.getAsPropertyId("categoryProperty");
 		const valuePropertyId = this.config.getAsPropertyId("valueProperty");
 		const title = this.getOptionalTitle();
-		const showDataLabel = this.getConfigValue<boolean>("showDataLabel");
+		const showDataLabel = this.getBooleanConfig("showDataLabel");
 
 		if (!categoryPropertyId) {
 			this.containerEl.createDiv({text: "Configure a category property in the view settings."});
@@ -71,15 +72,9 @@ export class PieChartView extends MermaidBasesView {
 				if (!label)
 					continue;
 
-				let amount = 1;
-				if (valuePropertyId) {
-					const value = entry.getValue(valuePropertyId);
-					if (value != null) {
-						const number = Number(value.toString());
-						if (!Number.isNaN(number))
-							amount = number;
-					}
-				}
+				const amount = valuePropertyId
+					? parseFiniteNumber(entry.getValue(valuePropertyId)) ?? 1
+					: 1;
 
 				categoryTotals.set(label, (categoryTotals.get(label) ?? 0) + amount);
 			}
@@ -92,7 +87,7 @@ export class PieChartView extends MermaidBasesView {
 
 		const lines = [`pie${showDataLabel ? " showData" : ""}${title !== null ? ` title ${title}` : ""}`];
 		for (const [label, amount] of categoryTotals)
-			lines.push(`    "${label}" : ${amount}`);
+			lines.push(`    "${escapeMermaidQuotedLabel(label)}" : ${amount}`);
 
 		const mermaidCode = lines.join("\n");
 

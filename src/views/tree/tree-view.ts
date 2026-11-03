@@ -1,0 +1,183 @@
+import {
+	normalizePath, stringifyYaml, type QueryController,
+} from "obsidian";
+import MermaidBaseViews from "../../main";
+import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
+import {MermaidBasesView} from "../../core/mermaid-bases-view";
+import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
+import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
+import {buildFolderTree, buildGroupedTree} from "./tree-hierarchy";
+import {buildTreeViewCode, type TreeViewBranchRow, type TreeViewNoteRow} from "./tree-builder";
+import {registerRenderObservers} from "../../ui/render-observers";
+import {TreeViewFoldState} from "./tree-fold-state";
+import {TreeViewFolding} from "./tree-folding";
+import {createPropertySourceFilter, createPropertyTypeFilter} from "../../view-options/property-filters";
+import {createNoteMedia} from "../../media/note-media-renderer";
+import {isRecord, parseMermaidConfig} from "../../core/mermaid-config";
+
+export class TreeView extends MermaidBasesView {
+	readonly type = TreeView.RegistrationData.id;
+	readonly registrationData = TreeView.RegistrationData;
+	private noteRows: readonly TreeViewNoteRow[] = [];
+	private branchRows: readonly TreeViewBranchRow[] = [];
+	private readonly foldState: TreeViewFoldState;
+	private readonly folding: TreeViewFolding;
+
+	static readonly RegistrationData: MermaidViewRegistrationData = {
+		id: "mermaid-tree-view",
+		name: "Tree view",
+		icon: "list-tree",
+		getOptions: () => [
+			{type: "text", ...COMMON_VIEW_OPTIONS.title},
+			{
+				type: "folder",
+				displayName: "Root folder (optional)",
+				key: "rootFolder",
+				default: "",
+				placeholder: "Vault root",
+			},
+			{
+				type: "property",
+				...COMMON_VIEW_OPTIONS.iconProperty,
+				filter: createPropertyTypeFilter("string", "list"),
+			},
+			{
+				type: "property",
+				displayName: "Highlight property (optional)",
+				key: "highlightProperty",
+				placeholder: "Boolean property or formula",
+				filter: createPropertySourceFilter("note", "formula"),
+			},
+			{
+				type: "toggle",
+				displayName: "Show file/folder icons",
+				key: "showIcons",
+				default: false,
+			},
+			...NOTE_LABEL_OPTIONS,
+			{
+				type: "text",
+				displayName: COMMON_VIEW_OPTIONS.mermaidConfigOverride.displayName,
+				key: COMMON_VIEW_OPTIONS.mermaidConfigOverride.key,
+				placeholder: MERMAID_CONFIG_EXAMPLES.treeView.directive,
+			},
+		],
+	};
+
+	constructor(controller: QueryController, parentEl: HTMLElement, plugin: MermaidBaseViews) {
+		super(controller, parentEl, plugin);
+		this.foldState = new TreeViewFoldState(controller);
+		this.folding = new TreeViewFolding(this, this.containerEl, (branch) => {
+			this.foldState.toggle(branch);
+			this.onDataUpdated();
+		});
+		registerRenderObservers(this, this.containerEl, () => this.enhanceDiagram());
+	}
+
+	protected async render(): Promise<void> {
+		this.noteRows = [];
+		this.branchRows = [];
+		this.folding.setRows([]);
+		const rootPath = normalizePath(this.getStringConfig("rootFolder"));
+		const root = !rootPath || rootPath === "/"
+			? this.app.vault.getRoot() : this.app.vault.getFolderByPath(rootPath);
+		if (!root) {
+			this.containerEl.createDiv({text: "Root folder not found. Select an existing folder in the view settings."});
+			return;
+		}
+		const groups = this.data.groupedData;
+		const hasGrouping = this.hasGrouping();
+		const roots = hasGrouping
+			? buildGroupedTree(groups, root)
+			: [buildFolderTree(this.data.data, root, this.app.vault.getName())];
+		if (!roots.some((branch) => branch.children.length > 0)) {
+			this.containerEl.createDiv({text: "No files found in this base within the root folder."});
+			return;
+		}
+		const media = this.getPropertyMedia();
+		const {code, rows, branches} = buildTreeViewCode(roots, {
+			properties: this.data.properties,
+			showPropertyNames: this.getBooleanConfig(COMMON_VIEW_OPTIONS.showPropertyNames.key),
+			getDisplayName: (property) => this.config.getDisplayName(property),
+			formatValue: (value, file) => media.format(value, file, " ").text,
+			highlightProperty: this.config.getAsPropertyId("highlightProperty"),
+			iconProperty: this.config.getAsPropertyId(COMMON_VIEW_OPTIONS.iconProperty.key),
+			isCollapsed: (branch) => this.foldState.isCollapsed(branch),
+		});
+		this.noteRows = rows;
+		this.branchRows = branches;
+		this.folding.setRows(branches);
+		const target = await this.renderMermaid(code, this.getMermaidConfig(), undefined, this.getOptionalTitle());
+		if (target?.parentElement === this.containerEl)
+			this.enhanceDiagram();
+	}
+
+	private enhanceDiagram(): void {
+		this.hookUpNoteLinks();
+		this.folding.render();
+		const nodes = this.containerEl.querySelectorAll(".pele-tree-dir");
+		if (nodes.length !== this.branchRows.length)
+			return;
+		nodes.forEach((node, index) => {
+			const group = this.branchRows[index]?.branch.group;
+			if (group)
+				this.markGroupNoteLinks(node, group);
+		});
+	}
+
+	private getMermaidConfig(): string {
+		const config = parseMermaidConfig(this.plugin.settings.treeViewMermaidConfig);
+		const treeView = isRecord(config.treeView) ? config.treeView : {};
+		return stringifyYaml({
+			config: {
+				...config,
+				treeView: {...treeView, showIcons: this.getBooleanConfig("showIcons")},
+			}
+		});
+	}
+
+	private hookUpNoteLinks(): void {
+		const nodes = this.containerEl.querySelectorAll(".pele-tree-file");
+		if (nodes.length !== this.noteRows.length)
+			return;
+		nodes.forEach((node, index) => {
+			const row = this.noteRows[index];
+			if (!row)
+				return;
+			this.renderIcon(node, row);
+			const labels = Array.from(node.children).filter((child) => child.classList.contains("pele-label"));
+			const firstLabel = labels[0];
+			if (!firstLabel)
+				return;
+			const link = createSvg("a", {
+				attr: {href: row.path, "aria-label": row.label},
+			});
+			link.classList.add("bases-mermaid-file-name", "bases-mermaid-file-name-link");
+			this.markNoteLink(link, row.path, null);
+			node.insertBefore(link, firstLabel);
+			for (const label of labels)
+				link.appendChild(label);
+		});
+	}
+
+	private renderIcon(node: Element, row: TreeViewNoteRow): void {
+		if (!row.media)
+			return;
+		const icon = node.querySelector<SVGSVGElement>(":scope > .pele-icon");
+		if (!icon || icon.classList.contains("bases-mermaid-tree-icon"))
+			return;
+		const media = createNoteMedia(this.app, row.media, row.path);
+		if (!media)
+			return;
+		media.classList.remove("svg-icon");
+		media.classList.add("pele-icon", "bases-mermaid-tree-icon");
+		for (const attribute of ["x", "y", "width", "height"])
+			media.setAttribute(attribute, icon.getAttribute(attribute) ?? "0");
+		media.setAttribute("preserveAspectRatio", "xMidYMid meet");
+		if (row.media.type === "icon") {
+			this.markNoteLink(media, row.path, null);
+			media.setAttribute("aria-label", row.label);
+		}
+		icon.replaceWith(media);
+	}
+}

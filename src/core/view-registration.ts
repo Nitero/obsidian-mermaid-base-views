@@ -2,24 +2,28 @@ import {QueryController} from "obsidian";
 import {MermaidBasesView} from "./mermaid-bases-view";
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
-import {FlowchartView} from "../views/flowchart-view";
-import {MindmapView} from "../views/mindmap-view";
-import {TimelineView} from "../views/timeline-view";
+import {FlowchartView} from "../views/flowchart/flowchart-view";
+import {MindmapView} from "../views/mindmap/mindmap-view";
+import {TreeView} from "../views/tree/tree-view";
+import {TimelineView} from "../views/timeline/timeline-view";
+import {GanttView} from "../views/gantt/gantt-view";
 import {SankeyView} from "../views/sankey-view";
-import {RadarChartView} from "../views/radar-chart-view";
+import {RadarChartView} from "../views/radar-chart/radar-chart-view";
 import {PieChartView} from "../views/pie-chart-view";
 import {XYChartView} from "../views/xy-chart-view";
-import {QuadrantChartView} from "../views/quadrant-chart-view";
+import {QuadrantChartView} from "../views/quadrant-chart/quadrant-chart-view";
 
 export function registerAllMermaidViews(plugin: MermaidBaseViews): void {
 	registerMermaidView(plugin, FlowchartView, FlowchartView.RegistrationData);
 	registerMermaidView(plugin, MindmapView, MindmapView.RegistrationData);
+	registerMermaidView(plugin, TreeView, TreeView.RegistrationData);
 	registerMermaidView(plugin, TimelineView, TimelineView.RegistrationData);
-	registerMermaidView(plugin, SankeyView, SankeyView.RegistrationData);
-	registerMermaidView(plugin, RadarChartView, RadarChartView.RegistrationData);
-	registerMermaidView(plugin, PieChartView, PieChartView.RegistrationData);
+	registerMermaidView(plugin, GanttView, GanttView.RegistrationData);
 	registerMermaidView(plugin, XYChartView, XYChartView.RegistrationData);
 	registerMermaidView(plugin, QuadrantChartView, QuadrantChartView.RegistrationData);
+	registerMermaidView(plugin, RadarChartView, RadarChartView.RegistrationData);
+	registerMermaidView(plugin, PieChartView, PieChartView.RegistrationData);
+	registerMermaidView(plugin, SankeyView, SankeyView.RegistrationData);
 }
 
 export function registerMermaidView(
@@ -32,6 +36,6 @@ export function registerMermaidView(
 		icon: registrationData.icon,
 		factory: (controller, containerEl) =>
 			new View(controller, containerEl, plugin),
-		options: () => registrationData.getOptions(plugin),
+		options: registrationData.getOptions,
 	});
 }
