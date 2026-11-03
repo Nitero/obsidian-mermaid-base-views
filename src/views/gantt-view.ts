@@ -5,7 +5,13 @@ import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-dat
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../core/constants";
 import MermaidBaseViews from "../main";
 import {InferredPropertyType} from "../propertyTypes/inferred-property-type";
-import {buildGanttCode, type GanttData, type GanttSection, hasGanttMarkerMedia, parseGanttBarColors} from "../utils/gantt";
+import {
+	buildGanttCode,
+	type GanttData,
+	type GanttSection,
+	hasGanttMarkerMedia,
+	parseGanttBarColors
+} from "../utils/gantt";
 import {GanttMarkerMedia} from "../utils/gantt-marker-media";
 import {isMissingGanttValue, parseGanttDate, parseGanttDuration} from "../utils/gantt-values";
 import {parseNoteIcon} from "../utils/note-media";
@@ -201,7 +207,12 @@ export class GanttView extends MermaidBasesView {
 					continue;
 				const label = this.getLabelWithProperties(entry.file, showPropertyNames, "<br>", "ː", true);
 				if (verticalMarkerDate)
-					data.markers.push({id: `vert${data.markers.length}`, label, path: entry.file.path, date: verticalMarkerDate});
+					data.markers.push({
+						id: `vert${data.markers.length}`,
+						label,
+						path: entry.file.path,
+						date: verticalMarkerDate
+					});
 				if (!start)
 					continue;
 				const endValue = endProperty ? entry.getValue(endProperty) : null;

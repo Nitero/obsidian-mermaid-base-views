@@ -11,7 +11,7 @@ type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
 type Period = {
 	label: string;
 	date: Date;
-	events: {label: string; path: string}[];
+	events: { label: string; path: string }[];
 };
 
 type Section = {

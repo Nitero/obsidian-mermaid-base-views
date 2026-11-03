@@ -1,6 +1,6 @@
 import {type App, IconValue, ImageValue, ListValue, StringValue, type Value, getIcon} from "obsidian";
 
-export type NoteMedia = {type: "icon"; name: string} | {type: "image"; link: string};
+export type NoteMedia = { type: "icon"; name: string } | { type: "image"; link: string };
 
 export function getNotePropertyMedia(value: Value): NoteMedia | null {
 	if (value instanceof IconValue)
@@ -54,12 +54,14 @@ export function createNoteMedia(app: App, media: NoteMedia, sourcePath: string):
 	const imageFile = app.metadataCache.getFirstLinkpathDest(path, sourcePath);
 	if (!imageFile || !/^(png|jpe?g|gif|webp|svg|avif|bmp|ico|apng)$/i.test(imageFile.extension))
 		return null;
-	return createSvg("image", {cls: "bases-mermaid-property-image", attr: {
-		href: app.vault.getResourcePath(imageFile),
-		"preserveAspectRatio": "xMidYMid meet",
-		"aria-label": `Open image: ${imageFile.basename}`,
-		"data-image-path": imageFile.path,
-		tabindex: "0",
-		role: "button",
-	}});
+	return createSvg("image", {
+		cls: "bases-mermaid-property-image", attr: {
+			href: app.vault.getResourcePath(imageFile),
+			"preserveAspectRatio": "xMidYMid meet",
+			"aria-label": `Open image: ${imageFile.basename}`,
+			"data-image-path": imageFile.path,
+			tabindex: "0",
+			role: "button",
+		}
+	});
 }

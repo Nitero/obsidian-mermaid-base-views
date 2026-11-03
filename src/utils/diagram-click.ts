@@ -5,7 +5,7 @@ export function registerDiagramClick(
 	container: HTMLElement,
 	onClick: (event: MouseEvent, target: EventTarget | null) => void,
 ): void {
-	let pointer: {id: number; target: EventTarget | null; x: number; y: number; distance: number} | undefined;
+	let pointer: { id: number; target: EventTarget | null; x: number; y: number; distance: number } | undefined;
 	const updatePointer = (event: PointerEvent): void => {
 		if (!pointer || pointer.id !== event.pointerId)
 			return;

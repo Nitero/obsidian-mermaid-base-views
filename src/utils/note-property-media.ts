@@ -20,7 +20,7 @@ export class NotePropertyMedia {
 		this.media.clear();
 	}
 
-	format(value: Value, file: TFile, newLine: string): {text: string; block: boolean} {
+	format(value: Value, file: TFile, newLine: string): { text: string; block: boolean } {
 		const media = getNotePropertyMedia(value);
 		const element = media ? createNoteMedia(this.app, media, file.path) : null;
 		if (!element || this.media.size >= MEDIA_MARKER_COUNT)

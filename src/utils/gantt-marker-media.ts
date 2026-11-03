@@ -4,7 +4,7 @@ import {createNoteMedia, type NoteMedia} from "./note-media";
 import {registerRenderObservers} from "./render-observers";
 
 export class GanttMarkerMedia {
-	private readonly mediaByTaskId = new Map<string, {media: NoteMedia; path: string}>();
+	private readonly mediaByTaskId = new Map<string, { media: NoteMedia; path: string }>();
 
 	constructor(
 		component: Component,

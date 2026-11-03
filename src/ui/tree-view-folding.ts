@@ -132,7 +132,13 @@ export class TreeViewFolding {
 			icon.classList.remove("svg-icon");
 			icon.setAttribute("width", String(FOLD_ICON_SIZE));
 			icon.setAttribute("height", String(FOLD_ICON_SIZE));
-			control.appendChild(createSvg("rect", {attr: {width: FOLD_ICON_SIZE, height: FOLD_ICON_SIZE, fill: "transparent"}}));
+			control.appendChild(createSvg("rect", {
+				attr: {
+					width: FOLD_ICON_SIZE,
+					height: FOLD_ICON_SIZE,
+					fill: "transparent"
+				}
+			}));
 			control.appendChild(icon);
 			node.appendChild(control);
 		}

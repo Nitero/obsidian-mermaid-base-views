@@ -112,11 +112,10 @@ export abstract class MermaidBasesView extends BasesView {
 		});
 	}
 
-	private trimConfig(config: string): string{
+	private trimConfig(config: string): string {
 		const configRegex = new RegExp(`(^[-config:]*)|([-]*$)`, 'g');
 		return config.replaceAll(configRegex, '');
 	}
-
 
 	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string, renderMedia = false): string {
 		const media = renderMedia ? this.getPropertyMedia() : null;

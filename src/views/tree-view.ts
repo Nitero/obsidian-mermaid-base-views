@@ -91,7 +91,7 @@ export class TreeView extends MermaidBasesView {
 			return;
 		}
 		const groups = this.data.groupedData;
-		const nativeConfig = this.config as BasesViewConfig & {groupBy?: unknown};
+		const nativeConfig = this.config as BasesViewConfig & { groupBy?: unknown };
 		const hasGrouping = nativeConfig.groupBy != null;
 		const roots = hasGrouping
 			? buildGroupedTree(groups, root)
@@ -131,10 +131,12 @@ export class TreeView extends MermaidBasesView {
 		const frontmatter: unknown = parseYaml(this.plugin.settings.treeViewMermaidConfig);
 		const config = isRecord(frontmatter) && isRecord(frontmatter.config) ? frontmatter.config : {};
 		const treeView = isRecord(config.treeView) ? config.treeView : {};
-		return stringifyYaml({config: {
-			...config,
-			treeView: {...treeView, showIcons: this.getConfigValue<boolean>("showIcons")},
-		}});
+		return stringifyYaml({
+			config: {
+				...config,
+				treeView: {...treeView, showIcons: this.getConfigValue<boolean>("showIcons")},
+			}
+		});
 	}
 
 	private hookUpNoteLinks(): void {

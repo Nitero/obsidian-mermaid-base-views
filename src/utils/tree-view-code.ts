@@ -57,7 +57,7 @@ function getDescription(entry: BasesEntry, options: TreeViewLabelOptions): strin
 
 export function buildTreeViewCode(
 	roots: readonly TreeViewNode[], options: TreeViewLabelOptions,
-): {code: string; rows: TreeViewNoteRow[]; branches: TreeViewBranchRow[]} {
+): { code: string; rows: TreeViewNoteRow[]; branches: TreeViewBranchRow[] } {
 	const lines = ["treeView-beta"];
 	const rows: TreeViewNoteRow[] = [];
 	const branches: TreeViewBranchRow[] = [];

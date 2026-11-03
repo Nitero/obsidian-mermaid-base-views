@@ -58,18 +58,23 @@ export function isZeroLengthGanttTask(task: Pick<GanttTask, "start" | "end" | "d
 
 export function hasGanttMarkerMedia(
 	task: GanttTask,
-): task is GanttTask & {icon: NoteMedia} {
+): task is GanttTask & { icon: NoteMedia } {
 	return isZeroLengthGanttTask(task) && task.icon !== null;
 }
 
 export function escapeGanttLabel(label: string): string {
 	return label.replace(/[&:#;\r\n]/g, (character) => {
 		switch (character) {
-			case "&": return "#38;";
-			case ":": return "#58;";
-			case "#": return "#35;";
-			case ";": return "#59;";
-			default: return " ";
+			case "&":
+				return "#38;";
+			case ":":
+				return "#58;";
+			case "#":
+				return "#35;";
+			case ";":
+				return "#59;";
+			default:
+				return " ";
 		}
 	});
 }

@@ -21,7 +21,10 @@ export function createNoteFileNameLinks(node: Element, fileNames: readonly strin
 			const compactStart = compactContent.indexOf(compactName);
 			if (compactStart < 0 || compactName.length === 0)
 				return [];
-			return [{start: characterOffsets[compactStart]!, end: characterOffsets[compactStart + compactName.length - 1]! + 1}];
+			return [{
+				start: characterOffsets[compactStart]!,
+				end: characterOffsets[compactStart + compactName.length - 1]! + 1
+			}];
 		});
 		const walker = document.createTreeWalker(label, 4);
 		const textNodes: Text[] = [];

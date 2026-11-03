@@ -2,12 +2,12 @@ import {App, Component, MarkdownPreviewRenderer} from "obsidian";
 import {registerDiagramClick} from "../utils/diagram-click";
 
 type MediaClickHandler = (
-	this: {sections: {el: HTMLElement}[]},
+	this: { sections: { el: HTMLElement }[] },
 	event: MouseEvent | KeyboardEvent,
 	image: HTMLImageElement,
 ) => void;
 
-type NativeMediaPreview = {handleMediaClick?: MediaClickHandler};
+type NativeMediaPreview = { handleMediaClick?: MediaClickHandler };
 
 export function registerImagePreviewInteractions(component: Component, app: App, container: HTMLElement): void {
 	const openPreview = (event: MouseEvent | KeyboardEvent, originalTarget: EventTarget | null = event.target): void => {
@@ -28,11 +28,13 @@ export function registerImagePreviewInteractions(component: Component, app: App,
 			return;
 		}
 		const gallery = createDiv();
-		const thumbnail = gallery.createEl("img", {attr: {
-			src: app.vault.getResourcePath(file),
-			alt: file.basename,
-			title: file.name,
-		}});
+		const thumbnail = gallery.createEl("img", {
+			attr: {
+				src: app.vault.getResourcePath(file),
+				alt: file.basename,
+				title: file.name,
+			}
+		});
 		thumbnail.getBoundingClientRect = () => image.getBoundingClientRect();
 		thumbnail.focus = () => (image as SVGElement).focus();
 		handler.call({sections: [{el: gallery}]}, event, thumbnail);
