@@ -1,6 +1,7 @@
 import {type BasesEntryGroup} from "obsidian";
 import {escapeMermaidQuotedLabel} from "../../utils/mermaid-text";
 import {type FlowchartEdge, type FlowchartGraph} from "./flowchart-graph";
+import {getGroupLabel} from "../../links/group-label";
 
 export function buildFlowchartCode(
 	groups: readonly BasesEntryGroup[],
@@ -22,7 +23,7 @@ export function buildFlowchartCode(
 			if (!group)
 				continue;
 
-			const groupLabel = getGroupLabel(group, groupIndex, hasGroupingConfigured);
+			const groupLabel = getGroupLabel(group, `No value (${groupIndex + 1})`);
 			const groupId = `g${groupIndex}`;
 
 			lines.push(`    subgraph ${groupId}["${escapeMermaidQuotedLabel(groupLabel)}"]`);
@@ -62,15 +63,4 @@ function formatEdgeForMermaid(edge: FlowchartEdge): string {
 	if (edge.label && edge.label.trim().length > 0)
 		return `${edge.from}-->|${edge.label}|${edge.to}`;
 	return `${edge.from}-->${edge.to}`;
-}
-
-function getGroupLabel(group: BasesEntryGroup, index: number, hasGroupingConfigured: boolean): string {
-	if (group.hasKey()) {
-		const groupKey = group.key?.toString() ?? "";
-		if (groupKey && groupKey.trim().length > 0)
-			return groupKey;
-	}
-	return hasGroupingConfigured
-		? `No value (${index + 1})`
-		: `Group ${index + 1}`;
 }

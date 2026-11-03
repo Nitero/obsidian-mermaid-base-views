@@ -15,6 +15,7 @@ import {
 import {GanttMarkerMedia} from "./gantt-marker-media";
 import {isMissingGanttValue, parseGanttDate, parseGanttDuration} from "./gantt-values";
 import {parseNoteIcon} from "../../media/note-media";
+import {getGroupLabel} from "../../links/group-label";
 
 const TICK_INTERVAL_OPTIONS: Record<string, string> = {
 	auto: "Automatic",
@@ -178,6 +179,8 @@ export class GanttView extends MermaidBasesView {
 			return;
 		this.markerMedia?.render();
 		this.hookUpNoteLinks(data);
+		if (this.hasGrouping())
+			this.markOrderedGroupNoteLinks(".pele-section-label", data.sections.map((section) => section.group));
 	}
 
 	private generateData(
@@ -197,7 +200,8 @@ export class GanttView extends MermaidBasesView {
 		let taskIndex = 0;
 		for (const group of groups) {
 			const section: GanttSection = {
-				label: hasGrouping ? (group.hasKey() ? group.key?.toString().trim() : "") || "No value" : null,
+				label: hasGrouping ? getGroupLabel(group) : null,
+				group,
 				tasks: [],
 			};
 			for (const entry of group.entries) {

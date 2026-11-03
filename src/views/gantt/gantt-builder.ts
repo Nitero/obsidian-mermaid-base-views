@@ -1,4 +1,4 @@
-import {ListValue, StringValue, moment, type Value} from "obsidian";
+import {ListValue, StringValue, moment, type BasesEntryGroup, type Value} from "obsidian";
 import {type NoteMedia} from "../../media/note-media";
 
 const GANTT_BAR_COLORS = ["active", "done", "crit"] as const;
@@ -18,6 +18,7 @@ export type GanttTask = {
 
 export type GanttSection = {
 	label: string | null;
+	group: BasesEntryGroup;
 	tasks: GanttTask[];
 };
 

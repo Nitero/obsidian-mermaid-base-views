@@ -6,12 +6,14 @@ import {
 	MarkdownRenderer,
 	stringifyYaml,
 	type BasesEntry,
+	type BasesEntryGroup,
 	type BasesViewConfig,
 } from "obsidian";
 import {MermaidViewRegistrationData} from "./mermaid-view-registration-data";
 import MermaidBaseViews from "../main";
 import {COMMON_VIEW_OPTIONS} from "../view-options/common-options";
 import {createNoteFileNameLinks} from "../links/note-filename-links";
+import {createGroupNoteLinks} from "../links/group-note-links";
 import {registerNoteLinkInteractions} from "../links/note-link-interactions";
 import {createFilteredNoteEntry} from "../links/filtered-note-entry";
 import {NotePropertyMedia} from "../media/note-property-media";
@@ -154,6 +156,21 @@ export abstract class MermaidBasesView extends BasesView {
 			const path = paths[index];
 			if (path !== undefined)
 				this.markNoteLink(node, path);
+		});
+	}
+
+	protected markGroupNoteLinks(node: Element, group: BasesEntryGroup): void {
+		createGroupNoteLinks(this.app, node, group);
+	}
+
+	protected markOrderedGroupNoteLinks(selector: string, groups: readonly BasesEntryGroup[]): void {
+		const nodes = this.containerEl.querySelectorAll(selector);
+		if (nodes.length !== groups.length)
+			return;
+		nodes.forEach((node, index) => {
+			const group = groups[index];
+			if (group)
+				this.markGroupNoteLinks(node, group);
 		});
 	}
 

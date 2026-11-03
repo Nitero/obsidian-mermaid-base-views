@@ -15,8 +15,9 @@
 	text-decoration: var(--link-decoration, underline);
 }
 
-.bases-mermaid-view-container :is(text, foreignObject):has(.bases-mermaid-file-name-link:is(:hover, :focus-visible)) .bases-mermaid-file-name-link,
-.bases-mermaid-view-container a.bases-mermaid-file-name-link:is(:hover, :focus-visible) {
+.bases-mermaid-view-container :is(text, foreignObject):has(.bases-mermaid-file-name-link:not(.bases-mermaid-group-note-link):is(:hover, :focus-visible)) .bases-mermaid-file-name-link:not(.bases-mermaid-group-note-link),
+.bases-mermaid-view-container a.bases-mermaid-file-name-link:is(:hover, :focus-visible),
+.bases-mermaid-view-container a.bases-mermaid-group-note-link:is(.is-hovered, .is-focused) {
 	fill: var(--link-color-hover);
 	color: var(--link-color-hover);
 	text-decoration: var(--link-decoration-hover, underline);

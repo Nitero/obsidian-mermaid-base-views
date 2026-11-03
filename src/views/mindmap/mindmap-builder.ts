@@ -1,6 +1,7 @@
 import {type BasesEntryGroup, type CachedMetadata, type TFile} from "obsidian";
 import {escapeMermaidQuotedLabel} from "../../utils/mermaid-text";
 import {getBodyLinksForSource, getFrontmatterLinksForSource} from "../../links/note-links";
+import {getGroupLabel} from "../../links/group-label";
 
 interface MindmapOptions {
 	rootLabel: string | null;
@@ -78,7 +79,7 @@ export function buildMindmapCode(
 		for (const [groupIndex, group] of groups.entries()) {
 			if (group.entries.length === 0)
 				continue;
-			const label = (group.hasKey() ? group.key?.toString().trim() : "") || `No value (${groupIndex + 1})`;
+			const label = getGroupLabel(group, `No value (${groupIndex + 1})`);
 			const safeLabel = escapeMermaidQuotedLabel(label.replace(/[\r\n]/g, " "));
 			lines.push(`    g${groupIndex}["${safeLabel}"]`);
 			for (const entry of group.entries)

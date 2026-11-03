@@ -110,6 +110,13 @@ export class FlowchartView extends MermaidBasesView {
 			return;
 		}
 		const code = buildFlowchartCode(this.data.groupedData, graph, direction, this.hasGrouping());
-		await this.renderMermaid(code, this.plugin.settings.flowchartMermaidConfig, graph.fileToNodeId, title);
+		const target = await this.renderMermaid(code, this.plugin.settings.flowchartMermaidConfig, graph.fileToNodeId, title);
+		if (target?.parentElement !== this.containerEl || !this.hasGrouping())
+			return;
+		for (const [groupIndex, group] of this.data.groupedData.entries()) {
+			target.querySelectorAll(`.pele-cluster[data-id="g${groupIndex}"] > .pele-cluster-label, .pele-cluster-title[data-id="g${groupIndex}"]`).forEach((node) => {
+				this.markGroupNoteLinks(node, group);
+			});
+		}
 	}
 }

@@ -1,5 +1,6 @@
 import {type BasesEntryGroup, type BasesPropertyId, type TFile} from "obsidian";
 import {escapeTimelineLabel} from "../../utils/mermaid-text";
+import {getGroupLabel} from "../../links/group-label";
 
 export type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
 
@@ -11,6 +12,7 @@ type TimelinePeriod = {
 
 export type TimelineSection = {
 	label: string | null;
+	group: BasesEntryGroup;
 	periods: TimelinePeriod[];
 };
 
@@ -54,7 +56,8 @@ export function collectTimelineSections(
 		}
 		if (periods.size > 0) {
 			sections.push({
-				label: hasGrouping ? (group.hasKey() ? group.key?.toString().trim() : "") || "No value" : null,
+				label: hasGrouping ? getGroupLabel(group) : null,
+				group,
 				periods: Array.from(periods.values()).sort(
 					(first, second) => first.date.getTime() - second.date.getTime(),
 				),

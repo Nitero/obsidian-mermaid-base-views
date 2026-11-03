@@ -7,7 +7,7 @@ import {MermaidBasesView} from "../../core/mermaid-bases-view";
 import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
 import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
 import {buildFolderTree, buildGroupedTree} from "./tree-hierarchy";
-import {buildTreeViewCode, type TreeViewNoteRow} from "./tree-builder";
+import {buildTreeViewCode, type TreeViewBranchRow, type TreeViewNoteRow} from "./tree-builder";
 import {registerRenderObservers} from "../../ui/render-observers";
 import {TreeViewFoldState} from "./tree-fold-state";
 import {TreeViewFolding} from "./tree-folding";
@@ -19,6 +19,7 @@ export class TreeView extends MermaidBasesView {
 	readonly type = TreeView.RegistrationData.id;
 	readonly registrationData = TreeView.RegistrationData;
 	private noteRows: readonly TreeViewNoteRow[] = [];
+	private branchRows: readonly TreeViewBranchRow[] = [];
 	private readonly foldState: TreeViewFoldState;
 	private readonly folding: TreeViewFolding;
 
@@ -75,6 +76,7 @@ export class TreeView extends MermaidBasesView {
 
 	protected async render(): Promise<void> {
 		this.noteRows = [];
+		this.branchRows = [];
 		this.folding.setRows([]);
 		const rootPath = normalizePath(this.getStringConfig("rootFolder"));
 		const root = !rootPath || rootPath === "/"
@@ -103,6 +105,7 @@ export class TreeView extends MermaidBasesView {
 			isCollapsed: (branch) => this.foldState.isCollapsed(branch),
 		});
 		this.noteRows = rows;
+		this.branchRows = branches;
 		this.folding.setRows(branches);
 		const target = await this.renderMermaid(code, this.getMermaidConfig(), undefined, this.getOptionalTitle());
 		if (target?.parentElement === this.containerEl)
@@ -112,6 +115,14 @@ export class TreeView extends MermaidBasesView {
 	private enhanceDiagram(): void {
 		this.hookUpNoteLinks();
 		this.folding.render();
+		const nodes = this.containerEl.querySelectorAll(".pele-tree-dir");
+		if (nodes.length !== this.branchRows.length)
+			return;
+		nodes.forEach((node, index) => {
+			const group = this.branchRows[index]?.branch.group;
+			if (group)
+				this.markGroupNoteLinks(node, group);
+		});
 	}
 
 	private getMermaidConfig(): string {

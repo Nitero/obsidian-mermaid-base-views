@@ -1,5 +1,10 @@
+interface NoteTextLink {
+	start: number;
+	end: number;
+	path: string;
+}
+
 export function createNoteFileNameLinks(node: Element, fileNames: readonly string[], path: string): void {
-	const document = node.ownerDocument;
 	const labels = node.matches("text, foreignObject") ? [node] : Array.from(node.querySelectorAll("text, foreignObject"));
 	for (const label of labels) {
 		const content = label.textContent ?? "";
@@ -26,39 +31,52 @@ export function createNoteFileNameLinks(node: Element, fileNames: readonly strin
 				end: characterOffsets[compactStart + compactName.length - 1]! + 1
 			}];
 		});
-		const walker = document.createTreeWalker(label, 4);
-		const textNodes: Text[] = [];
-		while (walker.nextNode())
-			textNodes.push(walker.currentNode as Text);
-		let offset = 0;
-		for (const textNode of textNodes) {
-			const length = textNode.length;
-			if (textNode.parentElement?.closest(".bases-mermaid-file-name-link")) {
-				offset += length;
-				continue;
-			}
-			const segments = ranges
-				.map((range) => ({start: Math.max(0, range.start - offset), end: Math.min(length, range.end - offset)}))
-				.filter((range) => range.start < range.end)
-				.sort((first, second) => second.start - first.start);
-			let remainingEnd = length;
-			for (const segment of segments) {
-				if (segment.end > remainingEnd)
-					continue;
-				const matchedText = textNode.splitText(segment.start);
-				matchedText.splitText(segment.end - segment.start);
-				const link = label.localName === "foreignObject"
-					? createEl("a")
-					: createSvg("a");
-				link.classList.add("bases-mermaid-note-link", "bases-mermaid-file-name", "bases-mermaid-file-name-link");
-				link.setAttribute("href", path);
-				link.setAttribute("data-href", path);
-				link.setAttribute("tabindex", "0");
-				matchedText.replaceWith(link);
-				link.appendChild(matchedText);
-				remainingEnd = segment.start;
-			}
+		createNoteTextLinks(label, ranges.map((range) => ({...range, path})));
+	}
+}
+
+export function createNoteTextLinks(label: Element, ranges: readonly NoteTextLink[], className?: string): void {
+	const walker = label.ownerDocument.createTreeWalker(label, 4);
+	const textNodes: Text[] = [];
+	while (walker.nextNode())
+		textNodes.push(walker.currentNode as Text);
+	let offset = 0;
+	for (const textNode of textNodes) {
+		const length = textNode.length;
+		if (textNode.parentElement?.closest(".bases-mermaid-file-name-link")) {
 			offset += length;
+			continue;
 		}
+		const segments = ranges
+			.map((range) => ({
+				start: Math.max(0, range.start - offset),
+				end: Math.min(length, range.end - offset),
+				path: range.path,
+				range: `${range.start}-${range.end}`,
+			}))
+			.filter((range) => range.start < range.end)
+			.sort((first, second) => second.start - first.start);
+		let remainingEnd = length;
+		for (const segment of segments) {
+			if (segment.end > remainingEnd)
+				continue;
+			const matchedText = textNode.splitText(segment.start);
+			matchedText.splitText(segment.end - segment.start);
+			const link = label.localName === "foreignObject"
+				? createEl("a")
+				: createSvg("a");
+			link.classList.add("bases-mermaid-note-link", "bases-mermaid-file-name", "bases-mermaid-file-name-link");
+			if (className) {
+				link.classList.add(className);
+				link.setAttribute("data-bases-link-range", segment.range);
+			}
+			link.setAttribute("href", segment.path);
+			link.setAttribute("data-href", segment.path);
+			link.setAttribute("tabindex", "0");
+			matchedText.replaceWith(link);
+			link.appendChild(matchedText);
+			remainingEnd = segment.start;
+		}
+		offset += length;
 	}
 }

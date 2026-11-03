@@ -1,4 +1,5 @@
 import {type BasesEntry, type BasesEntryGroup, type TFolder} from "obsidian";
+import {getGroupLabel} from "../../links/group-label";
 
 export interface TreeViewBranch {
 	kind: "branch";
@@ -69,11 +70,10 @@ export function buildGroupedTree(groups: readonly BasesEntryGroup[], root: TFold
 		const entries = group.entries.filter((entry) => isWithinTreeRoot(entry, root));
 		if (entries.length === 0)
 			continue;
-		const label = group.hasKey() ? group.key?.toString() ?? "" : "";
 		branches.push({
 			kind: "branch",
 			id: JSON.stringify(["group", group.key?.constructor.name ?? null, group.key?.toString() ?? null]),
-			label: label.trim() ? label : "No value",
+			label: getGroupLabel(group),
 			group,
 			children: entries.map((entry) => ({kind: "file", entry})),
 		});

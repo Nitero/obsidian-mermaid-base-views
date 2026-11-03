@@ -76,6 +76,8 @@ export class TimelineView extends MermaidBasesView {
 		if (target?.parentElement !== this.containerEl)
 			return;
 		this.hookUpEventLinks(sections);
+		if (this.hasGrouping())
+			this.markOrderedGroupNoteLinks(".pele-section > text", sections.map((section) => section.group));
 	}
 
 	private hookUpEventLinks(sections: TimelineSection[]): void {
