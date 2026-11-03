@@ -3,6 +3,7 @@ import {
 	BasesView,
 	QueryController,
 	MarkdownRenderer,
+	stringifyYaml,
 	type BasesAllOptions,
 	type BasesEntry,
 	type BasesViewConfig,
@@ -14,6 +15,7 @@ import {createNoteFileNameLinks} from "../links/note-filename-links";
 import {registerNoteLinkInteractions} from "../links/note-link-interactions";
 import {createFilteredNoteEntry} from "../links/filtered-note-entry";
 import {NotePropertyMedia} from "../media/note-property-media";
+import {parseMermaidConfig} from "./mermaid-config";
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
@@ -60,12 +62,12 @@ export abstract class MermaidBasesView extends BasesView {
 		container: HTMLElement = this.containerEl,
 	): Promise<void> {
 		const directive = this.getConfigValue<string>(COMMON_VIEW_OPTIONS.mermaidConfigOverride.key, "");
-		const titleConfig = title == null ? "" : `title: ${JSON.stringify(title)}\n`;
-		const configBlock = `---\n${titleConfig}config:\n${this.trimConfig(viewTypeMermaidConfig)}\n---\n${directive}`;
-
-		mermaidCode = mermaidCode.trim();
-		if (configBlock.length > 0)
-			mermaidCode = `${configBlock}\n${mermaidCode}`;
+		const frontmatter = stringifyYaml({
+			...(title == null ? {} : {title}),
+			config: parseMermaidConfig(viewTypeMermaidConfig),
+		});
+		const configBlock = `---\n${frontmatter}---\n${directive}`;
+		mermaidCode = `${configBlock}\n${mermaidCode.trim()}`;
 
 		const markdown: string = `\`\`\`mermaid\n${mermaidCode}\n\`\`\``;
 
@@ -119,11 +121,6 @@ export abstract class MermaidBasesView extends BasesView {
 			if (path !== undefined)
 				this.markNoteLink(node, path);
 		});
-	}
-
-	private trimConfig(config: string): string {
-		const configRegex = new RegExp(`(^[-config:]*)|([-]*$)`, 'g');
-		return config.replaceAll(configRegex, '');
 	}
 
 	protected getLabelWithProperties(file: TFile, showPropertyNames: boolean, newLine: string, colon: string, renderMedia = false): string {

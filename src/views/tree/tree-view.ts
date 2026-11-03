@@ -1,5 +1,5 @@
 import {
-	normalizePath, parseYaml, stringifyYaml, type QueryController,
+	normalizePath, stringifyYaml, type QueryController,
 } from "obsidian";
 import MermaidBaseViews from "../../main";
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
@@ -13,10 +13,7 @@ import {TreeViewFoldState} from "./tree-fold-state";
 import {TreeViewFolding} from "./tree-folding";
 import {InferredPropertyType} from "../../view-options/inferred-property-type";
 import {createNoteMedia} from "../../media/note-media-renderer";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+import {isRecord, parseMermaidConfig} from "../../core/mermaid-config";
 
 export class TreeView extends MermaidBasesView {
 	readonly type = TreeView.RegistrationData.id;
@@ -127,8 +124,7 @@ export class TreeView extends MermaidBasesView {
 	}
 
 	private getMermaidConfig(): string {
-		const frontmatter: unknown = parseYaml(this.plugin.settings.treeViewMermaidConfig);
-		const config = isRecord(frontmatter) && isRecord(frontmatter.config) ? frontmatter.config : {};
+		const config = parseMermaidConfig(this.plugin.settings.treeViewMermaidConfig);
 		const treeView = isRecord(config.treeView) ? config.treeView : {};
 		return stringifyYaml({
 			config: {
