@@ -1,8 +1,9 @@
 # Mermaid Base Views
 
-> Create dynamic mermaid diagrams and charts in Bases.
+> Create mermaid diagrams and charts dynamically from your notes.
 
 > [!WARNING]
+> 
 > Now requires Obsidian 1.15.0 or newer.
 >
 > Uses Obsidian's built-in [Pele](https://pele.run/) renderer with [Mermaid](https://mermaid.js.org/) syntax.
