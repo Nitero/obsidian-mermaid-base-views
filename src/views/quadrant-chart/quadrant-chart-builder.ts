@@ -109,24 +109,20 @@ function normalizePoints(points: Point[], minX: number, maxX: number, minY: numb
 	});
 }
 
+function formatAxisLabels(startLabel: string, endLabel: string): string | null {
+	const start = startLabel.replace(/[\r\n]+/g, " ").trim();
+	const end = endLabel.replace(/[\r\n]+/g, " ").trim();
+	if (!start && !end)
+		return null;
+	// Mermaid requires a text token before the arrow, even when that label is hidden.
+	const quotedStart = `"${escapeMermaidQuotedLabel(start || " ")}"`;
+	return end ? `${quotedStart} --> "${escapeMermaidQuotedLabel(end)}"` : quotedStart;
+}
+
 function formatQuadrantCode(normalizedPoints: Point[], options: QuadrantChartOptions): string {
 	const {title} = options;
-
-	let xAxisLabels: string = "";
-	const xAxisLabelLeft = options.xAxisLabelLeft;
-	const xAxisLabelRight = options.xAxisLabelRight;
-	if (xAxisLabelLeft)
-		xAxisLabels = xAxisLabelLeft;
-	if (xAxisLabelRight && xAxisLabels)
-		xAxisLabels += ` --> ${xAxisLabelRight}`;
-
-	let yAxisLabels: string = "";
-	const yAxisLabelBottom = options.yAxisLabelBottom;
-	const yAxisLabelTop = options.yAxisLabelTop;
-	if (yAxisLabelBottom)
-		yAxisLabels = yAxisLabelBottom;
-	if (yAxisLabelTop && yAxisLabels)
-		yAxisLabels += ` --> ${yAxisLabelTop}`;
+	const xAxisLabels = formatAxisLabels(options.xAxisLabelLeft, options.xAxisLabelRight);
+	const yAxisLabels = formatAxisLabels(options.yAxisLabelBottom, options.yAxisLabelTop);
 
 	const quadrantLabelTopLeft = options.quadrantLabelTopLeft;
 	const quadrantLabelTopRight = options.quadrantLabelTopRight;

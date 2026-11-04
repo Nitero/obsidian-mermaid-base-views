@@ -254,7 +254,7 @@ Plots notes on 4 areas using two numeric properties, such as importance and urge
 
 Axis ranges follow the smallest and largest values in the results. Set them manually to keep positions comparable when filters change. Values outside a manual range are placed at its edge.
 
-Right and top axis labels require a left and bottom label respectively.
+The left and bottom axis labels default to the selected properties' display names. Enter a single space to hide a label. Right and top labels are optional.
 
 <br clear="both" />
 
