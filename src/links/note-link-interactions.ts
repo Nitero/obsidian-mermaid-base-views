@@ -5,6 +5,16 @@ type LinkMenuWorkspace = Workspace & {
 	handleLinkContextMenu?: (menu: Menu, linktext: string, sourcePath: string) => boolean;
 };
 
+function addSvgHoverDimensions(link: Element): void {
+	if (link.namespaceURI !== "http://www.w3.org/2000/svg" || "offsetHeight" in link)
+		return;
+	// Obsidian positions previews using HTML dimensions, which SVG elements lack.
+	Object.defineProperties(link, {
+		offsetWidth: {configurable: true, get: () => link.getBoundingClientRect().width},
+		offsetHeight: {configurable: true, get: () => link.getBoundingClientRect().height},
+	});
+}
+
 export function registerNoteLinkInteractions(
 	component: Component,
 	app: App,
@@ -14,13 +24,13 @@ export function registerNoteLinkInteractions(
 ): void {
 	const hoverParent: HoverParent = {hoverPopover: null};
 	const selector = ".bases-mermaid-note-link[data-href], a.internal-link";
-	const getTarget = (target: EventTarget | null): HTMLElement | null => {
+	const getTarget = (target: EventTarget | null): Element | null => {
 		const element = target as Element | null;
 		if (element?.nodeType !== 1)
 			return null;
 		if (element.closest(".bases-mermaid-property-image"))
 			return null;
-		const link = element.closest<HTMLElement>(selector);
+		const link = element.closest(selector);
 		return link && container.contains(link) ? link : null;
 	};
 	const getPath = (link: Element) => link.getAttribute("data-href") || link.getAttribute("href") || "";
@@ -72,9 +82,10 @@ export function registerNoteLinkInteractions(
 		if (!link)
 			return;
 		event.stopPropagation();
-		const previousLink = getTarget(event.relatedTarget);
-		if (previousLink && getPath(previousLink) === getPath(link))
+		// Each wrapped fragment is a separate anchor and needs its own preview target.
+		if (getTarget(event.relatedTarget) === link)
 			return;
+		addSvgHoverDimensions(link);
 		app.workspace.trigger("hover-link", {
 			event,
 			source: hoverSource,

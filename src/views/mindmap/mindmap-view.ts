@@ -88,13 +88,17 @@ export class MindmapView extends MermaidBasesView {
 			),
 			getLabel: (file) => this.getLabelWithProperties(file, showPropertyNames, "\n", ":", true),
 		});
-		const target = await this.renderMermaid(code, this.plugin.settings.mindmapMermaidConfig, noteNodes);
-		if (target?.parentElement !== this.containerEl || !this.hasGrouping())
-			return;
-		for (const [groupIndex, group] of groups.entries()) {
-			target.querySelectorAll(`.pele-node[data-id="g${groupIndex}"]`).forEach((node) => {
-				this.markGroupNoteLinks(node, group);
-			});
-		}
+		await this.renderMermaid(code, this.plugin.settings.mindmapMermaidConfig, {
+			noteNodes,
+			enhance: (target) => {
+				if (!this.hasGrouping())
+					return;
+				for (const [groupIndex, group] of groups.entries()) {
+					target.querySelectorAll(`.pele-node[data-id="g${groupIndex}"]`).forEach((node) => {
+						this.markGroupNoteLinks(node, group);
+					});
+				}
+			},
+		});
 	}
 }

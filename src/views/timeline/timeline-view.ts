@@ -71,12 +71,13 @@ export class TimelineView extends MermaidBasesView {
 			return;
 		}
 		const code = buildTimelineCode(title, sections);
-		const target = await this.renderMermaid(code, this.plugin.settings.timelineMermaidConfig);
-		if (target?.parentElement !== this.containerEl)
-			return;
-		this.hookUpEventLinks(sections);
-		if (this.hasGrouping())
-			this.markOrderedGroupNoteLinks(".pele-section > text", sections.map((section) => section.group));
+		await this.renderMermaid(code, this.plugin.settings.timelineMermaidConfig, {
+			enhance: () => {
+				this.hookUpEventLinks(sections);
+				if (this.hasGrouping())
+					this.markOrderedGroupNoteLinks(".pele-section > text", sections.map((section) => section.group));
+			},
+		});
 	}
 
 	private hookUpEventLinks(sections: TimelineSection[]): void {

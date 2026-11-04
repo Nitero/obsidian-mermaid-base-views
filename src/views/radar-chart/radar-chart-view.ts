@@ -109,16 +109,17 @@ export class RadarChartView extends MermaidBasesView {
 			return;
 		}
 		const {code, curves} = chart;
-		const target = await this.renderMermaid(code, this.plugin.settings.radarChartMermaidConfig);
-		if (target?.parentElement !== this.containerEl)
-			return;
 		const notesById = new Map(curves.map((curve, index) => [`id${index}`, curve]));
-		this.containerEl.querySelectorAll(".pele-legend-item[data-id]").forEach((legend) => {
-			const curve = notesById.get(legend.getAttribute("data-id") ?? "");
-			if (curve)
-				this.markNoteLink(legend, curve.path, {
-					text: curve.label, fileNameRanges: [{start: 0, end: curve.fileName.length}],
+		await this.renderMermaid(code, this.plugin.settings.radarChartMermaidConfig, {
+			enhance: (target) => {
+				target.querySelectorAll(".pele-legend-item[data-id]").forEach((legend) => {
+					const curve = notesById.get(legend.getAttribute("data-id") ?? "");
+					if (curve)
+						this.markNoteLink(legend, curve.path, {
+							text: curve.label, fileNameRanges: [{start: 0, end: curve.fileName.length}],
+						});
 				});
+			},
 		});
 	}
 }

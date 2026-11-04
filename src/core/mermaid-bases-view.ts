@@ -21,6 +21,13 @@ import {NotePropertyMedia} from "../media/note-property-media";
 import {parseMermaidConfig} from "./mermaid-config";
 import {findConfigOption, readBooleanConfig, readDropdownConfig, readGroupingProperty, readStringConfig, readStringListConfig} from "./view-config";
 import {parseFiniteNumber} from "../utils/numeric-values";
+import {registerRenderObservers} from "../ui/render-observers";
+
+interface MermaidRenderOptions {
+	noteNodes?: ReadonlyMap<string, string>;
+	title?: string | null;
+	enhance?: (container: HTMLElement) => void;
+}
 
 export abstract class MermaidBasesView extends BasesView {
 	protected plugin: MermaidBaseViews;
@@ -84,8 +91,7 @@ export abstract class MermaidBasesView extends BasesView {
 	protected async renderMermaid(
 		mermaidCode: string,
 		viewTypeMermaidConfig: string,
-		noteNodes?: ReadonlyMap<string, string>,
-		title?: string | null,
+		{noteNodes, title, enhance}: MermaidRenderOptions = {},
 	): Promise<HTMLElement | null> {
 		const component = this.renderComponent;
 		if (!component)
@@ -117,14 +123,22 @@ export abstract class MermaidBasesView extends BasesView {
 
 		if (this.renderComponent !== component)
 			return null;
-		this.propertyMedia?.render(container);
-		if (noteNodes) {
-			for (const [path, nodeId] of noteNodes) {
-				container.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
-					this.markNoteLink(node, path);
-				});
+		const enhanceDiagram = () => {
+			if (this.renderComponent !== component)
+				return;
+			this.propertyMedia?.render(container);
+			if (noteNodes) {
+				for (const [path, nodeId] of noteNodes) {
+					container.querySelectorAll(`.bases-mermaid-note-${nodeId}`).forEach((node) => {
+						this.markNoteLink(node, path);
+					});
+				}
 			}
-		}
+			enhance?.(container);
+		};
+		// Pele can mount later in hidden panes and replace the SVG on resize or theme changes.
+		registerRenderObservers(component, container, enhanceDiagram);
+		enhanceDiagram();
 
 		return container;
 	}

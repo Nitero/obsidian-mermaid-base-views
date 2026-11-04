@@ -111,13 +111,18 @@ export class FlowchartView extends MermaidBasesView {
 			return;
 		}
 		const code = buildFlowchartCode(graph.groups, graph, direction, this.hasGrouping());
-		const target = await this.renderMermaid(code, this.plugin.settings.flowchartMermaidConfig, graph.fileToNodeId, title);
-		if (target?.parentElement !== this.containerEl || !this.hasGrouping())
-			return;
-		for (const [groupIndex, group] of graph.groups.entries()) {
-			target.querySelectorAll(`.pele-cluster[data-id="g${groupIndex}"] > .pele-cluster-label, .pele-cluster-title[data-id="g${groupIndex}"]`).forEach((node) => {
-				this.markGroupNoteLinks(node, group);
-			});
-		}
+		await this.renderMermaid(code, this.plugin.settings.flowchartMermaidConfig, {
+			noteNodes: graph.fileToNodeId,
+			title,
+			enhance: (target) => {
+				if (!this.hasGrouping())
+					return;
+				for (const [groupIndex, group] of graph.groups.entries()) {
+					target.querySelectorAll(`.pele-cluster[data-id="g${groupIndex}"] > .pele-cluster-label, .pele-cluster-title[data-id="g${groupIndex}"]`).forEach((node) => {
+						this.markGroupNoteLinks(node, group);
+					});
+				}
+			},
+		});
 	}
 }

@@ -145,11 +145,12 @@ export class XYChartView extends MermaidBasesView {
 
 		const mermaidCode = lines.join("\n");
 
-		const target = await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig);
-		if (target?.parentElement !== this.containerEl)
-			return;
-		this.markOrderedNoteLinks(".pele-bars > rect", paths);
-		this.markOrderedNoteLinks(".pele-line > circle", paths);
-		this.markOrderedNoteLinks('.pele-axis-labels > text[text-anchor="middle"]', paths);
+		await this.renderMermaid(mermaidCode, this.plugin.settings.XYChartMermaidConfig, {
+			enhance: () => {
+				this.markOrderedNoteLinks(".pele-bars > rect", paths);
+				this.markOrderedNoteLinks(".pele-line > circle", paths);
+				this.markOrderedNoteLinks('.pele-axis-labels > text[text-anchor="middle"]', paths);
+			},
+		});
 	}
 }

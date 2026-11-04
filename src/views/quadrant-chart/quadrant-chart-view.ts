@@ -174,11 +174,12 @@ export class QuadrantChartView extends MermaidBasesView {
 			return;
 		}
 		const {code, points} = chart;
-		const target = await this.renderMermaid(code, this.plugin.settings.quadrantChartMermaidConfig);
-		if (target?.parentElement !== this.containerEl)
-			return;
 		const paths = points.map((point) => point.path);
-		this.markOrderedNoteLinks(".pele-points > .pele-point", paths, true);
-		this.markOrderedNoteLinks(".pele-point-labels > text", paths);
+		await this.renderMermaid(code, this.plugin.settings.quadrantChartMermaidConfig, {
+			enhance: () => {
+				this.markOrderedNoteLinks(".pele-points > .pele-point", paths, true);
+				this.markOrderedNoteLinks(".pele-point-labels > text", paths);
+			},
+		});
 	}
 }

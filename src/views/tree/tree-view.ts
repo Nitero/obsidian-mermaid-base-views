@@ -8,7 +8,6 @@ import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-example
 import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
 import {buildFolderTree, buildGroupedTree} from "./tree-hierarchy";
 import {buildTreeViewCode, type TreeViewBranchRow, type TreeViewNoteRow} from "./tree-builder";
-import {registerRenderObservers} from "../../ui/render-observers";
 import {TreeViewFoldState} from "./tree-fold-state";
 import {TreeViewFolding} from "./tree-folding";
 import {createPropertySourceFilter, createPropertyTypeFilter} from "../../view-options/property-filters";
@@ -71,7 +70,6 @@ export class TreeView extends MermaidBasesView {
 			this.foldState.toggle(branch);
 			this.onDataUpdated();
 		});
-		registerRenderObservers(this, this.containerEl, () => this.enhanceDiagram());
 	}
 
 	protected async render(): Promise<void> {
@@ -107,9 +105,10 @@ export class TreeView extends MermaidBasesView {
 		this.noteRows = rows;
 		this.branchRows = branches;
 		this.folding.setRows(branches);
-		const target = await this.renderMermaid(code, this.getMermaidConfig(), undefined, this.getOptionalTitle());
-		if (target?.parentElement === this.containerEl)
-			this.enhanceDiagram();
+		await this.renderMermaid(code, this.getMermaidConfig(), {
+			title: this.getOptionalTitle(),
+			enhance: () => this.enhanceDiagram(),
+		});
 	}
 
 	private enhanceDiagram(): void {

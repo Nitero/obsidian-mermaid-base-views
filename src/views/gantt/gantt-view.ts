@@ -173,13 +173,14 @@ export class GanttView extends MermaidBasesView {
 			this.markerMedia ??= new GanttMarkerMedia(this, this.app, this.containerEl,
 				(node, path) => this.markNoteLink(node, path, null));
 		this.markerMedia?.setData(data);
-		const target = await this.renderMermaid(code, this.plugin.settings.ganttMermaidConfig);
-		if (target?.parentElement !== this.containerEl)
-			return;
-		this.markerMedia?.render();
-		this.hookUpNoteLinks(data);
-		if (this.hasGrouping())
-			this.markOrderedGroupNoteLinks(".pele-section-label", data.sections.map((section) => section.group));
+		await this.renderMermaid(code, this.plugin.settings.ganttMermaidConfig, {
+			enhance: () => {
+				this.markerMedia?.render();
+				this.hookUpNoteLinks(data);
+				if (this.hasGrouping())
+					this.markOrderedGroupNoteLinks(".pele-section-label", data.sections.map((section) => section.group));
+			},
+		});
 	}
 
 	private generateData(
