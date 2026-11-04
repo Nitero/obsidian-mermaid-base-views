@@ -1,6 +1,6 @@
 {
 	"name": "mermaid-base-views",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Create dynamic mermaid diagrams and charts in bases.",
 	"main": "main.js",
 	"type": "module",

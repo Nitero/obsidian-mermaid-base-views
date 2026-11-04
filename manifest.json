@@ -1,7 +1,7 @@
 {
 	"id": "mermaid-base-views",
 	"name": "Mermaid Base Views",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"minAppVersion": "1.15.0",
 	"description": "Create dynamic mermaid diagrams and charts in bases.",
 	"author": "Nito",
