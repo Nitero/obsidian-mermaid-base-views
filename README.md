@@ -8,6 +8,8 @@
 >
 > Uses Obsidian's built-in [Pele](https://pele.run/) renderer with [Mermaid](https://mermaid.js.org/) syntax.
 
+<img alt="Flowchart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/showcase.png" />
+
 # Table of Contents
 
 - [📌 Usage](#-usage)
@@ -162,7 +164,7 @@ Support for other native Base features varies by view type:
 
 ### Flowchart
 
-<img align="right" width="400" alt="Flowchart example" src="https://github.com/user-attachments/assets/ab4c7fa0-3db0-42c1-88c0-a3eb04e4c52f" />
+<img align="right" width="400" alt="Flowchart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/flowchart.png" />
 
 Shows links between notes, useful for exploring relationships and dependencies.
 
@@ -174,7 +176,7 @@ Linked notes outside the Base's results are hidden unless **Show links to filter
 
 ### Mindmap
 
-<img align="right" width="400" alt="Mindmap example" src="https://github.com/user-attachments/assets/ef1b6368-39cd-4ff3-8d39-2c253b6a6675" />
+<img align="right" width="400" alt="Mindmap example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/mindmap.png" />
 
 Arranges linked notes into branches, useful for topic outlines and hierarchical collections.
 
@@ -188,7 +190,7 @@ Each note appears at most once. When several notes link to the same target, it a
 
 ### Tree view
 
-<img align="right" width="400" alt="Tree view example" src="https://github.com/user-attachments/assets/16adbca4-0595-4da7-9342-01dac7bf8b1e" />
+<img align="right" width="400" alt="Tree view example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/tree-view.png" />
 
 Shows the Base's files in a foldable folder hierarchy using [Mermaid TreeView](https://mermaid.ai/open-source/syntax/treeView.html). Empty folders are omitted.
 
@@ -204,7 +206,7 @@ Folders stay alphabetical; Base sorting controls files within each branch. Filen
 
 ### Timeline
 
-<img align="right" width="400" alt="Timeline example" src="https://github.com/user-attachments/assets/fe3b210e-a883-47e9-9c98-cfa8094bc599" />
+<img align="right" width="400" alt="Timeline example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/timeline.png" />
 
 Places notes in chronological periods, useful for journals, release histories, and milestones.
 
@@ -218,7 +220,7 @@ When grouped, each section has its own chronological periods and sections follow
 
 ### Gantt
 
-<img align="right" width="400" alt="Gantt example" src="https://github.com/user-attachments/assets/219313ef-8047-4ee8-98c9-36db900c432f" />
+<img align="right" width="400" alt="Gantt example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/gantt.png" />
 
 Shows time spans and date markers, useful for project schedules and daily plans.
 
@@ -240,7 +242,7 @@ Text dates accept ISO dates or times such as `09:30`. Time-only starts use today
 
 ### XY Chart
 
-<img align="right" width="400" alt="XY chart example" src="https://github.com/user-attachments/assets/7fb04660-2110-440f-99e2-48316fae865d" />
+<img align="right" width="400" alt="XY chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/xy-chart.png" />
 
 Compares one numeric value per note using bars, a line, or both.
 
@@ -252,7 +254,7 @@ The X-axis uses note labels in Base sort order. Dates are treated as equally spa
 
 ### Quadrant Chart
 
-<img align="right" width="400" alt="Quadrant chart example" src="https://github.com/user-attachments/assets/ba05b813-3826-4e59-91ef-e1a0a01390a7" />
+<img align="right" width="400" alt="Quadrant chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/quadrant-chart.png" />
 
 Plots notes on 4 areas using two numeric properties, such as importance and urgency. Requires **X coordinate property** and **Y coordinate property**.
 
@@ -264,7 +266,7 @@ The left and bottom axis labels default to the selected properties' display name
 
 ### Radar Chart
 
-<img align="right" width="400" alt="Radar chart example" src="https://github.com/user-attachments/assets/f25e62ae-cd25-4154-8e4c-697456bcfd19" />
+<img align="right" width="400" alt="Radar chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/radar-chart.png" />
 
 Compares several properties across notes on radial axes, useful for habit tracking or character attributes.
 
@@ -278,7 +280,7 @@ All axes share one scale, so use comparable units or formulas that convert value
 
 ### Pie Chart
 
-<img align="right" width="400" alt="Pie chart example" src="https://github.com/user-attachments/assets/c32c0594-d5e4-4068-b3e1-22a9daa00e9f" />
+<img align="right" width="400" alt="Pie chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/pie-chart.png" />
 
 Shows proportions across categories, useful for task counts by status or spending by category.
 
@@ -290,7 +292,7 @@ List properties form a single combined category rather than separate slices. Whe
 
 ### Sankey
 
-<img align="right" width="400" alt="Sankey diagram example" src="https://github.com/user-attachments/assets/bbfe72bb-7673-4f5b-af14-1a579962a232" />
+<img align="right" width="400" alt="Sankey diagram example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/sankey.png" />
 
 Shows the relative size of flows between named sources and targets, useful for budgets or resource allocation.
 
