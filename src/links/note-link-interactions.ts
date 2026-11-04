@@ -24,22 +24,28 @@ export function registerNoteLinkInteractions(
 		return link && container.contains(link) ? link : null;
 	};
 	const getPath = (link: Element) => link.getAttribute("data-href") || link.getAttribute("href") || "";
-	const setGroupLinkState = (target: EventTarget | null, state: string, active: boolean) => {
+	const setLinkState = (target: EventTarget | null, state: string, active: boolean) => {
 		const link = getTarget(target);
-		const range = link?.getAttribute("data-bases-link-range");
-		if (!range)
+		if (!link)
 			return;
-		link?.closest("text, foreignObject")?.querySelectorAll(`[data-bases-link-range="${range}"]`).forEach((fragment) => {
+		const range = link.getAttribute("data-bases-link-range");
+		const fileNameSelector = ".bases-mermaid-file-name-link:not(.bases-mermaid-group-note-link)";
+		// Wrapped file names highlight together; group links highlight only their own range.
+		const fragmentSelector = range ? `[data-bases-link-range="${range}"]`
+			: link.matches(fileNameSelector) ? fileNameSelector : null;
+		if (!fragmentSelector)
+			return;
+		link.closest("text, foreignObject")?.querySelectorAll(fragmentSelector).forEach((fragment) => {
 			fragment.classList.toggle(state, active);
 		});
 	};
-	component.registerDomEvent(container, "mouseover", (event) => setGroupLinkState(event.target, "is-hovered", true));
-	component.registerDomEvent(container, "mouseout", (event) => setGroupLinkState(event.target, "is-hovered", false));
+	component.registerDomEvent(container, "mouseover", (event) => setLinkState(event.target, "is-hovered", true));
+	component.registerDomEvent(container, "mouseout", (event) => setLinkState(event.target, "is-hovered", false));
 	component.registerDomEvent(container, "focusin", (event) => {
 		if (getTarget(event.target)?.matches(":focus-visible"))
-			setGroupLinkState(event.target, "is-focused", true);
+			setLinkState(event.target, "is-focused", true);
 	});
-	component.registerDomEvent(container, "focusout", (event) => setGroupLinkState(event.target, "is-focused", false));
+	component.registerDomEvent(container, "focusout", (event) => setLinkState(event.target, "is-focused", false));
 
 	const openLink = (event: MouseEvent, target: EventTarget | null = event.target) => {
 		if (event.button !== 0 && event.button !== 1)
