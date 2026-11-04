@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-mermaid-base-views",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "Create dynamic mermaid diagrams and charts in bases.",
 	"main": "main.js",
 	"type": "module",
