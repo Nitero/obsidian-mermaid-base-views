@@ -1,6 +1,6 @@
 # Mermaid Base Views
 
-> Create mermaid diagrams and charts dynamically from your notes.
+> Create mermaid diagrams dynamically from your notes.
 
 > [!WARNING]
 > 
