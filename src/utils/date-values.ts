@@ -1,4 +1,4 @@
-import {moment} from "obsidian";
+import {moment} from "./moment";
 
 export function parseIsoDate(text: string): Date | null {
 	// Moment keeps date-only values on their local calendar day and respects explicit offsets.
