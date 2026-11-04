@@ -1,4 +1,4 @@
-import {type BasesViewConfig, parsePropertyId} from "obsidian";
+import {type BasesViewConfig} from "obsidian";
 import {MermaidBasesView} from "../../core/mermaid-bases-view";
 import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registration-data";
 import {COMMON_VIEW_OPTIONS, NUMBER_RANGE_PLACEHOLDER} from "../../view-options/common-options";
@@ -83,7 +83,7 @@ export class RadarChartView extends MermaidBasesView {
 		const showDataLabel = this.getBooleanConfig("showDataLabel");
 		const axes: RadarAxis[] = this.data.properties.map((property, index) => ({
 			id: `a${index}`,
-			label: parsePropertyId(property).name,
+			label: this.config.getDisplayName(property),
 			propertyId: property,
 		}));
 		if (axes.length === 0) {

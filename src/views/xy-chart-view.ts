@@ -4,7 +4,6 @@ import {parseFiniteNumber} from "../utils/numeric-values";
 import {resolveNumericRange} from "../utils/numeric-range";
 import {MERMAID_CONFIG_EXAMPLES} from "../view-options/mermaid-config-examples";
 import {MermaidViewRegistrationData} from "../core/mermaid-view-registration-data";
-import {parsePropertyId} from "obsidian";
 import {createPropertyTypeFilter} from "../view-options/property-filters";
 import {COMMON_VIEW_OPTIONS, FILE_SIZE_PLACEHOLDER, NUMBER_RANGE_PLACEHOLDER} from "../view-options/common-options";
 
@@ -83,7 +82,7 @@ export class XYChartView extends MermaidBasesView {
 		}
 
 		const title = this.getOptionalTitle();
-		const yAxisLabel = this.getStringConfig("yAxisLabel", parsePropertyId(yValuePropertyId).name);
+		const yAxisLabel = this.getStringConfig("yAxisLabel", this.config.getDisplayName(yValuePropertyId));
 		const chartType = this.getDropdownConfig("chartType", CHART_TYPE_OPTIONS);
 
 		const xLabels: string[] = [];
