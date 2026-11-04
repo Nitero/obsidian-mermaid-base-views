@@ -2,6 +2,7 @@ import {App, Component, ImageValue, TFile, Value} from "obsidian";
 import {registerImagePreviewInteractions} from "./image-preview";
 import {getNotePropertyMedia} from "./note-media";
 import {createNoteMedia} from "./note-media-renderer";
+import {getExternalImageUrl} from "./external-image";
 import {registerRenderObservers} from "../ui/render-observers";
 
 const MEDIA_MARKER_START = 0xe000;
@@ -12,8 +13,11 @@ const IMAGE_COLUMNS = 6;
 export class NotePropertyMedia {
 	private readonly media = new Map<string, SVGElement>();
 
-	constructor(private readonly app: App, component: Component, container: HTMLElement) {
-		registerImagePreviewInteractions(component, app, container);
+	constructor(
+		private readonly app: App, component: Component, container: HTMLElement,
+		private readonly allowExternalImages: () => boolean,
+	) {
+		registerImagePreviewInteractions(component, app, container, allowExternalImages);
 		registerRenderObservers(component, container, () => this.render(container));
 	}
 
@@ -23,9 +27,12 @@ export class NotePropertyMedia {
 
 	format(value: Value, file: TFile, newLine: string): { text: string; block: boolean } {
 		const media = getNotePropertyMedia(value);
-		const element = media ? createNoteMedia(this.app, media, file.path) : null;
+		const allowExternalImages = this.allowExternalImages();
+		if (!allowExternalImages && media?.type === "image" && getExternalImageUrl(media.link))
+			return {text: "External images disabled in settings", block: false};
+		const element = media ? createNoteMedia(this.app, media, file.path, allowExternalImages) : null;
 		if (!element || this.media.size >= MEDIA_MARKER_COUNT)
-			return {text: value.toString(), block: false};
+			return {text: value instanceof ImageValue ? "Image unavailable" : value.toString(), block: false};
 		const marker = String.fromCharCode(MEDIA_MARKER_START + this.media.size);
 		const image = value instanceof ImageValue;
 		const block = image && (newLine === "<br>" || newLine === "\n");
@@ -68,12 +75,13 @@ export class NotePropertyMedia {
 		const height = Math.max(...boxes.map((box) => box.y + box.height)) - top;
 		const element = media.cloneNode(true) as SVGElement;
 		const iconSize = Math.min(width, height);
+		const isImage = element.classList.contains("bases-mermaid-property-image");
 		element.classList.remove("svg-icon");
 		element.classList.add("bases-mermaid-property-media");
 		element.setAttribute("x", String(left));
-		element.setAttribute("y", String(element.localName === "image" ? top : top + (height - iconSize) / 2));
-		element.setAttribute("width", String(element.localName === "image" ? width : iconSize));
-		element.setAttribute("height", String(element.localName === "image" ? height : iconSize));
+		element.setAttribute("y", String(isImage ? top : top + (height - iconSize) / 2));
+		element.setAttribute("width", String(isImage ? width : iconSize));
+		element.setAttribute("height", String(isImage ? height : iconSize));
 		const transform = text.getAttribute("transform");
 		if (transform)
 			element.setAttribute("transform", transform);

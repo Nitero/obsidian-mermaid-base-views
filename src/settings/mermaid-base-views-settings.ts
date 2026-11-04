@@ -1,4 +1,5 @@
 export interface MermaidBaseViewsSettings {
+	allowExternalImages: boolean;
 	flowchartMermaidConfig: string;
 	mindmapMermaidConfig: string;
 	treeViewMermaidConfig: string;
@@ -14,6 +15,7 @@ export interface MermaidBaseViewsSettings {
 }
 
 export const DEFAULT_SETTINGS: MermaidBaseViewsSettings = {
+	allowExternalImages: false,
 	flowchartMermaidConfig: "",
 	mindmapMermaidConfig: "",
 	treeViewMermaidConfig: "",

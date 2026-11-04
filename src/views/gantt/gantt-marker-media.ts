@@ -12,6 +12,7 @@ export class GanttMarkerMedia {
 		private readonly app: App,
 		private readonly container: HTMLElement,
 		private readonly markNoteLink: (node: Element, path: string) => void,
+		private readonly allowExternalImages: () => boolean,
 	) {
 		registerRenderObservers(component, container, () => this.render());
 	}
@@ -42,7 +43,7 @@ export class GanttMarkerMedia {
 			}
 			if (bounds.width <= 0 || bounds.height <= 0)
 				continue;
-			const media = createNoteMedia(this.app, taskMedia.media, taskMedia.path);
+			const media = createNoteMedia(this.app, taskMedia.media, taskMedia.path, this.allowExternalImages());
 			if (!media)
 				continue;
 			media.classList.remove("svg-icon");

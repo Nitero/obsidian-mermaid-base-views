@@ -12,14 +12,20 @@ export class GeneralSettingTab extends PluginSettingTab {
 	}
 
 	async setControlValue(key: string, value: unknown): Promise<void> {
-		if (!Object.prototype.hasOwnProperty.call(DEFAULT_SETTINGS, key) || typeof value !== "string")
+		if (!Object.prototype.hasOwnProperty.call(DEFAULT_SETTINGS, key)
+			|| typeof value !== typeof DEFAULT_SETTINGS[key as keyof MermaidBaseViewsSettings])
 			return;
-		this.plugin.settings[key as keyof MermaidBaseViewsSettings] = value;
+		Object.assign(this.plugin.settings, {[key]: value});
 		await this.plugin.saveSettings();
 	}
 
 	getSettingDefinitions(): SettingDefinition[] {
 		return [
+			{
+				name: "Allow external images",
+				desc: "Load HTTP(S) images from properties and formulas. Image hosts receive your IP address and the URL. Cookies and referrers are omitted. Hosts must allow cross-origin image requests.",
+				control: {type: "toggle", key: "allowExternalImages", defaultValue: DEFAULT_SETTINGS.allowExternalImages},
+			},
 			this.createConfigSetting("Flowchart", "flowchartMermaidConfig", "flowchart"),
 			this.createConfigSetting("Mindmap", "mindmapMermaidConfig", "mindmap"),
 			this.createConfigSetting("Tree view", "treeViewMermaidConfig", "treeView"),
@@ -35,7 +41,7 @@ export class GeneralSettingTab extends PluginSettingTab {
 
 	private createConfigSetting(
 		name: string,
-		key: keyof MermaidBaseViewsSettings,
+		key: Exclude<keyof MermaidBaseViewsSettings, "allowExternalImages">,
 		exampleKey: keyof typeof MERMAID_CONFIG_EXAMPLES,
 	): SettingDefinition {
 		return {

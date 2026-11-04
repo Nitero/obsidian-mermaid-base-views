@@ -1,5 +1,7 @@
 import {App, Component, MarkdownPreviewRenderer} from "obsidian";
 import {registerDiagramClick} from "../ui/diagram-click";
+import {getExternalImageUrl} from "./external-image";
+import {ExternalImagePreview} from "./external-image-preview";
 
 type MediaClickHandler = (
 	this: { sections: { el: HTMLElement }[] },
@@ -9,16 +11,24 @@ type MediaClickHandler = (
 
 type NativeMediaPreview = { handleMediaClick?: MediaClickHandler };
 
-export function registerImagePreviewInteractions(component: Component, app: App, container: HTMLElement): void {
+export function registerImagePreviewInteractions(
+	component: Component, app: App, container: HTMLElement, allowExternalImages: () => boolean,
+): void {
 	const openPreview = (event: MouseEvent | KeyboardEvent, originalTarget: EventTarget | null = event.target): void => {
 		const target = originalTarget as Element | null;
 		if (target?.nodeType !== 1)
 			return;
-		const image = target.closest(".bases-mermaid-property-image[data-image-path]");
+		const image = target.closest(".bases-mermaid-property-image");
 		if (!image || !container.contains(image))
 			return;
 		event.preventDefault();
 		event.stopPropagation();
+		const externalUrl = getExternalImageUrl(image.getAttribute("data-image-url") ?? "");
+		if (externalUrl) {
+			if (allowExternalImages())
+				new ExternalImagePreview(app, externalUrl).open();
+			return;
+		}
 		const file = app.vault.getFileByPath(image.getAttribute("data-image-path") ?? "");
 		if (!file)
 			return;

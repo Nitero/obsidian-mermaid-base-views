@@ -165,7 +165,7 @@ export class TreeView extends MermaidBasesView {
 		const icon = node.querySelector<SVGSVGElement>(":scope > .pele-icon");
 		if (!icon || icon.classList.contains("bases-mermaid-tree-icon"))
 			return;
-		const media = createNoteMedia(this.app, row.media, row.path);
+		const media = createNoteMedia(this.app, row.media, row.path, this.plugin.settings.allowExternalImages === true);
 		if (!media)
 			return;
 		media.classList.remove("svg-icon");

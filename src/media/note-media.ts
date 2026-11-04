@@ -1,4 +1,5 @@
 import {IconValue, ImageValue, ListValue, StringValue, type Value, getIcon} from "obsidian";
+import {getExternalImageUrl} from "./external-image";
 
 export type NoteMedia = { type: "icon"; name: string } | { type: "image"; link: string };
 
@@ -29,7 +30,11 @@ export function parseNoteIcon(value: Value | null): NoteMedia | "none" | null {
 			return propertyMedia;
 		if (!(item instanceof StringValue))
 			continue;
-		for (const token of item.toString().match(/!\[\[[^\]\r\n]+\]\]|[^\s,]+/g) ?? []) {
+		// Parse the whole URL first so query strings containing commas stay intact.
+		const text = item.toString();
+		if (getExternalImageUrl(text))
+			return {type: "image", link: text};
+		for (const token of text.match(/!\[\[[^\]\r\n]+\]\]|[^\s,]+/g) ?? []) {
 			if (token.toLowerCase() === "none" || token.toLowerCase() === "icon:none")
 				return "none";
 			const media = parseNoteMediaToken(token);

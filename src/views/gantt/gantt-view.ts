@@ -171,7 +171,8 @@ export class GanttView extends MermaidBasesView {
 		const hasMarkerMedia = data.sections.some((section) => section.tasks.some(hasGanttMarkerMedia));
 		if (hasMarkerMedia)
 			this.markerMedia ??= new GanttMarkerMedia(this, this.app, this.containerEl,
-				(node, path) => this.markNoteLink(node, path, null));
+				(node, path) => this.markNoteLink(node, path, null),
+				() => this.plugin.settings.allowExternalImages === true);
 		this.markerMedia?.setData(data);
 		await this.renderMermaid(code, this.plugin.settings.ganttMermaidConfig, {
 			enhance: () => {

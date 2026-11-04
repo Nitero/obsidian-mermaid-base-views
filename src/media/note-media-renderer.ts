@@ -1,13 +1,17 @@
 import {type App, getIcon} from "obsidian";
 import {type NoteMedia} from "./note-media";
+import {createExternalImage, getExternalImageUrl} from "./external-image";
 
-export function createNoteMedia(app: App, media: NoteMedia, sourcePath: string): SVGElement | null {
+export function createNoteMedia(app: App, media: NoteMedia, sourcePath: string, allowExternalImages = false): SVGElement | null {
 	if (media.type === "icon") {
 		const icon = getIcon(media.name);
 		icon?.setAttribute("aria-label", media.name);
 		icon?.setAttribute("role", "img");
 		return icon ?? null;
 	}
+	const url = getExternalImageUrl(media.link);
+	if (url)
+		return allowExternalImages ? createExternalImage(url) : null;
 	const match = /^!\[\[([^\]]+)\]\]$/.exec(media.link);
 	if (!match)
 		return null;

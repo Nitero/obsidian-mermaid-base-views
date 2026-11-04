@@ -236,7 +236,8 @@ export abstract class MermaidBasesView extends BasesView {
 	}
 
 	protected getPropertyMedia(): NotePropertyMedia {
-		return this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl);
+		return this.propertyMedia ??= new NotePropertyMedia(this.app, this, this.containerEl,
+			() => this.plugin.settings.allowExternalImages === true);
 	}
 
 	protected getOptionalTitle(key: string = COMMON_VIEW_OPTIONS.title.key): string | null {

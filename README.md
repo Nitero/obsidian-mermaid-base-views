@@ -61,7 +61,7 @@ Most view types share these controls:
 - **Title**: Most views default to the view name when this is empty. Enter a single space to hide the title.
 - **Mermaid Config Override Directive**: Use [Mermaid config](#per-view-mermaid-config) for options without a dedicated control, such as values above XY chart bars.
 
-### Note properties and labels
+### Note properties, labels and images
 
 In supported views, select and reorder properties in the Base's **Properties** menu to control label content and order. Note labels fall back to the filename when no label properties are selected. See [Base features](#base-features) for support in each view.
 
@@ -70,6 +70,10 @@ Use **Show property names** to include property display names alongside values, 
 In note labels, selected `file.name` and `file.basename` values become note links. When a label has other properties but no filename, the whole element links to the note.
 
 To display images or icons in labels or annotations, create a Base formula such as `image("cover.png")` for a local vault image or `icon("flag")` for a [Lucide](https://lucide.dev/) icon, then select the formula in **Properties**. Click on an image in the diagram to open its preview.
+
+To display images from outside your vault, enable **Settings → Mermaid Base Views → Allow external images**, set a property such as `cover` to an image URL, and select a formula containing `image(cover)` in **Properties**. You can also use a formula like `image("https://example.com/cover.jpg")` directly. External images work wherever local formula images work.
+
+External images requests go directly to image hosts, which receive your IP address and the requested URL. Avoid private content in URLs and prefer HTTPS, since HTTP is unencrypted. Remote images can change, disappear, or track when they are viewed.
 
 ## Mermaid config
 
@@ -192,7 +196,7 @@ Shows the Base's files in a foldable folder hierarchy using [Mermaid TreeView](h
 
 Folders stay alphabetical; Base sorting controls files within each branch. Filenames link to notes, and other selected properties appear as annotations.
 
-**Icon property** sets each file's icon or image. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value. Use `none` to hide a file's default icon.
+**Icon property** sets each file's icon or image. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value. [External image URLs](#external-images-and-privacy) require **Allow external images**. Use `none` to hide a file's default icon.
 
 **Show file/folder icons** toggles default icons. **Highlight property (optional)** highlights notes where a boolean property or formula is `true`.
 
@@ -230,7 +234,7 @@ Text dates accept ISO dates or times such as `09:30`. Time-only starts use today
 
 **Bar color property (optional)** styles time spans using `active`, `done`, or `crit` values from a property or formula. It does not affect point events.
 
-**Icon property** sets icons or images for point events. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value.
+**Icon property** sets icons or images for point events. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value. [External image URLs](#external-images-and-privacy) require **Allow external images**.
 
 ## Numeric Views
 

@@ -83,12 +83,27 @@
 	pointer-events: none;
 }
 
-.bases-mermaid-view-container image.bases-mermaid-property-image {
+.bases-mermaid-view-container .bases-mermaid-property-image {
 	pointer-events: auto;
 	cursor: zoom-in;
 }
 
-.bases-mermaid-view-container :is(.bases-mermaid-tree-branch, image.bases-mermaid-property-image):focus-visible {
+.bases-mermaid-view-container :is(.bases-mermaid-tree-branch, .bases-mermaid-property-image):focus-visible {
 	outline: 2px solid var(--interactive-accent);
 	outline-offset: 2px;
+}
+
+.bases-mermaid-view-container .bases-mermaid-external-image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.bases-mermaid-external-image-preview .bases-mermaid-external-image {
+	display: block;
+	max-width: 100%;
+	max-height: 75vh;
+	margin: auto;
+	object-fit: contain;
 }
