@@ -1,5 +1,6 @@
-import {ListValue, StringValue, moment, type BasesEntryGroup, type Value} from "obsidian";
+import {ListValue, StringValue, type BasesEntryGroup, type Value} from "obsidian";
 import {type NoteMedia} from "../../media/note-media";
+import {moment} from "../../utils/moment";
 
 const GANTT_BAR_COLORS = ["active", "done", "crit"] as const;
 

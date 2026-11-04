@@ -1,5 +1,6 @@
-import {DateValue, DurationValue, NullValue, NumberValue, StringValue, moment, type Value} from "obsidian";
+import {DateValue, DurationValue, NullValue, NumberValue, StringValue, type Value} from "obsidian";
 import {parseIsoDate} from "../../utils/date-values";
+import {moment} from "../../utils/moment";
 
 const TIME_PATTERN = /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/;
 const DURATION_PATTERN = /^(\d+(?:\.\d+)?)\s*(ms|[smhdwMy])$/;
