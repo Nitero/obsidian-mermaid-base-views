@@ -8,7 +8,7 @@
 >
 > Uses Obsidian's built-in [Pele](https://pele.run/) renderer with [Mermaid](https://mermaid.js.org/) syntax.
 
-<img alt="Flowchart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/showcase.png" />
+<img alt="Flowchart example" src="images/showcase.png" />
 
 # Table of Contents
 
@@ -42,7 +42,7 @@
 3. Configure the [view settings](#base-view-settings). Most views require a main property, e.g. a numeric **Y-axis property** in the [XY chart](#xy-chart).
 4. Use [native Base features](#base-features) to filter, sort, group and search where supported.
 
-<img width="792" height="374" alt="20261103-1628-22 4456199-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/48a62769-f90e-43e0-8df0-bdcac8f5be78" />
+<img alt="Usage example" src="images/usage.gif" />
 
 # ⚙ Settings
 
@@ -164,7 +164,7 @@ Support for other native Base features varies by view type:
 
 ### Flowchart
 
-<img align="right" width="400" alt="Flowchart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/flowchart.png" />
+<img align="right" width="400" alt="Flowchart example" src="images/flowchart.png" />
 
 Shows links between notes, useful for exploring relationships and dependencies.
 
@@ -176,7 +176,7 @@ Linked notes outside the Base's results are hidden unless **Show links to filter
 
 ### Mindmap
 
-<img align="right" width="400" alt="Mindmap example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/mindmap.png" />
+<img align="right" width="400" alt="Mindmap example" src="images/mindmap.png" />
 
 Arranges linked notes into branches, useful for topic outlines and hierarchical collections.
 
@@ -190,7 +190,7 @@ Each note appears at most once. When several notes link to the same target, it a
 
 ### Tree view
 
-<img align="right" width="400" alt="Tree view example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/tree-view.png" />
+<img align="right" width="400" alt="Tree view example" src="images/tree-view.png" />
 
 Shows the Base's files in a foldable folder hierarchy using [Mermaid TreeView](https://mermaid.ai/open-source/syntax/treeView.html). Empty folders are omitted.
 
@@ -198,7 +198,7 @@ Shows the Base's files in a foldable folder hierarchy using [Mermaid TreeView](h
 
 Folders stay alphabetical; Base sorting controls files within each branch. Filenames link to notes, and other selected properties appear as annotations.
 
-**Icon property** sets each file's icon or image. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value. [External image URLs](#external-images-and-privacy) require **Allow external images**. Use `none` to hide a file's default icon.
+**Icon property** sets each file's icon or image. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value. Use `none` to hide a file's default icon.
 
 **Show file/folder icons** toggles default icons. **Highlight property (optional)** highlights notes where a boolean property or formula is `true`.
 
@@ -206,7 +206,7 @@ Folders stay alphabetical; Base sorting controls files within each branch. Filen
 
 ### Timeline
 
-<img align="right" width="400" alt="Timeline example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/timeline.png" />
+<img align="right" width="400" alt="Timeline example" src="images/timeline.png" />
 
 Places notes in chronological periods, useful for journals, release histories, and milestones.
 
@@ -220,7 +220,7 @@ When grouped, each section has its own chronological periods and sections follow
 
 ### Gantt
 
-<img align="right" width="400" alt="Gantt example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/gantt.png" />
+<img align="right" width="400" alt="Gantt example" src="images/gantt.png" />
 
 Shows time spans and date markers, useful for project schedules and daily plans.
 
@@ -236,13 +236,13 @@ Text dates accept ISO dates or times such as `09:30`. Time-only starts use today
 
 **Bar color property (optional)** styles time spans using `active`, `done`, or `crit` values from a property or formula. It does not affect point events.
 
-**Icon property** sets icons or images for point events. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value. [External image URLs](#external-images-and-privacy) require **Allow external images**.
+**Icon property** sets icons or images for point events. Select a property or formula containing a Lucide icon name, a local image embed such as `![[cover.png]]`, or an `icon()` / `image()` value.
 
 ## Numeric Views
 
 ### XY Chart
 
-<img align="right" width="400" alt="XY chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/xy-chart.png" />
+<img align="right" width="400" alt="XY chart example" src="images/xy-chart.png" />
 
 Compares one numeric value per note using bars, a line, or both.
 
@@ -254,7 +254,7 @@ The X-axis uses note labels in Base sort order. Dates are treated as equally spa
 
 ### Quadrant Chart
 
-<img align="right" width="400" alt="Quadrant chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/quadrant-chart.png" />
+<img align="right" width="400" alt="Quadrant chart example" src="images/quadrant-chart.png" />
 
 Plots notes on 4 areas using two numeric properties, such as importance and urgency. Requires **X coordinate property** and **Y coordinate property**.
 
@@ -266,7 +266,7 @@ The left and bottom axis labels default to the selected properties' display name
 
 ### Radar Chart
 
-<img align="right" width="400" alt="Radar chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/radar-chart.png" />
+<img align="right" width="400" alt="Radar chart example" src="images/radar-chart.png" />
 
 Compares several properties across notes on radial axes, useful for habit tracking or character attributes.
 
@@ -280,7 +280,7 @@ All axes share one scale, so use comparable units or formulas that convert value
 
 ### Pie Chart
 
-<img align="right" width="400" alt="Pie chart example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/pie-chart.png" />
+<img align="right" width="400" alt="Pie chart example" src="images/pie-chart.png" />
 
 Shows proportions across categories, useful for task counts by status or spending by category.
 
@@ -292,7 +292,7 @@ List properties form a single combined category rather than separate slices. Whe
 
 ### Sankey
 
-<img align="right" width="400" alt="Sankey diagram example" src="https://github.com/Nitero/obsidian-mermaid-base-views/blob/master/images/sankey.png" />
+<img align="right" width="400" alt="Sankey diagram example" src="images/sankey.png" />
 
 Shows the relative size of flows between named sources and targets, useful for budgets or resource allocation.
 
