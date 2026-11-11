@@ -3,7 +3,12 @@ import {type MermaidViewRegistrationData} from "../../core/mermaid-view-registra
 import {createPropertyTypeFilter} from "../../view-options/property-filters";
 import {COMMON_VIEW_OPTIONS, NOTE_LABEL_OPTIONS} from "../../view-options/common-options";
 import {MERMAID_CONFIG_EXAMPLES} from "../../view-options/mermaid-config-examples";
-import {buildTimelineCode, collectTimelineSections, type TimeGranularity, type TimelineSection} from "./timeline-builder";
+import {buildTimelineCode, collectTimelineSections, type TimeGranularity, type TimelineDirection, type TimelineSection} from "./timeline-builder";
+
+const TIMELINE_DIRECTION_OPTIONS = {
+	auto: "Automatic",
+	TD: "Top to bottom",
+} satisfies Record<TimelineDirection, string>;
 
 const TIME_GRANULARITY_OPTIONS = {
 	year: "Year",
@@ -28,6 +33,13 @@ export class TimelineView extends MermaidBasesView {
 				displayName: COMMON_VIEW_OPTIONS.title.displayName,
 				key: COMMON_VIEW_OPTIONS.title.key,
 				default: COMMON_VIEW_OPTIONS.title.default,
+			},
+			{
+				type: "dropdown",
+				displayName: "Direction",
+				key: "direction",
+				default: "auto",
+				options: TIMELINE_DIRECTION_OPTIONS,
 			},
 			{
 				type: "property",
@@ -61,6 +73,7 @@ export class TimelineView extends MermaidBasesView {
 			return;
 		}
 		const title = this.getOptionalTitle();
+		const direction = this.getDropdownConfig("direction", TIMELINE_DIRECTION_OPTIONS);
 		const granularity = this.getDropdownConfig("cutoff", TIME_GRANULARITY_OPTIONS);
 		const sections = collectTimelineSections(
 			this.data.groupedData, timePropertyId, granularity, this.hasGrouping(),
@@ -70,7 +83,7 @@ export class TimelineView extends MermaidBasesView {
 			this.containerEl.createDiv({text: "No valid time values found for the selected property."});
 			return;
 		}
-		const code = buildTimelineCode(title, sections);
+		const code = buildTimelineCode(title, sections, direction);
 		await this.renderMermaid(code, this.plugin.settings.timelineMermaidConfig, {
 			enhance: () => {
 				this.hookUpEventLinks(sections);

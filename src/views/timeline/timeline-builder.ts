@@ -4,6 +4,7 @@ import {getGroupLabel} from "../../links/group-label";
 import {parseIsoDate} from "../../utils/date-values";
 
 export type TimeGranularity = "year" | "month" | "day" | "hour" | "minute" | "second";
+export type TimelineDirection = "auto" | "TD";
 
 type TimelinePeriod = {
 	label: string;
@@ -65,9 +66,9 @@ export function collectTimelineSections(
 	return sections;
 }
 
-export function buildTimelineCode(title: string | null, sections: TimelineSection[]): string {
+export function buildTimelineCode(title: string | null, sections: TimelineSection[], direction: TimelineDirection = "auto"): string {
 	const lines: string[] = [];
-	lines.push("timeline");
+	lines.push(direction === "TD" ? "timeline TD" : "timeline");
 	if (title !== null)
 		lines.push(`    title ${title}`);
 

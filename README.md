@@ -129,6 +129,13 @@ To make text italic across view types:
 }
 ```
 
+To fix the small height of a very wide timeline use something like:
+````css
+.pele-timeline {
+    min-height: 400px;
+}
+````
+
 # 🗃 View Types
 
 The plugin supports the Mermaid diagrams and charts listed below. Other diagram types may not fit note-based data or may need features that Bases does not yet provide.
@@ -211,6 +218,8 @@ Folders stay alphabetical; Base sorting controls files within each branch. Filen
 Places notes in chronological periods, useful for journals, release histories, and milestones.
 
 Requires a date or date & time **Date / Time property**, such as `file.ctime`.
+
+**Direction** defaults to **Automatic**, which lets Pele switch to a vertical layout in narrow panes. Select **Top to bottom** to keep the timeline vertical at any pane width.
 
 **Cutoff** combines events into periods, such as months or days. Periods stay chronological; Base sorting only affects notes within the same period.
 
